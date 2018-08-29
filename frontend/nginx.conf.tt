@@ -46,6 +46,18 @@ http {
         ssl_certificate        /etc/ssl/gitlab.epfl.ch.crt;
         ssl_certificate_key    /etc/ssl/gitlab.epfl.ch.key;
 
+        # From https://cipherli.st/
+#        ssl_protocols TLSv1.3;
+        ssl_prefer_server_ciphers on;
+        ssl_dhparam /etc/ssl/dhparam.pem;
+        ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384;
+        ssl_ecdh_curve secp384r1;
+        ssl_session_timeout  10m;
+        ssl_session_cache shared:SSL:10m;
+        ssl_session_tickets off; # Requires nginx >= 1.5.9
+        ssl_stapling on; # Requires nginx >= 1.3.7
+        ssl_stapling_verify on; # Requires nginx => 1.3.7
+
         proxy_connect_timeout   1s;
         proxy_send_timeout   10s;
 
