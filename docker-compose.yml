@@ -108,7 +108,7 @@ services:
       - redis-server
       - /usr/local/etc/redis/redis.conf
   frontend: &service_frontend_prod
-    image: nginx
+    image: nginx:stable
     volumes:
       - "/srv/gitlab/ssl:/etc/ssl"
       - "./frontend:/assets"
