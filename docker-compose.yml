@@ -152,4 +152,4 @@ services:
     ports:
       - "80:80"
   plantuml:
-    image: plantuml/plantuml-server
+    image: plantuml/plantuml-server:tomcat
