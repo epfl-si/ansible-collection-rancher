@@ -1,4 +1,4 @@
-FROM gitlab/gitlab-ce:11.0.2-ce.0
+FROM gitlab/gitlab-ce:11.4.6-ce.0
 MAINTAINER STI-IT Ops <stiitops@groupes.epfl.ch>
 
 # node is a hidden dependency of "bundle exec rake db:migrate RAILS_ENV=production"
