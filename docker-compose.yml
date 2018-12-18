@@ -14,6 +14,9 @@ services:
     hostname: gitlab
     environment:
       - ENVIRONMENT=prod
+    logging:
+      options:
+        max-size: 50m
     volumes:
       # Keep this list in sync with service gitlabstaging
       - "/srv/gitlab/secrets/ssh/ssh_host_dsa_key:/etc/gitlab/ssh_host_dsa_key:ro"
@@ -45,6 +48,9 @@ services:
     hostname: gitlab
     environment:
       - ENVIRONMENT=staging
+    logging:
+      options:
+        max-size: 50m
     volumes:
       # It follows from https://stackoverflow.com/a/30683699/435004 that there
       # is no avoiding duplicating this list (since we want to tweak the end of it
@@ -72,6 +78,9 @@ services:
       - "/srv/gitlab/run/postgres-socket-staging:/var/opt/gitlab/postgresql"
   postgresql_prod:
     image: postgres:9.6
+    logging:
+      options:
+        max-size: 50m
     volumes:
       - "/srv/gitlab/postgresql/data:/var/lib/postgresql/data"
       - "/srv/gitlab/logs/postgresql:/var/log"
@@ -83,6 +92,9 @@ services:
   # docker exec -it $(docker ps -q -f name=gitlabdocker_postgresql_staging) psql -U postgres gitlabhq_production
   postgresql_staging:
     image: postgres:9.6
+    logging:
+      options:
+        max-size: 50m
     volumes:
       # As per https://hub.docker.com/_/postgres/, restore these files
       # at startup.
