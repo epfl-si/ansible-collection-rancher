@@ -59,3 +59,8 @@ gitlab_rails['omniauth_providers'] = [
     }
   }
 ]
+
+gitlab_monitor['enable'] = true
+gitlab_rails['monitoring_whitelist'] = ['127.0.0.0/8', '10.0.0.0/24']
+prometheus['enable'] = true # Default
+prometheus_monitoring['enable'] = true # Default

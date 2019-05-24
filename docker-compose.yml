@@ -132,6 +132,7 @@ services:
         max-size: 50m
     volumes:
       - "/srv/gitlab/ssl:/etc/ssl"
+      - "/srv/gitlab/secrets/nginx:/etc/nginx/auth"
       - "./frontend:/assets"
       - "./frontend/nginx.conf.tt:/etc/nginx/nginx.conf.tt:ro"
     ports:
@@ -148,11 +149,12 @@ services:
       - "444:443"
       - "23:22"
     ## If you want to test changes to nginx.conf.tt, uncomment the next
-    ## four lines:
+    ## five lines:
     # volumes:
-    #   - "/srv/gitlab/ssl:/etc/ssl"
-    #   - "./frontend:/assets"
-    #   - "./frontend/nginx.conf.DEV.tt:/etc/nginx/nginx.conf.tt:ro"
+    #    - "/srv/gitlab/ssl:/etc/ssl"
+    #    - "./frontend:/assets"
+    #    - "/srv/gitlab/secrets/nginx:/etc/nginx/auth"
+    #    - "./frontend/nginx.conf.DEV.tt:/etc/nginx/nginx.conf.tt:ro"
     ## Then copy nginx.conf.tt to nginx.conf.DEV.tt, and apply the
     ## changes using the "docker deploy" command at the top of this
     ## file.

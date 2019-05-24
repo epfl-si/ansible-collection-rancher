@@ -92,6 +92,12 @@ http {
             proxy_pass http://plantuml:8080/;
             error_page 502 /assets/502.html;
         }
+
+	location /-/metrics {
+            auth_basic "Restricted";
+            auth_basic_user_file /etc/nginx/auth/htpasswd;	
+            proxy_pass http://gitlabweb;
+	}
     }
 }
 
