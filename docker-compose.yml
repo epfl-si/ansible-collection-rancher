@@ -10,7 +10,7 @@
 version: "3.3"
 services:
   gitlabprod:
-    image: epflsti/gitlab-docker:11.10.4
+    image: epflsti/gitlab-docker:11.11.0
     hostname: gitlab
     environment:
       - ENVIRONMENT=prod
@@ -43,7 +43,7 @@ services:
     deploy:
       replicas: 2   # Allow rolling upgrades
   gitlabstaging:
-    image: epflsti/gitlab-docker:11.10.4
+    image: epflsti/gitlab-docker:11.11.0
     build: gitlab-main
     hostname: gitlab
     environment:
