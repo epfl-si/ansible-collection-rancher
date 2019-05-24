@@ -23,7 +23,7 @@ nginx['proxy_set_headers'] = {
   "X-Forwarded-Ssl" => "on"
 }
 
-gitlab_rails['smtp_enable'] = true
+gitlab_rails['smtp_enable'] = ENV["ENVIRONMENT"] != "staging"
 gitlab_rails['smtp_address'] = "mail.epfl.ch"
 gitlab_rails['gitlab_email_from'] = 'noreply@epfl.ch'
 # You don't want the default setting, and there appears to be no way to not set a reply-to at all:
