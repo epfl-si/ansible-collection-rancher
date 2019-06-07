@@ -69,3 +69,7 @@ prometheus['flags']['storage.tsdb.retention.time'] = "48h"
 prometheus['flags']['web.listen-address'] = "0.0.0.0:9090"
 
 prometheus_monitoring['enable'] = true # Default
+node_exporter['enable'] = true
+redis_exporter['enable'] = true
+postgres_exporter['enable'] = true
+pgbouncer_exporter['enable'] = true
