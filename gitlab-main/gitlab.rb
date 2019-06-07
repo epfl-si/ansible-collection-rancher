@@ -62,5 +62,9 @@ gitlab_rails['omniauth_providers'] = [
 
 gitlab_monitor['enable'] = true
 gitlab_rails['monitoring_whitelist'] = ['127.0.0.0/8', '10.0.0.0/24']
+
 prometheus['enable'] = true # Default
+prometheus['monitor_kubernetes'] = false
+prometheus['flags']['storage.tsdb.retention.time'] = "48h"
+
 prometheus_monitoring['enable'] = true # Default
