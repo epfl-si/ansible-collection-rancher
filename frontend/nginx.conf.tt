@@ -37,6 +37,7 @@ http {
 
 [% PERL %]
    $_out .= upstream_block("gitlabweb");
+   $_out .= upstream_block("gitlabweb_9090", ":9090");
 
 [% END %]
 
@@ -95,8 +96,14 @@ http {
 
 	location /-/metrics {
             auth_basic "Restricted";
-            auth_basic_user_file /etc/nginx/auth/htpasswd;	
+            auth_basic_user_file /etc/nginx/auth/htpasswd;
             proxy_pass http://gitlabweb;
+	}
+
+	location /federate {
+            auth_basic "Restricted";
+            auth_basic_user_file /etc/nginx/auth/htpasswd;
+            proxy_pass http://gitlabweb_9090;
 	}
     }
 }
