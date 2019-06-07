@@ -41,6 +41,7 @@ services:
       - "/srv/gitlab/run/postgres-socket:/var/opt/gitlab/postgresql"
     deploy:
       replicas: 2   # Allow rolling upgrades
+
   gitlabstaging:
     image: epflsti/gitlab-docker:11.11.0
     build: gitlab-main
@@ -74,6 +75,7 @@ services:
       # Below this line, things are different between gitlabprod and gitlabstaging
       - "/srv/gitlab/run/redis-socket-staging:/var/opt/gitlab/redis"
       - "/srv/gitlab/run/postgres-socket-staging:/var/opt/gitlab/postgresql"
+
   postgresql_prod:
     image: postgres:9.6
     logging:
@@ -84,6 +86,7 @@ services:
       - "/srv/gitlab/logs/postgresql:/var/log"
       - "/srv/gitlab/run/postgres-socket/:/run/postgresql/"
       - "/srv/gitlab/config/postgresql/passwd:/etc/passwd:ro"
+
   # The staging database is *not* persistent on purpose. Instead,
   # it restores from latest backup every time one restarts it.
   # To access it, do:
@@ -101,6 +104,7 @@ services:
       - "/srv/gitlab/backup/postgresql_dump.sql:/docker-entrypoint-initdb.d/10-postgresql_dump.sql:ro"
       - "/srv/gitlab/run/postgres-socket-staging/:/run/postgresql/"
       - "/srv/gitlab/config/postgresql/passwd:/etc/passwd:ro"
+
   redis:
     image: redis:latest
     logging:
@@ -112,6 +116,7 @@ services:
     command:
       - redis-server
       - /usr/local/etc/redis/redis.conf
+
   redis_staging:
     image: redis:latest
     logging:
@@ -123,6 +128,7 @@ services:
     command:
       - redis-server
       - /usr/local/etc/redis/redis.conf
+
   frontend: &service_frontend_prod
     image: nginx:stable
     logging:
@@ -139,6 +145,7 @@ services:
     environment:
       - ENVIRONMENT=prod
     command: /assets/nginx-wrangler /etc/nginx/nginx.conf.tt
+
   frontend_staging:
     <<: *service_frontend_prod
     environment:
@@ -156,6 +163,7 @@ services:
     ## Then copy nginx.conf.tt to nginx.conf.DEV.tt, and apply the
     ## changes using the "docker deploy" command at the top of this
     ## file.
+
   redirect:
     image: quay.io/coreos/nginx-https-redirect
     logging:
@@ -163,6 +171,7 @@ services:
         max-size: 50m
     ports:
       - "80:80"
+
   plantuml:
     image: plantuml/plantuml-server:tomcat
     logging:
