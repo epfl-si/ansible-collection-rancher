@@ -10,6 +10,11 @@ RUN apt update && apt -y install nodejs iproute2 iputils-ping netcat-openbsd
 RUN ln -s . /opt/gitlab/embedded/lib/ruby/gems/2.5.0/bundler
 RUN echo "gem 'omniauth-tequila', :git => 'https://github.com/gcmalloc/omniauth-tequila.git', :branch => 'master' " >> /opt/gitlab/embedded/service/gitlab-rails/Gemfile
 RUN cd /opt/gitlab/embedded/service/gitlab-rails && bundle install
+
+COPY prometheus.rb.patch /opt/gitlab/embedded/cookbooks/gitlab/libraries/
+
+RUN set -e -x; cd /opt/gitlab/embedded/cookbooks/gitlab/libraries/; git apply < prometheus.rb.patch; rm prometheus.rb.patch
+
 # To check that omniauth-tequila was indeed installed in the correct place:
 # docker run --rm -it <image_hash> ls /opt/gitlab/embedded/lib/ruby/gems/2.5.0/gems/
 
