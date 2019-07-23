@@ -8,7 +8,7 @@
        parse_rules_files
        parse_flags
      end
-@@ -260,6 +261,19 @@
+@@ -234,6 +235,19 @@
        prometheus_scrape_configs
      end
  
@@ -27,4 +27,4 @@
 +
      def gitaly_scrape_config
        # Don't parse if gitaly is explicitly disabled
-       return unless Services.enabled?('gitaly')
+       return unless Services.enabled?('gitaly') || service_discovery
