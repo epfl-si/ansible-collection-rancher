@@ -1,5 +1,5 @@
-FROM gitlab/gitlab-ce:12.2.5-ce.0
-MAINTAINER STI-IT Ops <stiitops@groupes.epfl.ch>
+FROM gitlab/gitlab-ce:13.0.0-ce.0
+MAINTAINER EPFL Gitlab admins <gitlab-admins@groupes.epfl.ch>
 
 # node is a hidden dependency of "bundle exec rake db:migrate RAILS_ENV=production"
 # The rest are debugging tools
