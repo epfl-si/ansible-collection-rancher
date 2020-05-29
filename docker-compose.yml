@@ -90,6 +90,8 @@ services:
       # - "./staging/00-create-db.sql:/docker-entrypoint-initdb.d/00-create-db.sql:ro"
       # - "/srv/gitlab/backup/postgresql_dump.sql:/docker-entrypoint-initdb.d/10-postgresql_dump.sql:ro"
     env_file:
+      # .env should contain a line like
+      # POSTGRES_PASSWORD=dmlkfsdmfksdfgsd
       - .env
 
   # The staging database is *not* persistent on purpose. Instead,
