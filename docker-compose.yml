@@ -16,6 +16,7 @@ services:
     logging:
       options:
         max-size: 50m
+        max-file: "3"
     volumes:
       # Keep this list in sync with service gitlabstaging
       - "/srv/gitlab/secrets/ssh/ssh_host_dsa_key:/etc/gitlab/ssh_host_dsa_key:ro"
@@ -50,6 +51,7 @@ services:
     logging:
       options:
         max-size: 50m
+        max-file: "3"
     volumes:
       # It follows from https://stackoverflow.com/a/30683699/435004 that there
       # is no avoiding duplicating this list (since we want to tweak the end of it
@@ -81,6 +83,7 @@ services:
     logging:
       options:
         max-size: 50m
+        max-file: "3"
     volumes:
       - "/srv/gitlab/postgresql/data:/var/lib/postgresql/data"
       - "/srv/gitlab/logs/postgresql:/var/log"
@@ -103,6 +106,7 @@ services:
     logging:
       options:
         max-size: 50m
+        max-file: "3"
     volumes:
       # As per https://hub.docker.com/_/postgres/, execute / restore these files
       # at startup.
@@ -120,6 +124,7 @@ services:
     logging:
       options:
         max-size: 50m
+        max-file: "3"
     volumes:
       - "/srv/gitlab/config/redis:/usr/local/etc/redis"
       - "/srv/gitlab/run/redis-socket:/run/redis"
@@ -132,6 +137,7 @@ services:
     logging:
       options:
         max-size: 50m
+        max-file: "3"
     volumes:
       - "/srv/gitlab/config/redis:/usr/local/etc/redis"
       - "/srv/gitlab/run/redis-socket-staging:/run/redis"
@@ -144,6 +150,7 @@ services:
     logging:
       options:
         max-size: 50m
+        max-file: "3"
     volumes:
       - "/srv/gitlab/ssl:/etc/ssl"
       - "/srv/gitlab/secrets/nginx:/etc/nginx/auth"
@@ -179,6 +186,7 @@ services:
     logging:
       options:
         max-size: 50m
+        max-file: "3"
     ports:
       - "80:80"
 
@@ -186,4 +194,5 @@ services:
     image: plantuml/plantuml-server:tomcat
     logging:
       options:
-        max-size: 50m
+        max-size: 10m
+        max-file: "3"
