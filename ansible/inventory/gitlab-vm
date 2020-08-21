@@ -1,0 +1,9 @@
+# -*- mode: yaml; -*-
+
+all:
+  hosts:
+    gitlab:
+      ansible_host: gitlab.epfl.ch
+      ansible_user: root
+      ansible_port: 2202
+      ansible_ssh_common_args: '-o ForwardAgent=yes'
