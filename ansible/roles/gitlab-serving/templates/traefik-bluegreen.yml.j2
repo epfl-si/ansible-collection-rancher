@@ -1,0 +1,21 @@
+# -*- mode: yaml; -*-
+
+############## Configuration for sending traffic to gitlab
+#
+# This is a so-called “dynamic” configuration, i.e. if we change it,
+# Træfik will re-read it.
+
+http:
+  routers:
+    gitlab:
+      rule: "Host(`gitlab.epfl.ch`)"
+      entrypoints: websecure
+      tls:
+        certresolver: letsencrypt
+      service: gitlab
+
+  services:
+    gitlab:
+      loadBalancer:
+        servers:
+          - url: "http://gitlab_v{{ gitlab_version_underscored }}-docker_gitlab_1/"

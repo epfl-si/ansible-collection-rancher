@@ -3,3 +3,18 @@
   tags:
     - docker
     - docker.deps
+
+- name: Træfik front-end
+  include_tasks:
+    file: traefik.yml
+    apply:
+      tags:
+        - docker
+        - docker.traefik
+        - docker.træfik
+  tags:
+    - docker
+    - docker.traefik
+    - docker.træfik
+    - docker.traefik.bluegreen
+    - docker.træfik.bluegreen
