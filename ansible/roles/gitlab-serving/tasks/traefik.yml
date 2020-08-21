@@ -53,6 +53,11 @@
     - docker.traefik.bluegreen
     - docker.træfik.bluegreen
 
+- name: "{{ traefik_extra_services_dynamic_config_file }}"
+  copy:
+    dest: "{{ traefik_extra_services_dynamic_config_file }}"
+    content: "{{ lookup('template', 'traefik-extra-services.yml.j2') }}"
+
 - name: Traefik Docker container
   docker_container:
     name: traefik

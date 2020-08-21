@@ -1,9 +1,12 @@
 traefik_acme_state_dir: /srv/gitlab/secrets/acme
+
 traefik_static_config_file: /srv/gitlab/config/traefik/traefik.yml
 traefik_dynamic_config_dir: /srv/gitlab/config/traefik/dynamic
 traefik_staging_dynamic_config_file: "{{ traefik_dynamic_config_dir }}/staging.yml"
 traefik_debug_dynamic_config_file: "{{ traefik_dynamic_config_dir }}/dashboard-and-debug.yml"
 traefik_bluegreen_dynamic_config_file: "{{ traefik_dynamic_config_dir }}/bluegreen.yml"
+traefik_extra_services_dynamic_config_file: "{{ traefik_dynamic_config_dir }}/extra-services.yml"
+
 traefik_debug: true
 traefik_letsencrypt_staging: true
 traefik_inside_docker_network_name: gitlab-docker_default

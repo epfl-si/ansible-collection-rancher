@@ -1,0 +1,37 @@
+# -*- mode: yaml; -*-
+
+############## Sending traffic to PlantUML, the internal Promethei, and more
+#
+# This is a so-called “dynamic” configuration, i.e. if we change it,
+# Træfik will re-read it.
+
+http:
+  routers:
+    plantuml:
+      rule: "Host(`gitlab.epfl.ch`) && PathPrefix(`/plantuml`)"
+      entrypoints:
+        - websecure
+        - websecure_staging
+      tls:
+        certresolver: letsencrypt
+      service: plantuml
+      middlewares:
+        - plantuml-rewrite-host-header
+        - plantuml-rewrite-path
+
+  services:
+    plantuml:
+      loadBalancer:
+        servers:
+          - url: "http://gitlab-docker_plantuml_1:8080/"
+
+
+  middlewares:
+    plantuml-rewrite-host-header:
+      headers:
+        customRequestHeaders:
+          Host: "plantuml"
+    plantuml-rewrite-path:
+      replacePathRegex:
+        regex: "^/plantuml/(.*)"
+        replacement: "/$1"
