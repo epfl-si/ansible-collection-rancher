@@ -44,7 +44,7 @@ services:
       replicas: 2   # Allow rolling upgrades
 
   gitlabstaging:
-    image: epflsti/gitlab-docker:13.1.3
+    image: epflsti/gitlab-docker:13.2.6
     build: gitlab-main
     environment:
       - ENVIRONMENT=staging
