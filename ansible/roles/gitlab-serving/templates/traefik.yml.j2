@@ -32,11 +32,23 @@ certificatesResolvers:
       tlsChallenge: true
 
 entryPoints:
+  ssh:
+    address: ":22"
+  ssh_staging:
+    address: ":23"
+
   websecure:
     address: ":443"
     http:
       tls:
         certResolver: letsencrypt    # Defined above
+        domains:
+          - gitlab.epfl.ch
+  websecure_staging:
+    address: ":444"
+    http:
+      tls:
+        certResolver: letsencrypt
         domains:
           - gitlab.epfl.ch
   web:

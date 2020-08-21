@@ -1,8 +1,14 @@
 traefik_acme_state_dir: /srv/gitlab/secrets/acme
 traefik_static_config_file: /srv/gitlab/config/traefik/traefik.yml
 traefik_dynamic_config_dir: /srv/gitlab/config/traefik/dynamic
+traefik_staging_dynamic_config_file: "{{ traefik_dynamic_config_dir }}/staging.yml"
 traefik_debug_dynamic_config_file: "{{ traefik_dynamic_config_dir }}/dashboard-and-debug.yml"
 traefik_bluegreen_dynamic_config_file: "{{ traefik_dynamic_config_dir }}/bluegreen.yml"
 traefik_debug: true
 traefik_letsencrypt_staging: true
 traefik_inside_docker_network_name: gitlab-docker_default
+
+traefik_prod_docker_gitlab_hostname: "gitlab-docker_gitlab_v{{ gitlab_version_underscored }}_1"
+
+# https://community.containo.us/t/ssh-proxy-from-traefik-to-lxc/608/2
+traefik_tcp_rule_catch_all: "HostSNI(`*`)"

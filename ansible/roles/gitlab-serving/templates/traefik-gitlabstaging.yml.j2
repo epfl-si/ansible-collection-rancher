@@ -1,35 +1,35 @@
 # -*- mode: yaml; -*-
 
-############## Configuration for sending traffic to gitlab
+############## Sending traffic to the staging instance of gitlab (port 444)
 #
 # This is a so-called “dynamic” configuration, i.e. if we change it,
 # Træfik will re-read it.
 
 http:
   routers:
-    gitlab:
+    gitlab-staging:
       rule: "Host(`gitlab.epfl.ch`)"
-      entrypoints: websecure
+      entrypoints: websecure_staging
       tls:
         certresolver: letsencrypt
-      service: gitlab
+      service: gitlab-staging
 
   services:
-    gitlab:
+    gitlab-staging:
       loadBalancer:
         servers:
-          - url: "http://{{ traefik_prod_docker_gitlab_hostname }}/"
+          - url: "http://gitlab-docker_gitlabstaging_1/"
 
 tcp:
   routers:
-    gitlab-ssh:
+    gitlab-ssh-staging:
       rule: "{{ traefik_tcp_rule_catch_all }}"
       entryPoints:
-        - "ssh"
-      service: gitlab-ssh
+        - "ssh_staging"
+      service: gitlab-ssh-staging
 
   services:
-    gitlab-ssh:
+    gitlab-ssh-staging:
       loadBalancer:
         servers:
-        - address: "{{ traefik_prod_docker_gitlab_hostname }}:22"
+        - address: "gitlab-docker_gitlabstaging_1:22"

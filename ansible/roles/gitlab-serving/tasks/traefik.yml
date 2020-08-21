@@ -15,6 +15,12 @@
     dest: "{{ traefik_static_config_file }}"
   register: _traefik_static_config_file
 
+- name: "{{ traefik_staging_dynamic_config_file }}"
+  when: traefik_debug is defined
+  copy:
+    dest: "{{ traefik_staging_dynamic_config_file }}"
+    content: "{{ lookup('template', 'traefik-gitlabstaging.yml.j2') }}"
+
 - name: "{{ traefik_debug_dynamic_config_file }}"
   when: traefik_debug is defined
   copy:
@@ -55,8 +61,11 @@
     image: traefik:v2.3
     restart_policy: unless-stopped
     published_ports:
-      - 80:80
-      - 443:443
+      - "22:22"
+      - "23:23"
+      - "80:80"
+      - "443:443"
+      - "444:444"
     volumes:
       - "{{ traefik_acme_state_dir }}:/acme"
       - "{{ traefik_static_config_file }}:/etc/traefik/traefik.yml"
