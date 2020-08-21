@@ -9,40 +9,6 @@
 # temporary outage, depending on what exactly the changes are!!
 version: "3.3"
 services:
-  gitlabprod:
-    image: epflsti/gitlab-docker:13.1.3
-    environment:
-      - ENVIRONMENT=prod
-    logging:
-      options:
-        max-size: 50m
-        max-file: "3"
-    volumes:
-      # Keep this list in sync with service gitlabstaging
-      - "/srv/gitlab/secrets/ssh/ssh_host_dsa_key:/etc/gitlab/ssh_host_dsa_key:ro"
-      - "/srv/gitlab/secrets/ssh/ssh_host_dsa_key.pub:/etc/gitlab/ssh_host_dsa_key.pub:ro"
-      - "/srv/gitlab/secrets/ssh/ssh_host_key:/etc/gitlab/ssh_host_key:ro"
-      - "/srv/gitlab/secrets/ssh/ssh_host_key.pub:/etc/gitlab/ssh_host_key.pub:ro"
-      - "/srv/gitlab/secrets/ssh/ssh_host_ecdsa_key:/etc/gitlab/ssh_host_ecdsa_key:ro"
-      - "/srv/gitlab/secrets/ssh/ssh_host_ecdsa_key.pub:/etc/gitlab/ssh_host_ecdsa_key.pub:ro"
-      - "/srv/gitlab/secrets/ssh/ssh_host_ed25519_key:/etc/gitlab/ssh_host_ed25519_key:ro"
-      - "/srv/gitlab/secrets/ssh/ssh_host_ed25519_key.pub:/etc/gitlab/ssh_host_ed25519_key.pub:ro"
-      - "/srv/gitlab/secrets/ssh/ssh_host_rsa_key:/etc/gitlab/ssh_host_rsa_key:ro"
-      - "/srv/gitlab/secrets/ssh/ssh_host_rsa_key.pub:/etc/gitlab/ssh_host_rsa_key.pub:ro"
-      - "/srv/gitlab/secrets/gitlab-secrets.json:/etc/gitlab/gitlab-secrets.json"
-      - "./gitlab-main/gitlab.rb:/etc/gitlab/gitlab.rb"
-      - "/srv/gitlab/backup:/var/opt/gitlab/backups"
-      - "/srv/gitlab/data/git-data:/var/opt/gitlab/git-data"
-      - "/srv/gitlab/data/ssh_user_public_keys:/var/opt/gitlab/.ssh"
-      - "/srv/gitlab/data/shared:/var/opt/gitlab/gitlab-rails/shared"
-      - "/srv/gitlab/data/uploads:/var/opt/gitlab/gitlab-rails/uploads"
-      - "/srv/gitlab/data/gitlab-ci/builds:/var/opt/gitlab/gitlab-ci/builds"
-      # Below this line, things are different between gitlabprod and gitlabstaging
-      - "/srv/gitlab/run/redis-socket:/var/opt/gitlab/redis"
-      - "/srv/gitlab/run/postgres-socket:/var/opt/gitlab/postgresql"
-    deploy:
-      replicas: 2   # Allow rolling upgrades
-
   gitlabstaging:
     image: epflsti/gitlab-docker:13.2.6
     build: gitlab-main
@@ -53,9 +19,7 @@ services:
         max-size: 50m
         max-file: "3"
     volumes:
-      # It follows from https://stackoverflow.com/a/30683699/435004 that there
-      # is no avoiding duplicating this list (since we want to tweak the end of it
-      # between staging and production).
+      # Keep this list in sync with service gitlab_vXXX in docker-compose-gitlabprod.yml
       - "/srv/gitlab/secrets/ssh/ssh_host_dsa_key:/etc/gitlab/ssh_host_dsa_key:ro"
       - "/srv/gitlab/secrets/ssh/ssh_host_dsa_key.pub:/etc/gitlab/ssh_host_dsa_key.pub:ro"
       - "/srv/gitlab/secrets/ssh/ssh_host_key:/etc/gitlab/ssh_host_key:ro"
@@ -118,7 +82,6 @@ services:
     env_file:
       - .env
 
-
   redis:
     image: redis:latest
     logging:
@@ -144,51 +107,6 @@ services:
     command:
       - redis-server
       - /usr/local/etc/redis/redis.conf
-
-  frontend: &service_frontend_prod
-    image: nginx:stable
-    logging:
-      options:
-        max-size: 50m
-        max-file: "3"
-    volumes:
-      - "/srv/gitlab/ssl:/etc/ssl"
-      - "/srv/gitlab/secrets/nginx:/etc/nginx/auth"
-      - "./frontend:/assets"
-      - "./frontend/nginx.conf.tt:/etc/nginx/nginx.conf.tt:ro"
-    ports:
-      - "443:443"
-      - "22:22"
-    environment:
-      - ENVIRONMENT=prod
-    command: /assets/nginx-wrangler /etc/nginx/nginx.conf.tt
-
-  frontend_staging:
-    <<: *service_frontend_prod
-    environment:
-       - ENVIRONMENT=staging
-    ports:
-      - "444:443"
-      - "23:22"
-    ## If you want to test changes to nginx.conf.tt, uncomment the next
-    ## five lines:
-    # volumes:
-    #    - "/srv/gitlab/ssl:/etc/ssl"
-    #    - "./frontend:/assets"
-    #    - "/srv/gitlab/secrets/nginx:/etc/nginx/auth"
-    #    - "./frontend/nginx.conf.DEV.tt:/etc/nginx/nginx.conf.tt:ro"
-    ## Then copy nginx.conf.tt to nginx.conf.DEV.tt, and apply the
-    ## changes using the "docker deploy" command at the top of this
-    ## file.
-
-  redirect:
-    image: quay.io/coreos/nginx-https-redirect
-    logging:
-      options:
-        max-size: 50m
-        max-file: "3"
-    ports:
-      - "80:80"
 
   plantuml:
     image: plantuml/plantuml-server:tomcat
