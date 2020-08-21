@@ -1,0 +1,5 @@
+- name: Docker dependencies
+  import_tasks: deps.yml
+  tags:
+    - docker
+    - docker.deps
