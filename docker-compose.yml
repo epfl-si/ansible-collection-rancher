@@ -10,7 +10,7 @@
 version: "3.3"
 services:
   gitlabprod:
-    image: epflsti/gitlab-docker:13.1.2
+    image: epflsti/gitlab-docker:13.1.3
     environment:
       - ENVIRONMENT=prod
     logging:
@@ -44,7 +44,7 @@ services:
       replicas: 2   # Allow rolling upgrades
 
   gitlabstaging:
-    image: epflsti/gitlab-docker:13.1.2
+    image: epflsti/gitlab-docker:13.1.3
     build: gitlab-main
     environment:
       - ENVIRONMENT=staging
