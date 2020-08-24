@@ -1,2 +1,1 @@
 gitlab_version: 13.2.6
-gitlab_version_underscored: "{{ gitlab_version | regex_replace('\\.', '_') }}"

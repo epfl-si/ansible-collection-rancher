@@ -1,0 +1,29 @@
+# -*- mode: yaml; -*-
+#
+# Ansible “hosts” (aliased) involved in tests (i.e. all of them, except “prod”)
+
+all:
+  hosts:
+    test:
+      ansible_host: gitlab.epfl.ch
+      ansible_user: root
+      ansible_port: 2202
+      ansible_ssh_common_args: '-o ForwardAgent=yes'
+
+    infrastructure:
+      ansible_host: gitlab.epfl.ch
+      ansible_user: root
+      ansible_port: 2202
+      ansible_ssh_common_args: '-o ForwardAgent=yes'
+
+    plantuml:
+      ansible_host: gitlab.epfl.ch
+      ansible_user: root
+      ansible_port: 2202
+      ansible_ssh_common_args: '-o ForwardAgent=yes'
+
+    traefik:
+      ansible_host: gitlab.epfl.ch
+      ansible_user: root
+      ansible_port: 2202
+      ansible_ssh_common_args: '-o ForwardAgent=yes'

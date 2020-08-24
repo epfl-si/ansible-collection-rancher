@@ -2,7 +2,7 @@
 
 all:
   hosts:
-    gitlab:
+    prod:
       ansible_host: gitlab.epfl.ch
       ansible_user: root
       ansible_port: 2202

@@ -1,5 +1,21 @@
-- name: Traefik
-  hosts: all
+- name: Back-end infrastructure (databases etc.)
+  hosts:
+    - infrastructure
+  gather_facts: no
+  roles:
+    - role: ../roles/gitlab-infrastructure
+  tags: never
+
+- name: PlantUML
+  hosts:
+    - plantuml
+  gather_facts: no
+  roles:
+    - role: ../roles/gitlab-plantuml
+  tags: plantuml
+
+- name: Serving infrastructure (Traefik, Gitlab containers)
+  hosts: traefik
   gather_facts: no
   roles:
     - role: ../roles/gitlab-serving

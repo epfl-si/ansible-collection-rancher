@@ -43,7 +43,7 @@ http:
     prometheus-in-gitlabprod:
       loadBalancer:
         servers:
-          - url: "http://{{ traefik_prod_docker_gitlab_hostname }}:9090/"
+          - url: "http://{{ gitlab_docker_prod_hostname }}:9090/"
 
   middlewares:
     plantuml-rewrite-host-header:

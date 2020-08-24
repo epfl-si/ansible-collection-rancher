@@ -18,7 +18,7 @@ http:
     gitlab:
       loadBalancer:
         servers:
-          - url: "http://{{ traefik_prod_docker_gitlab_hostname }}/"
+          - url: "http://{{ gitlab_docker_prod_hostname }}/"
 
 tcp:
   routers:
@@ -32,4 +32,4 @@ tcp:
     gitlab-ssh:
       loadBalancer:
         servers:
-        - address: "{{ traefik_prod_docker_gitlab_hostname }}:22"
+        - address: "{{ gitlab_docker_prod_hostname }}:22"

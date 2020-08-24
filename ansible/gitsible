@@ -48,9 +48,14 @@ platform_check () {
     export ANSIBLE_ROLES_PATH="$PWD/ansible-deps-cache/roles"
 }
 
+ansible_flags="-e @vars/docker-networking.yml"
+
 inventory_mode="test"
 inventories () {
-    echo "-i inventory/gitlab-vm"
+    case "$inventory_mode" in
+        test) echo "-i inventory/test" ;;
+        test_and_prod) echo "-i inventory/test -i inventory/prod" ;;
+    esac
 }
 
 ###########################################################################
@@ -60,6 +65,9 @@ mode=ansible-playbook
 declare -a ansible_args
 while [ "$#" -gt 0 ]; do
   case "$1" in
+        --prod)
+            inventory_mode="test_and_prod"
+            shift ;;
         -m) mode=ansible
             ansible_args+=("-m")
             shift ;;
@@ -80,7 +88,7 @@ platform_check
 case "$mode" in
     ansible-playbook)
         ansible-playbook $playbook_flags $(inventories) "${ansible_args[@]}" \
-                         -e "wpsible_cwd=$OLDPWD" \
+                         -e "wpsible_cwd=$OLDPWD" $ansible_flags \
                          playbooks/main.yml
         ;;
     ansible)
