@@ -1,4 +1,7 @@
-- include_vars: traefik-vars.yml
+- include_vars: "{{ item }}"
+  with_items:
+    - traefik-vars.yml
+    - traefik-secrets.yml
   tags: always
 
 - name: "Configuration directories"

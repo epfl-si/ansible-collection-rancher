@@ -18,13 +18,25 @@ http:
       middlewares:
         - plantuml-rewrite-host-header
         - plantuml-rewrite-path
+    prometheus-in-gitlabprod:
+      rule: "Host(`gitlab.epfl.ch`) && PathPrefix(`/federate`)"
+      entrypoints:
+        - websecure
+      tls:
+        certresolver: letsencrypt
+      service: prometheus-in-gitlabprod
+      middlewares:
+        - prometheus-basic-auth
 
   services:
     plantuml:
       loadBalancer:
         servers:
           - url: "http://gitlab-docker_plantuml_1:8080/"
-
+    prometheus-in-gitlabprod:
+      loadBalancer:
+        servers:
+          - url: "http://{{ traefik_prod_docker_gitlab_hostname }}:9090/"
 
   middlewares:
     plantuml-rewrite-host-header:
@@ -35,3 +47,7 @@ http:
       replacePathRegex:
         regex: "^/plantuml/(.*)"
         replacement: "/$1"
+    prometheus-basic-auth:
+      basicAuth:
+        users:
+          - '{{ traefik_idev_fsd_noc_htpasswd_line }}'
