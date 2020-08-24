@@ -1,0 +1,9 @@
+- name: "plantuml container"
+  docker_container:
+    name: plantuml
+    image: plantuml/plantuml-server:tomcat
+    log_driver: json-file
+    log_options:
+      max-size: 10m
+      max-file: "3"
+    network_mode: "{{ docker_network_name }}"

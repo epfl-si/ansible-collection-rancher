@@ -107,10 +107,3 @@ services:
     command:
       - redis-server
       - /usr/local/etc/redis/redis.conf
-
-  plantuml:
-    image: plantuml/plantuml-server:tomcat
-    logging:
-      options:
-        max-size: 10m
-        max-file: "3"
