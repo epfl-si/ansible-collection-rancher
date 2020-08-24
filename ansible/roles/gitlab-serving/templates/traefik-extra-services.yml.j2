@@ -27,6 +27,13 @@ http:
       service: prometheus-in-gitlabprod
       middlewares:
         - prometheus-basic-auth
+    prometheus-of-traefik:
+      rule: "Host(`gitlab.epfl.ch`) && PathPrefix(`/metrics`)"
+      entrypoints:
+        - websecure
+      tls:
+        certresolver: letsencrypt
+      service: prometheus@internal
 
   services:
     plantuml:
