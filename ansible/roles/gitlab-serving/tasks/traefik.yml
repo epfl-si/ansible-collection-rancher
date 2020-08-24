@@ -60,6 +60,9 @@
   copy:
     dest: "{{ traefik_extra_services_dynamic_config_file }}"
     content: "{{ lookup('template', 'traefik-extra-services.yml.j2') }}"
+  tags:
+    - docker.traefik.extra
+    - docker.træfik.extra
 
 - name: Traefik Docker container
   docker_container:

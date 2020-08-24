@@ -18,3 +18,5 @@
     - docker.træfik
     - docker.traefik.bluegreen
     - docker.træfik.bluegreen
+    - docker.traefik.extra
+    - docker.træfik.extra
