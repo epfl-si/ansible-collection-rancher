@@ -1,4 +1,4 @@
-- name: Docker dependencies
+- name: Docker and Python dependencies
   import_tasks: deps.yml
   tags:
     - docker
