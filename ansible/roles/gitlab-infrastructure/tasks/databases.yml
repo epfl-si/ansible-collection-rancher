@@ -1,0 +1,107 @@
+- name: Serving infrastructure - Production
+  docker_compose:
+    project_name: gitlab-docker
+    definition:
+      version: "3.3"
+      services:
+        postgresql_prod:
+          image: postgres:12
+          logging:
+            options:
+              max-size: 50m
+              max-file: "3"
+          volumes:
+            - "/srv/gitlab/postgresql/data:/var/lib/postgresql/data"
+            - "/srv/gitlab/logs/postgresql:/var/log"
+            - "/srv/gitlab/run/postgres-socket/:/run/postgresql/"
+            - "/srv/gitlab/config/postgresql/passwd:/etc/passwd:ro"
+            ## Uncomment the following lines *only* when upgrading PostgreSQL:
+            # - "./staging/00-create-db.sql:/docker-entrypoint-initdb.d/00-create-db.sql:ro"
+            # - "/srv/gitlab/backup/postgresql_dump.sql:/docker-entrypoint-initdb.d/10-postgresql_dump.sql:ro"
+          environment:
+            POSTGRES_PASSWORD: "roo3bezahBo6bohH3aY9"
+
+        redis_prod:
+          image: redis:latest
+          logging:
+            options:
+              max-size: 50m
+              max-file: "3"
+          volumes:
+            - "/srv/gitlab/config/redis:/usr/local/etc/redis"
+            - "/srv/gitlab/run/redis-socket:/run/redis"
+          command:
+            - redis-server
+            - /usr/local/etc/redis/redis.conf
+
+- name: Staging scripts directory ("{{ postgres_staging_scripts_dir }}")
+  file:
+    path: "{{ postgres_staging_scripts_dir }}"
+    state: directory
+
+- name: 'Staging PostgreSQL: "log-queries.sh" script'
+  copy:
+    dest: "{{ postgres_staging_scripts_dir }}/log-queries.sh"
+    mode: "0755"
+    content: |
+      #!/bin/bash
+      # Found on https://github.com/Roconda/docker-postgres-logging/blob/master/Dockerfile
+      set -e
+
+      sed -ri "s/^#log_statement.*/log_statement = 'all'/g" /var/lib/postgresql/data/postgresql.conf
+
+- name: 'Staging PostgreSQL: SQL startup script'
+  copy:
+    dest: "{{ postgres_staging_scripts_dir }}/00-create-db.sql"
+    content: |
+       -- This runs first to create the staging DB (look for
+       -- postgresql_staging in ../docker-compose.yml), before
+       -- restoring the daily backup.
+       
+       -- This is actually the production database, but the name is what it is.
+       CREATE DATABASE gitlabhq_production;
+       
+       -- The only reasons these are here is so that the daily backup can DROP them
+       -- without failing.
+       CREATE ROLE "gitlab";
+       CREATE ROLE "gitlab-psql";
+
+- name: 'Serving infrastructure (staging)'
+  docker_compose:
+    project_name: gitlab-docker
+    definition:
+      version: "3.3"
+      services:
+        # The staging database is *not* persistent on purpose. Instead,
+        # it restores from latest backup every time one restarts it.
+        # To access it, do:
+        # docker exec -it $(docker ps -q -f name=gitlab-docker_postgresql_staging) psql -U postgres gitlabhq_production
+        postgresql_staging:
+          image: postgres:12
+          logging:
+            options:
+              max-size: 50m
+              max-file: "3"
+          volumes:
+            # As per https://hub.docker.com/_/postgres/, execute / restore these files
+            # at startup.
+            - "{{ postgres_staging_scripts_dir }}/log-queries.sh:/docker-entrypoint-initdb.d/log-queries.sh:ro"
+            - "{{ postgres_staging_scripts_dir }}/00-create-db.sql:/docker-entrypoint-initdb.d/00-create-db.sql:ro"
+            - "/srv/gitlab/backup/postgresql_dump.sql:/docker-entrypoint-initdb.d/10-postgresql_dump.sql:ro"
+            - "/srv/gitlab/run/postgres-socket-staging/:/run/postgresql/"
+            - "/srv/gitlab/config/postgresql/passwd:/etc/passwd:ro"
+          environment:
+            POSTGRES_PASSWORD: "roo3bezahBo6bohH3aY9"
+
+        redis_staging:
+          image: redis:latest
+          logging:
+            options:
+              max-size: 50m
+              max-file: "3"
+          volumes:
+            - "/srv/gitlab/config/redis:/usr/local/etc/redis"
+            - "/srv/gitlab/run/redis-socket-staging:/run/redis"
+          command:
+            - redis-server
+            - /usr/local/etc/redis/redis.conf

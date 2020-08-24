@@ -4,7 +4,6 @@
   gather_facts: no
   roles:
     - role: ../roles/gitlab-infrastructure
-  tags: never
 
 - name: PlantUML
   hosts:
