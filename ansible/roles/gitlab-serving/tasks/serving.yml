@@ -1,10 +1,16 @@
 - include_vars: serving-vars.yml
   tags: always
 
-- name: "{{ serving_build_dir | dirname }} directory"
+- name: "Configuration directories"
   file:
     state: directory
-    path: "{{ serving_build_dir | dirname }}"
+    path: "{{ item | dirname }}"
+  with_items: >-
+      {{ [ serving_build_dir ]
+         | union([
+             serving_gitlab_rb_config_path | dirname
+           ] | unique)
+      }}
 
 - name: "{{ serving_build_dir }}"
   git:
@@ -14,12 +20,19 @@
 - name: "{{ serving_image }}"
   docker_image:
     name: "{{ serving_image }}"
+    source: build
     build:
+      pull: no     # Don't re-pull
       path: '{{ serving_build_dir }}/gitlab-main'
 
-- name: "{{ gitlab_docker_staging_hostname }}"
+- name: "{{ serving_gitlab_rb_config_path }}"
+  copy:
+    dest: "{{ serving_gitlab_rb_config_path }}"
+    content: '{{ lookup("template", "gitlab.rb.j2") }}'
+
+- name: "{{ serving_hostname }}"
   docker_container:
-    name: "{{ gitlab_docker_staging_hostname }}"
+    name: "{{ serving_hostname }}"
     image: "{{ serving_image }}"
     detach: yes
     restart_policy: unless-stopped
@@ -30,7 +43,6 @@
       max-size: 50m
       max-file: "3"
     volumes:
-      # TODO: this is identical btw/ production and staging.
       - "/srv/gitlab/secrets/ssh/ssh_host_dsa_key:/etc/gitlab/ssh_host_dsa_key:ro"
       - "/srv/gitlab/secrets/ssh/ssh_host_dsa_key.pub:/etc/gitlab/ssh_host_dsa_key.pub:ro"
       - "/srv/gitlab/secrets/ssh/ssh_host_key:/etc/gitlab/ssh_host_key:ro"
@@ -42,14 +54,18 @@
       - "/srv/gitlab/secrets/ssh/ssh_host_rsa_key:/etc/gitlab/ssh_host_rsa_key:ro"
       - "/srv/gitlab/secrets/ssh/ssh_host_rsa_key.pub:/etc/gitlab/ssh_host_rsa_key.pub:ro"
       - "/srv/gitlab/secrets/gitlab-secrets.json:/etc/gitlab/gitlab-secrets.json"
-      - "{{ serving_build_dir }}/gitlab-main/gitlab.rb:/etc/gitlab/gitlab.rb"
+      - "{{ serving_gitlab_rb_config_path }}:/etc/gitlab/gitlab.rb"
       - "/srv/gitlab/backup:/var/opt/gitlab/backups"
       - "/srv/gitlab/data/git-data:/var/opt/gitlab/git-data"
       - "/srv/gitlab/data/ssh_user_public_keys:/var/opt/gitlab/.ssh"
       - "/srv/gitlab/data/shared:/var/opt/gitlab/gitlab-rails/shared"
       - "/srv/gitlab/data/uploads:/var/opt/gitlab/gitlab-rails/uploads"
       - "/srv/gitlab/data/gitlab-ci/builds:/var/opt/gitlab/gitlab-ci/builds"
-      # Below this line, things are different between gitlabprod and gitlabstaging
-      - "/srv/gitlab/run/redis-socket-staging:/var/opt/gitlab/redis"
-      - "/srv/gitlab/run/postgres-socket-staging:/var/opt/gitlab/postgresql"
+      - "/srv/gitlab/run/redis-socket{{ socket_suffix }}:/var/opt/gitlab/redis"
+      - "/srv/gitlab/run/postgres-socket{{ socket_suffix }}:/var/opt/gitlab/postgresql"
     network_mode: "{{ docker_network_name }}"
+  vars:
+    # TODO: this scheme is done this way for historical reasons.
+    socket_suffix: >-
+      {{ "-staging" if inventory_hostname == "gitlabstaging"
+         else "" }}
