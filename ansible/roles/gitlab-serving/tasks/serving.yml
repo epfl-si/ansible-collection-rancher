@@ -69,3 +69,12 @@
     socket_suffix: >-
       {{ "-staging" if inventory_hostname == "gitlabstaging"
          else "" }}
+
+- name: "Wait for {{ serving_hostname }} to become healthy"
+  command: >
+    docker inspect  --format '{{ "{{" }} .State.Health.Status }}' {{ serving_hostname }}
+  register: _serving_healthy
+  until: >
+    ansible_check_mode or ("healthy" in _serving_healthy.stdout)
+  retries: 20
+  delay: 30
