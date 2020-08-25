@@ -1,7 +1,7 @@
 _gitlab_version_underscored: "{{ gitlab_version | regex_replace('\\.', '_') }}"
 
 gitlab_docker_prod_hostname: >-
-    gitlab-docker_gitlab_v{{ _gitlab_version_underscored }}_1
+    gitlabprod_v{{ _gitlab_version_underscored }}_1
 
 gitlab_docker_staging_hostname: gitlabstaging
 
