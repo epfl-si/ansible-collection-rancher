@@ -1,4 +1,5 @@
-FROM gitlab/gitlab-ce:13.2.6-ce.0
+ARG GITLAB_CE_BASE_VERSION
+FROM gitlab/gitlab-ce:$GITLAB_CE_BASE_VERSION
 MAINTAINER EPFL Gitlab admins <gitlab-admins@groupes.epfl.ch>
 
 # node is a hidden dependency of "bundle exec rake db:migrate RAILS_ENV=production"

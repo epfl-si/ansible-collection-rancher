@@ -22,6 +22,8 @@
     name: "{{ serving_image }}"
     source: build
     build:
+      args:
+        GITLAB_CE_BASE_VERSION: "{{ gitlab_version }}-ce.0"
       pull: no     # Don't re-pull
       path: '{{ serving_build_dir }}/gitlab-main'
 
