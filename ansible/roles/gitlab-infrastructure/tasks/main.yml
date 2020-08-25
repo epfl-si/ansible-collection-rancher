@@ -3,3 +3,9 @@
   tags:
     - infrastructure
     - deps
+
+- name: "“Sorry server”"
+  import_tasks: sorryserver.yml
+  tags:
+    - infrastructure
+    - sorryserver

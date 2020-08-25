@@ -13,6 +13,8 @@ http:
       tls:
         certresolver: letsencrypt
       service: gitlab-staging
+      middlewares:
+        - sorryserver
 
   services:
     gitlab-staging:

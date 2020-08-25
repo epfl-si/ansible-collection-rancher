@@ -18,6 +18,7 @@ http:
       middlewares:
         - plantuml-rewrite-host-header
         - plantuml-rewrite-path
+        - sorryserver
     prometheus-in-gitlabprod:
       rule: "Host(`gitlab.epfl.ch`) && PathPrefix(`/federate`)"
       entrypoints:
@@ -44,6 +45,10 @@ http:
       loadBalancer:
         servers:
           - url: "http://{{ gitlab_docker_prod_hostname }}:9090/"
+    sorryserver:
+      loadBalancer:
+        servers:
+          - url: "http://sorryserver:8043/"
 
   middlewares:
     plantuml-rewrite-host-header:
@@ -58,3 +63,9 @@ http:
       basicAuth:
         users:
           - '{{ traefik_idev_fsd_noc_htpasswd_line }}'
+    sorryserver:
+      errors:
+        status:
+          - "502"
+        service: sorryserver
+        query: "/502.html"

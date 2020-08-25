@@ -13,6 +13,8 @@ http:
       tls:
         certresolver: letsencrypt
       service: gitlab
+      middlewares:
+        - sorryserver
 
   services:
     gitlab:
