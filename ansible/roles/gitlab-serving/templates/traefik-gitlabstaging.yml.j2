@@ -18,7 +18,7 @@ http:
     gitlab-staging:
       loadBalancer:
         servers:
-          - url: "http://gitlab-docker_gitlabstaging_1/"
+          - url: "http://{{ gitlab_docker_staging_hostname }}/"
 
 tcp:
   routers:
@@ -32,4 +32,4 @@ tcp:
     gitlab-ssh-staging:
       loadBalancer:
         servers:
-        - address: "gitlab-docker_gitlabstaging_1:22"
+        - address: "{{ gitlab_docker_staging_hostname }}:22"
