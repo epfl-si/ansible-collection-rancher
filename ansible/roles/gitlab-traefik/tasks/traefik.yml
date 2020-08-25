@@ -53,16 +53,16 @@
     dest: "{{ traefik_bluegreen_dynamic_config_file }}"
     content: "{{ lookup('template', 'traefik-bluegreen.yml.j2') }}"
   tags:
-    - serving.traefik.bluegreen
-    - serving.træfik.bluegreen
+    - traefik.bluegreen
+    - træfik.bluegreen
 
 - name: "{{ traefik_extra_services_dynamic_config_file }}"
   copy:
     dest: "{{ traefik_extra_services_dynamic_config_file }}"
     content: "{{ lookup('template', 'traefik-extra-services.yml.j2') }}"
   tags:
-    - serving.traefik.extra
-    - serving.træfik.extra
+    - traefik.extra
+    - træfik.extra
 
 - name: Traefik Docker container
   docker_container:
@@ -81,5 +81,6 @@
       - "{{ traefik_acme_state_dir }}:/acme"
       - "{{ traefik_static_config_file }}:/etc/traefik/traefik.yml"
       - "{{ traefik_dynamic_config_dir }}:/etc/traefik/dynamic"
+    networks_cli_compatible: no
     networks:
       - name: "{{ docker_network_name }}"

@@ -1,32 +1,12 @@
-- name: Docker and Python dependencies
-  import_tasks: deps.yml
-  tags:
-    - serving
-    - serving.deps
+- name: Serving databases
+  import_tasks: databases.yml
+  tags: databases
 
 - name: Serving containers
   tags:
     - serving
-    - serving.prod
-    - serving.test
   include_tasks:
     file: serving.yml
     apply:
       tags:
         - serving
-
-- name: Træfik front-end
-  include_tasks:
-    file: traefik.yml
-    apply:
-      tags:
-        - serving.traefik
-        - serving.træfik
-  tags:
-    - docker
-    - serving.traefik
-    - serving.træfik
-    - serving.traefik.bluegreen
-    - serving.træfik.bluegreen
-    - serving.traefik.extra
-    - serving.træfik.extra

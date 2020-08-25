@@ -1,4 +1,8 @@
-- name: Serving infrastructure - Production
+- include_vars: database-vars.yml
+  tags: always
+
+- name: databases (Production)
+  when: inventory_hostname == "gitlabprod"
   docker_compose:
     project_name: gitlab-docker
     definition:
@@ -35,11 +39,13 @@
             - /usr/local/etc/redis/redis.conf
 
 - name: Staging scripts directory ("{{ postgres_staging_scripts_dir }}")
+  when: inventory_hostname == "gitlabstaging"
   file:
     path: "{{ postgres_staging_scripts_dir }}"
     state: directory
 
 - name: 'Staging PostgreSQL: "log-queries.sh" script'
+  when: inventory_hostname == "gitlabstaging"
   copy:
     dest: "{{ postgres_staging_scripts_dir }}/log-queries.sh"
     mode: "0755"
@@ -51,6 +57,7 @@
       sed -ri "s/^#log_statement.*/log_statement = 'all'/g" /var/lib/postgresql/data/postgresql.conf
 
 - name: 'Staging PostgreSQL: SQL startup script'
+  when: inventory_hostname == "gitlabstaging"
   copy:
     dest: "{{ postgres_staging_scripts_dir }}/00-create-db.sql"
     content: |
@@ -66,7 +73,9 @@
        CREATE ROLE "gitlab";
        CREATE ROLE "gitlab-psql";
 
-- name: 'Serving infrastructure (staging)'
+- name: 'databases (staging)'
+  # TODO: refactor to share code with the prod databases
+  when: inventory_hostname == "gitlabstaging"
   docker_compose:
     project_name: gitlab-docker
     definition:

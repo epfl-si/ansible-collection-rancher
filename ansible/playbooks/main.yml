@@ -1,20 +1,28 @@
-- name: Back-end infrastructure (databases etc.)
+- name: Out-of-container infrastructure
   hosts:
-    - infrastructure
+    - gitlab
   gather_facts: no
   roles:
     - role: ../roles/gitlab-infrastructure
 
 - name: PlantUML
   hosts:
-    - plantuml
+    - gitlab
   gather_facts: no
   roles:
     - role: ../roles/gitlab-plantuml
   tags: plantuml
 
-- name: Serving infrastructure (Traefik, Gitlab containers)
-  hosts: traefik
+- name: Traefik
+  hosts: gitlab
+  gather_facts: no
+  roles:
+    - role: ../roles/gitlab-traefik
+
+- name: Serving containers and database
+  # Within the purview of this role, we abuse the concept of an ansible
+  # “host” a bit to represent each instance of the Gitlab serving stack.
+  hosts: all_gitlabs
   gather_facts: no
   roles:
     - role: ../roles/gitlab-serving

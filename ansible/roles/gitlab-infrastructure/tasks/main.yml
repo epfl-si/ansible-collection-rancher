@@ -1,3 +1,5 @@
-- name: Serving infrastructure databases
-  tags: databases
-  import_tasks: databases.yml
+- name: Docker and Python dependencies
+  import_tasks: deps.yml
+  tags:
+    - infrastructure
+    - deps

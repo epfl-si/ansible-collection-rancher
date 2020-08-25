@@ -1,4 +1,6 @@
 # -*- mode: yaml; -*-
+#
+# Ansible “hosts” (aliased) involved in tests (i.e. all of them, except “prod”)
 
 all:
   children:
@@ -6,7 +8,8 @@ all:
       hosts:
         gitlabstaging:
   hosts:
-    gitlabprod:   # Not really a host (see gitlab-serving role in ../../playbooks/main.yml)
+    gitlabstaging: # Not really a host (see gitlab-serving role in ../../playbooks/main.yml)
+
       ansible_host: gitlab.epfl.ch
       ansible_user: root
       ansible_port: 2202

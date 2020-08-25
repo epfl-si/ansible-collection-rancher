@@ -1,6 +1,4 @@
 # Install docker and docker-compose, as well as Ansible's own dependencies
-- include_vars: deps-vars.yml
-
 - name: Uninstall RedHat's `requests` module
   yum:
     name: python-requests
@@ -23,3 +21,4 @@
       - "{{ deps_docker_package_name }}"
       - docker-compose
     state: present
+

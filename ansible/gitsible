@@ -48,13 +48,13 @@ platform_check () {
     export ANSIBLE_ROLES_PATH="$PWD/ansible-deps-cache/roles"
 }
 
-ansible_flags="-e @vars/docker-networking.yml"
+ansible_flags="-e @vars/docker-networking.yml -e @vars/versions.yml"
 
-inventory_mode="test"
+inventory_mode="noprod"
 inventories () {
     case "$inventory_mode" in
-        test) echo "-i inventory/test" ;;
-        test_and_prod) echo "-i inventory/test -i inventory/prod" ;;
+        noprod) echo "-i inventory/common -i inventory/staging" ;;
+        withprod) echo "-i inventory/common -i inventory/staging -i inventory/prod" ;;
     esac
 }
 
@@ -66,7 +66,7 @@ declare -a ansible_args
 while [ "$#" -gt 0 ]; do
   case "$1" in
         --prod)
-            inventory_mode="test_and_prod"
+            inventory_mode="withprod"
             shift ;;
         -m) mode=ansible
             ansible_args+=("-m")

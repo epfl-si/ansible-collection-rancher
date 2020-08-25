@@ -1,1 +1,1 @@
-postgres_staging_scripts_dir: /srv/gitlab/config/postgresql-staging
+deps_docker_package_name: docker-ce

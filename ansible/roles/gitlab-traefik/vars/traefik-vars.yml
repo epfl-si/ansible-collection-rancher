@@ -7,7 +7,7 @@ traefik_debug_dynamic_config_file: "{{ traefik_dynamic_config_dir }}/dashboard-a
 traefik_bluegreen_dynamic_config_file: "{{ traefik_dynamic_config_dir }}/bluegreen.yml"
 traefik_extra_services_dynamic_config_file: "{{ traefik_dynamic_config_dir }}/extra-services.yml"
 
-## turn these on with care (they expose private stuff to the Internets)
+## turn these on with care (e.g. traefik_debug exposes private stuff to the Internets)
 traefik_debug: true
 # traefik_letsencrypt_staging: true
 
