@@ -24,3 +24,9 @@
   gather_facts: no
   roles:
     - role: ../roles/gitlab-serving
+
+- name: Backups
+  hosts: gitlab
+  gather_facts: no
+  roles:
+    - role: ../roles/gitlab-backups

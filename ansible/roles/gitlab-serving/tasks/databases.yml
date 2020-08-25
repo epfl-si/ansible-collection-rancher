@@ -5,9 +5,9 @@
   when: inventory_hostname == "gitlabprod"
   docker_compose:
     # TODO: the precise container name for the production Postgres is
-    # adherent with /etc/cron.daily/gitlab, which is currently **NOT**
-    # managed by Ansible. (Also, some Wiki pages are adherent e.g.
-    # https://gitlab.com/epfl-idevfsd/gitlab-docker/-/wikis/RunbookControlesApresMaJ)
+    # adherent with ../../gitlab-backups/tasks/main.yml as well as a couple of
+    # Wiki pages, e.g.
+    # https://gitlab.com/epfl-idevfsd/gitlab-docker/-/wikis/RunbookControlesApresMaJ
     project_name: gitlab-docker
     definition:
       version: "3.3"
