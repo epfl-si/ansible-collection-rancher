@@ -1,7 +1,7 @@
 - include_vars: database-vars.yml
   tags: always
 
-- name: databases (Production)
+- name: databases (production)
   when: inventory_hostname == "gitlabprod"
   docker_compose:
     # TODO: the precise container name for the production Postgres is
