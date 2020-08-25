@@ -4,7 +4,7 @@ all:
   children:
     all_gitlabs:
       hosts:
-        gitlabstaging:
+        gitlabprod:
   hosts:
     gitlabprod:   # Not really a host (see gitlab-serving role in ../../playbooks/main.yml)
       ansible_host: gitlab.epfl.ch

@@ -1,13 +1,11 @@
 - name: Out-of-container infrastructure
-  hosts:
-    - gitlab
+  hosts: gitlab
   gather_facts: no
   roles:
     - role: ../roles/gitlab-infrastructure
 
 - name: PlantUML
-  hosts:
-    - gitlab
+  hosts: gitlab
   gather_facts: no
   roles:
     - role: ../roles/gitlab-plantuml

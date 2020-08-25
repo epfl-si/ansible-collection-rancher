@@ -37,7 +37,9 @@
     detach: yes
     restart_policy: unless-stopped
     env:
-      ENVIRONMENT: staging
+      ENVIRONMENT: >-
+        {{ "prod" if inventory_hostname == "gitlabprod"
+           else "staging" }}
     log_driver: json-file
     log_options:
       max-size: 50m
@@ -71,6 +73,7 @@
          else "" }}
 
 - name: "Wait for {{ serving_hostname }} to become healthy"
+  changed_when: false
   command: >
     docker inspect  --format '{{ "{{" }} .State.Health.Status }}' {{ serving_hostname }}
   register: _serving_healthy
