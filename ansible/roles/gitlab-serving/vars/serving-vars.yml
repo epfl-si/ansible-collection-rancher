@@ -1,6 +1,3 @@
-serving_image: "epflsti/gitlab-docker:{{ gitlab_version }}"
-serving_build_dir: /srv/gitlab/build/gitlab-docker
-
 serving_hostname: >-
   {{ gitlab_docker_prod_hostname if inventory_hostname == "gitlabprod"
      else inventory_hostname }}

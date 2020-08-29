@@ -6,26 +6,10 @@
     state: directory
     path: "{{ item | dirname }}"
   with_items: >-
-      {{ [ serving_build_dir ]
-         | union([
+      {{ [
              serving_gitlab_rb_config_path | dirname
-           ] | unique)
+         ] | unique
       }}
-
-- name: "{{ serving_build_dir }}"
-  git:
-    repo: https://gitlab.com/epfl-idevfsd/gitlab-docker.git
-    dest: '{{ serving_build_dir }}'
-
-- name: "{{ serving_image }}"
-  docker_image:
-    name: "{{ serving_image }}"
-    source: build
-    build:
-      args:
-        GITLAB_CE_BASE_VERSION: "{{ gitlab_version }}-ce.0"
-      pull: no     # Don't re-pull
-      path: '{{ serving_build_dir }}/gitlab-main'
 
 - name: "{{ serving_gitlab_rb_config_path }}"
   copy:
@@ -35,7 +19,7 @@
 - name: "{{ serving_hostname }}"
   docker_container:
     name: "{{ serving_hostname }}"
-    image: "{{ serving_image }}"
+    image: "{{ gitlab_image_name }}"
     detach: yes
     restart_policy: unless-stopped
     env:
