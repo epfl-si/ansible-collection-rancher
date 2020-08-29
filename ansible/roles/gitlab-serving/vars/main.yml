@@ -1,1 +1,4 @@
 gitlab_image_name: "epflsti/gitlab-docker:{{ gitlab_version }}"
+environment_name: >-
+  {{ "prod" if inventory_hostname == "gitlabprod"
+     else "staging" }}

@@ -23,9 +23,7 @@
     detach: yes
     restart_policy: unless-stopped
     env:
-      ENVIRONMENT: >-
-        {{ "prod" if inventory_hostname == "gitlabprod"
-           else "staging" }}
+      ENVIRONMENT: "{{ environment_name }}"
     log_driver: json-file
     log_options:
       max-size: 50m
