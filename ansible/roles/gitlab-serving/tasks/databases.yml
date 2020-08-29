@@ -77,44 +77,62 @@
        CREATE ROLE "gitlab";
        CREATE ROLE "gitlab-psql";
 
-- name: 'databases (staging)'
-  # TODO: refactor to share code with the prod databases
-  when: inventory_hostname == "gitlabstaging"
-  docker_compose:
-    project_name: gitlab-docker
-    definition:
-      version: "3.3"
-      services:
-        # The staging database is *not* persistent on purpose. Instead,
-        # it restores from latest backup every time one restarts it.
-        # To access it, do:
-        # docker exec -it $(docker ps -q -f name=gitlab-docker_postgresql_staging) psql -U postgres gitlabhq_production
-        postgresql_staging:
-          image: postgres:12
-          logging:
-            options:
-              max-size: 50m
-              max-file: "3"
-          volumes:
-            # As per https://hub.docker.com/_/postgres/, execute / restore these files
-            # at startup.
-            - "{{ postgres_staging_scripts_dir }}/log-queries.sh:/docker-entrypoint-initdb.d/log-queries.sh:ro"
-            - "{{ postgres_staging_scripts_dir }}/00-create-db.sql:/docker-entrypoint-initdb.d/00-create-db.sql:ro"
-            - "/srv/gitlab/backup/postgresql_dump.sql:/docker-entrypoint-initdb.d/10-postgresql_dump.sql:ro"
-            - "/srv/gitlab/run/postgres-socket-staging/:/run/postgresql/"
-            - "/srv/gitlab/config/postgresql/passwd:/etc/passwd:ro"
-          environment:
-            POSTGRES_PASSWORD: "roo3bezahBo6bohH3aY9"
+- name: 'PostgreSQL database (staging)'
+  when: inventory_hostname == "gitlabstaging"  # TODO: refactor to
+                                               # share code with the
+                                               # prod database
+  docker_container:
+    name: "postgresql_{{ environment_name }}"
+    image: postgres:12
+    detach: yes
+    restart_policy: unless-stopped
+    # Kick the staging database (so that it reloads from a production
+    # backup) whenever we build a new image:
+    restart: >-
+      {{ (environment_name == "staging")
+         and (_serving_image is defined)
+         and (_serving_image is changed) }}
+    log_driver: json-file
+    log_options:
+      max-size: 50m
+      max-file: "3"
+    volumes: "{{ volumes[environment_name] }}"
+    env:
+      POSTGRES_PASSWORD: "roo3bezahBo6bohH3aY9"  # TODO: generate a stable password here.
+                                                 # (It just needs to be set; the value isn't
+                                                 # shared anywhere else.)
+  vars:
+    volumes:
+      staging:
+        # The staging database is *not* persistent; instead, it
+        # reloads from a production backup every time it starts up.
+        #
+        # As per https://hub.docker.com/_/postgres/, SQL / shell
+        # scripts in /docker-entrypoint-initdb.d get executed at
+        # startup:
+        - "{{ postgres_staging_scripts_dir }}/log-queries.sh:/docker-entrypoint-initdb.d/log-queries.sh:ro"
+        - "{{ postgres_staging_scripts_dir }}/00-create-db.sql:/docker-entrypoint-initdb.d/00-create-db.sql:ro"
+        - "/srv/gitlab/backup/postgresql_dump.sql:/docker-entrypoint-initdb.d/10-postgresql_dump.sql:ro"
+        - "/srv/gitlab/run/postgres-socket-staging/:/run/postgresql/"
+        - "/srv/gitlab/config/postgresql/passwd:/etc/passwd:ro"
+      prod:
+        - "/srv/gitlab/run/postgres-socket:/run/postgresql/"
+        - "/srv/gitlab/config/postgresql/passwd:/etc/passwd:ro"
 
-        redis_staging:
-          image: redis:latest
-          logging:
-            options:
-              max-size: 50m
-              max-file: "3"
-          volumes:
-            - "/srv/gitlab/config/redis:/usr/local/etc/redis"
-            - "/srv/gitlab/run/redis-socket-staging:/run/redis"
-          command:
-            - redis-server
-            - /usr/local/etc/redis/redis.conf
+- name: 'Redis (staging)'
+  when: inventory_hostname == "gitlabstaging"  # TODO: refactor to
+                                               # share code with the
+                                               # prod database
+  docker_container:
+    name: "redis_{{ environment_name }}"
+    image: redis:latest
+    log_driver: json-file
+    log_options:
+      max-size: 50m
+      max-file: "3"
+    volumes:
+      - "/srv/gitlab/config/redis:/usr/local/etc/redis"
+      - "/srv/gitlab/run/redis-socket-{{ environment_name }}:/run/redis"
+    command:
+      - redis-server
+      - /usr/local/etc/redis/redis.conf
