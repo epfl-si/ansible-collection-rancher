@@ -4,6 +4,12 @@
     - infrastructure
     - deps
 
+- name: "{{ docker_network_name }} Docker network"
+  docker_network:
+    name: "{{ docker_network_name }}"
+  tags:
+    - infrastructure
+
 - name: "“Sorry server”"
   import_tasks: sorryserver.yml
   tags:

@@ -2,4 +2,4 @@ serving_hostname: >-
   {{ gitlab_docker_prod_hostname if inventory_hostname == "gitlabprod"
      else inventory_hostname }}
 
-serving_gitlab_rb_config_path: "/srv/gitlab/config/gitlab/gitlab-{{ inventory_hostname }}.rb"
+serving_gitlab_rb_config_path: "{{ serving_config_dir }}/gitlab/gitlab.rb"

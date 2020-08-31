@@ -4,7 +4,7 @@
 - name: "Configuration directories"
   file:
     state: directory
-    path: "{{ item | dirname }}"
+    path: "{{ item }}"
   with_items: >-
       {{ [
              serving_gitlab_rb_config_path | dirname
@@ -50,11 +50,6 @@
       - "/srv/gitlab/run/redis-socket{{ socket_suffix }}:/var/opt/gitlab/redis"
       - "/srv/gitlab/run/postgres-socket{{ socket_suffix }}:/var/opt/gitlab/postgresql"
     network_mode: "{{ docker_network_name }}"
-  vars:
-    # TODO: this scheme is done this way for historical reasons.
-    socket_suffix: >-
-      {{ "-staging" if inventory_hostname == "gitlabstaging"
-         else "" }}
 
 - name: "Wait for {{ serving_hostname }} to become healthy"
   changed_when: false
