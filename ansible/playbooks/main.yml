@@ -11,12 +11,6 @@
     - role: ../roles/gitlab-plantuml
   tags: plantuml
 
-- name: Traefik
-  hosts: gitlab
-  gather_facts: no
-  roles:
-    - role: ../roles/gitlab-traefik
-
 - name: Serving containers and database
   # Within the purview of this role, we abuse the concept of an ansible
   # “host” a bit to represent each instance of the Gitlab serving stack.
@@ -24,6 +18,12 @@
   gather_facts: no
   roles:
     - role: ../roles/gitlab-serving
+
+- name: Traefik
+  hosts: gitlab
+  gather_facts: no
+  roles:
+    - role: ../roles/gitlab-traefik
 
 - name: Backups
   hosts: gitlab
