@@ -50,6 +50,9 @@
 
 - name: "{{ traefik_bluegreen_dynamic_config_file }}"
   copy:
+    # Don't touch an existing file unless --prod was passed to gitsible:
+    force: >-
+      {{ "gitlabprod" in hostvars }}
     dest: "{{ traefik_bluegreen_dynamic_config_file }}"
     content: "{{ lookup('template', 'traefik-bluegreen.yml.j2') }}"
   tags:
