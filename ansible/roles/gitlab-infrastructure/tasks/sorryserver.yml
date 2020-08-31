@@ -1,4 +1,4 @@
-# Install docker and docker-compose, as well as Ansible's own dependencies
+# Install the fancy 502 page
 - include_vars: sorryserver-vars.yml
   tags: always
 

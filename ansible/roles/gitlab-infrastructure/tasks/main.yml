@@ -9,3 +9,9 @@
   tags:
     - infrastructure
     - sorryserver
+
+- name: "GitlabStatisticsPrometheusExporter"
+  import_tasks: GitlabStatisticsPrometheusExporter.yml
+  tags:
+    - infrastructure
+    - statistics
