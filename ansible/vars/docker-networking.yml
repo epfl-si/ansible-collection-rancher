@@ -5,4 +5,4 @@ gitlab_docker_prod_hostname: >-
 
 gitlab_docker_staging_hostname: gitlabstaging
 
-docker_network_name: "gitlab-docker_default"  # For historical reasons
+docker_network_name: "gitlab"

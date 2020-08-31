@@ -5,7 +5,4 @@ environment_name: >-
 
 serving_config_dir: "/srv/gitlab/config/{{ inventory_hostname }}"
 
-# TODO: this scheme is done this way for historical reasons.
-socket_suffix: >-
-      {{ "-staging" if inventory_hostname == "gitlabstaging"
-         else "" }}
+socket_suffix: "-{{ environment_name }}"
