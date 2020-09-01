@@ -77,9 +77,10 @@
   vars:
     volumes:
       staging: '{{ staging_startup_scripts + [socket_volume, doctored_passwd_volume] }}'
-      prod: '{{ [socket_volume, doctored_passwd_volume] }}'
+      prod: '{{ [socket_volume, doctored_passwd_volume, storage_volume] }}'
     socket_volume: "/srv/gitlab/run/postgres-socket{{ socket_suffix }}:/run/postgresql/"
     doctored_passwd_volume: "{{ postgresql_config_dir }}/passwd:/etc/passwd:ro"
+    storage_volume: "/srv/gitlab/postgresql/data:/var/lib/postgresql/data"
     staging_startup_scripts:
       # The staging database is *not* persistent; instead, it
       # reloads from a production backup every time it starts up.
