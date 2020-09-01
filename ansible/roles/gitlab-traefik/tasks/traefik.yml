@@ -59,6 +59,13 @@
     - traefik.bluegreen
     - træfik.bluegreen
 
+- name: "Read back {{ traefik_extra_services_dynamic_config_file }} (for salts)"
+  shell:
+    cmd: |
+      cat  {{ traefik_extra_services_dynamic_config_file }}
+  changed_when: false
+  register: _traefik_extra_services
+
 - name: "{{ traefik_extra_services_dynamic_config_file }}"
   copy:
     dest: "{{ traefik_extra_services_dynamic_config_file }}"
