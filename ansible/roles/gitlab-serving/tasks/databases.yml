@@ -98,6 +98,12 @@
     content: >-
       {{ lookup("template", "redis.conf.j2") }}
 
+- name: "Redis socket directory (/srv/gitlab/run/redis-socket{{ socket_suffix }})"
+  file:
+    path: "/srv/gitlab/run/redis-socket{{ socket_suffix }}"
+    state: directory
+    mode: "01777"
+
 - name: 'Redis'
   docker_container:
     name: "redis_{{ environment_name }}"
