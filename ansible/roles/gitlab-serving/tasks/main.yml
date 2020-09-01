@@ -1,4 +1,6 @@
 - name: Serving images
+  when: >
+    inventory_hostname == "gitlabstaging"
   import_tasks: images.yml
   tags: images
 
