@@ -3,3 +3,5 @@ serving_hostname: >-
      else inventory_hostname }}
 
 serving_gitlab_rb_config_path: "{{ serving_config_dir }}/gitlab/gitlab.rb"
+serving_gitlab_secrets_dir: /srv/gitlab/secrets/{{ inventory_hostname }}
+serving_gitlab_ssh_secrets_dir: "{{ serving_gitlab_secrets_dir }}/ssh"

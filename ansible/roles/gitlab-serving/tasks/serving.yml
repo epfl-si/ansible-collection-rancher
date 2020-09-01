@@ -1,5 +1,8 @@
-- include_vars: serving-vars.yml
+- include_vars: "{{ item }}"
   tags: always
+  with_items:
+    - serving-vars.yml
+    - serving-secrets.yml
 
 - name: "Configuration directories"
   file:
@@ -7,7 +10,8 @@
     path: "{{ item }}"
   with_items: >-
       {{ [
-             serving_gitlab_rb_config_path | dirname
+             (serving_gitlab_rb_config_path | dirname),
+             serving_gitlab_ssh_secrets_dir
          ] | unique
       }}
 
@@ -15,6 +19,15 @@
   copy:
     dest: "{{ serving_gitlab_rb_config_path }}"
     content: '{{ lookup("template", "gitlab.rb.j2") }}'
+
+- name: ssh server keys
+  with_items: "{{ serving_secrets_ssh | iteritems }}"
+  no_log: true
+  copy:
+    dest: "{{ serving_gitlab_ssh_secrets_dir }}/{{ item.k }}"
+    content: "{{ item.v }}"
+    mode: >
+      {{ "0644" if ".pub" in item.k else "0600" }}
 
 - name: "{{ serving_hostname }}"
   docker_container:
@@ -29,16 +42,16 @@
       max-size: 50m
       max-file: "3"
     volumes:
-      - "/srv/gitlab/secrets/ssh/ssh_host_dsa_key:/etc/gitlab/ssh_host_dsa_key:ro"
-      - "/srv/gitlab/secrets/ssh/ssh_host_dsa_key.pub:/etc/gitlab/ssh_host_dsa_key.pub:ro"
-      - "/srv/gitlab/secrets/ssh/ssh_host_key:/etc/gitlab/ssh_host_key:ro"
-      - "/srv/gitlab/secrets/ssh/ssh_host_key.pub:/etc/gitlab/ssh_host_key.pub:ro"
-      - "/srv/gitlab/secrets/ssh/ssh_host_ecdsa_key:/etc/gitlab/ssh_host_ecdsa_key:ro"
-      - "/srv/gitlab/secrets/ssh/ssh_host_ecdsa_key.pub:/etc/gitlab/ssh_host_ecdsa_key.pub:ro"
-      - "/srv/gitlab/secrets/ssh/ssh_host_ed25519_key:/etc/gitlab/ssh_host_ed25519_key:ro"
-      - "/srv/gitlab/secrets/ssh/ssh_host_ed25519_key.pub:/etc/gitlab/ssh_host_ed25519_key.pub:ro"
-      - "/srv/gitlab/secrets/ssh/ssh_host_rsa_key:/etc/gitlab/ssh_host_rsa_key:ro"
-      - "/srv/gitlab/secrets/ssh/ssh_host_rsa_key.pub:/etc/gitlab/ssh_host_rsa_key.pub:ro"
+      - "{{ serving_gitlab_ssh_secrets_dir }}/ssh_host_dsa_key:/etc/gitlab/ssh_host_dsa_key:ro"
+      - "{{ serving_gitlab_ssh_secrets_dir }}/ssh_host_dsa_key.pub:/etc/gitlab/ssh_host_dsa_key.pub:ro"
+      - "{{ serving_gitlab_ssh_secrets_dir }}/ssh_host_key:/etc/gitlab/ssh_host_key:ro"
+      - "{{ serving_gitlab_ssh_secrets_dir }}/ssh_host_key.pub:/etc/gitlab/ssh_host_key.pub:ro"
+      - "{{ serving_gitlab_ssh_secrets_dir }}/ssh_host_ecdsa_key:/etc/gitlab/ssh_host_ecdsa_key:ro"
+      - "{{ serving_gitlab_ssh_secrets_dir }}/ssh_host_ecdsa_key.pub:/etc/gitlab/ssh_host_ecdsa_key.pub:ro"
+      - "{{ serving_gitlab_ssh_secrets_dir }}/ssh_host_ed25519_key:/etc/gitlab/ssh_host_ed25519_key:ro"
+      - "{{ serving_gitlab_ssh_secrets_dir }}/ssh_host_ed25519_key.pub:/etc/gitlab/ssh_host_ed25519_key.pub:ro"
+      - "{{ serving_gitlab_ssh_secrets_dir }}/ssh_host_rsa_key:/etc/gitlab/ssh_host_rsa_key:ro"
+      - "{{ serving_gitlab_ssh_secrets_dir }}/ssh_host_rsa_key.pub:/etc/gitlab/ssh_host_rsa_key.pub:ro"
       - "/srv/gitlab/secrets/gitlab-secrets.json:/etc/gitlab/gitlab-secrets.json"
       - "{{ serving_gitlab_rb_config_path }}:/etc/gitlab/gitlab.rb"
       - "/srv/gitlab/backup:/var/opt/gitlab/backups"

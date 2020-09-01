@@ -48,7 +48,7 @@ platform_check () {
     export ANSIBLE_ROLES_PATH="$PWD/ansible-deps-cache/roles"
 }
 
-ansible_flags="-e @vars/docker-networking.yml -e @vars/versions.yml"
+ansible_flags="-e @vars/docker-networking.yml -e @vars/versions.yml -e @vars/eyaml.yml"
 
 inventory_mode="staging"
 inventories () {
