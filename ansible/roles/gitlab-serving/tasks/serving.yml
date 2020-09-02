@@ -62,8 +62,6 @@
       - "{{ serving_gitlab_ssh_secrets_dir }}/ssh_host_rsa_key.pub:/etc/gitlab/ssh_host_rsa_key.pub:ro"
       - "{{ serving_gitlab_json_secrets_file }}:/etc/gitlab/gitlab-secrets.json"
       - "{{ serving_gitlab_rb_config_path }}:/etc/gitlab/gitlab.rb"
-      # Backups
-      - "/srv/gitlab/backup:/var/opt/gitlab/backups"
       # Precious
       - "/srv/gitlab/data/git-data:/var/opt/gitlab/git-data"
       - "/srv/gitlab/data/ssh_user_public_keys:/var/opt/gitlab/.ssh"
