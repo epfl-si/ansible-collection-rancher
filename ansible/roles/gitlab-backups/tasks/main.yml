@@ -13,3 +13,22 @@
 
         docker exec postgresql_prod pg_dumpall --exclude-database=postgres -c -U postgres |grep -Pv '^(DROP|CREATE|ALTER) ROLE postgres' > $DUMPFILE.NEW
         mv $DUMPFILE.NEW $DUMPFILE
+
+- tags:
+    - backups
+    - logrotate
+  name: "{{ backup_logrotate_conf }}"
+  copy:
+    dest: "{{ backup_logrotate_conf }}"
+    content: |
+      # GitLab logrotate settings
+      # based on: http://stackoverflow.com/a/4883967
+
+      /srv/gitlab/backup/postgresql_dump.sql {
+          daily
+          missingok
+          rotate 90
+          compress
+          copy
+          notifempty
+      }
