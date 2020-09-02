@@ -11,5 +11,5 @@
 
         DUMPFILE=/srv/gitlab/backup/postgresql_dump.sql
 
-        docker exec $(docker ps -q -f name=gitlab-docker_postgresql_prod) pg_dumpall --exclude-database=postgres -c -U postgres |grep -Pv '^(DROP|CREATE|ALTER) ROLE postgres' > $DUMPFILE.NEW
+        docker exec postgresql_prod pg_dumpall --exclude-database=postgres -c -U postgres |grep -Pv '^(DROP|CREATE|ALTER) ROLE postgres' > $DUMPFILE.NEW
         mv $DUMPFILE.NEW $DUMPFILE
