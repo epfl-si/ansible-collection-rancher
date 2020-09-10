@@ -10,6 +10,7 @@
   git:
     repo: https://gitlab.com/epfl-idevfsd/gitlab-docker.git
     dest: '{{ image_serving_build_dir }}'
+  register: _serving_build_dir
 
 - name: "{{ gitlab_image_name }}"
   docker_image:
@@ -19,5 +20,6 @@
       args:
         GITLAB_CE_BASE_VERSION: "{{ gitlab_version }}-ce.0"
       pull: no     # Don't re-pull
+      nocache: "{{ _serving_build_dir is changed }}"
       path: '{{ image_serving_build_dir }}/gitlab-main'
   register: _serving_image
