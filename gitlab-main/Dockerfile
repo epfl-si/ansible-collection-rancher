@@ -16,6 +16,11 @@ COPY prometheus.rb.patch /opt/gitlab/embedded/cookbooks/monitoring/libraries/
 
 RUN set -e -x; cd /opt/gitlab/embedded/cookbooks/monitoring/libraries/; git apply < prometheus.rb.patch; rm prometheus.rb.patch
 
+# Fix to https://gitlab.com/epfl-idevfsd/gitlab-docker/-/issues/9
+RUN set -e -x; \
+     cd /opt/gitlab/embedded/service/gitlab-rails; \
+     curl https://gitlab.com/epfl-idevfsd/gitlab-foss/-/merge_requests/1.diff | git apply
+
 # To check that omniauth-tequila was indeed installed in the correct place:
 # docker run --rm -it <image_hash> ls /opt/gitlab/embedded/lib/ruby/gems/2.5.0/gems/
 
