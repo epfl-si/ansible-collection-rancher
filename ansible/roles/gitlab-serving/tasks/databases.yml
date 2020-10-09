@@ -35,6 +35,9 @@
       set -e
 
       sed -ri "s/^#log_statement.*/log_statement = 'all'/g" /var/lib/postgresql/data/postgresql.conf
+  tags:
+    - postgres
+    - postgresql
 
 - name: 'Staging PostgreSQL: SQL startup script'
   when: inventory_hostname == "gitlabstaging"
@@ -63,8 +66,15 @@
     # backup) whenever we build a new image:
     restart: >-
       {{ (environment_name == "staging")
-         and (_serving_image is defined)
-         and (_serving_image is changed) }}
+         and
+         (  ( (_serving_image is defined)
+              and (_serving_image is changed) )
+            or
+            ( ansible_run_tags |
+              intersect(["postgres.reload.staging",
+                         "postgresql.reload.staging"]) |
+              length > 0 )  )
+      }}
     log_driver: json-file
     log_options:
       max-size: 50m
@@ -91,6 +101,11 @@
       - "{{ postgresql_staging_scripts_dir }}/log-queries.sh:/docker-entrypoint-initdb.d/log-queries.sh:ro"
       - "{{ postgresql_staging_scripts_dir }}/00-create-db.sql:/docker-entrypoint-initdb.d/00-create-db.sql:ro"
       - "/srv/gitlab/backup/postgresql_dump.sql:/docker-entrypoint-initdb.d/10-postgresql_dump.sql:ro"
+  tags:
+    - postgres
+    - postgresql
+    - postgres.reload.staging
+    - postgresql.reload.staging
 
 - name: "{{ redis_config_dir }}/redis.conf"
   copy:

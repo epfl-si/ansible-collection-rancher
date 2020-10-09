@@ -5,8 +5,19 @@
   tags: images
 
 - name: Serving databases
-  import_tasks: databases.yml
-  tags: databases
+  tags:
+    - databases
+    - postgresql
+    - postgres
+    - postgres.reload.staging
+    - postgresql.reload.staging
+  include_tasks:
+    file: databases.yml
+    apply:
+      tags:
+        - databases
+        - postgresql
+        - postgres
 
 - name: Serving containers
   tags:
