@@ -64,7 +64,7 @@
     restart_policy: unless-stopped
     # Kick the staging database (so that it reloads from a production
     # backup) whenever we build a new image:
-    restart: >-
+    recreate: >-
       {{ (environment_name == "staging")
          and
          (  ( (_serving_image is defined)

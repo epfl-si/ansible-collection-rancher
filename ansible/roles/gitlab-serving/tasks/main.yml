@@ -7,8 +7,8 @@
 - name: Serving databases
   tags:
     - databases
-    - postgresql
     - postgres
+    - postgresql
     - postgres.reload.staging
     - postgresql.reload.staging
   include_tasks:
@@ -16,8 +16,6 @@
     apply:
       tags:
         - databases
-        - postgresql
-        - postgres
 
 - name: Serving containers
   tags:
