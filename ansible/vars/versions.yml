@@ -1,2 +1,2 @@
-gitlab_version: 13.3.5
+gitlab_version: 13.4.3
 postgresql_docker_image: postgres:12
