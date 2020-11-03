@@ -39,23 +39,6 @@
     - postgres
     - postgresql
 
-- name: 'Staging PostgreSQL: SQL startup script'
-  when: inventory_hostname == "gitlabstaging"
-  copy:
-    dest: "{{ postgresql_staging_scripts_dir }}/00-create-db.sql"
-    content: |
-       -- This runs first to create the staging DB (look for
-       -- postgresql_staging in ../docker-compose.yml), before
-       -- restoring the daily backup.
-       
-       -- This is actually the production database, but the name is what it is.
-       CREATE DATABASE gitlabhq_production;
-       
-       -- The only reasons these are here is so that the daily backup can DROP them
-       -- without failing.
-       CREATE ROLE "gitlab";
-       CREATE ROLE "gitlab-psql";
-
 - name: 'PostgreSQL database'
   docker_container:
     name: "postgresql_{{ environment_name }}"
@@ -99,8 +82,7 @@
       # scripts in /docker-entrypoint-initdb.d get executed at
       # startup:
       - "{{ postgresql_staging_scripts_dir }}/log-queries.sh:/docker-entrypoint-initdb.d/log-queries.sh:ro"
-      - "{{ postgresql_staging_scripts_dir }}/00-create-db.sql:/docker-entrypoint-initdb.d/00-create-db.sql:ro"
-      - "/srv/gitlab/backup/postgresql_dump.sql:/docker-entrypoint-initdb.d/10-postgresql_dump.sql:ro"
+      - "/srv/gitlab/backup/postgresql_dump.sql:/docker-entrypoint-initdb.d/00-restore.sql:ro"
   tags:
     - postgres
     - postgresql

@@ -11,7 +11,13 @@
 
         DUMPFILE=/srv/gitlab/backup/postgresql_dump.sql
 
-        docker exec postgresql_prod pg_dumpall --exclude-database=postgres -c -U postgres |grep -Pv '^(DROP|CREATE|ALTER) ROLE postgres' > $DUMPFILE.NEW
+        (
+          docker exec postgresql_prod pg_dumpall --roles-only -c -U postgres | \
+              grep -Pv '^(DROP|CREATE|ALTER) ROLE postgres'                  | \
+              sed 's/DROP \([^ ]*\)/DROP \1 IF EXISTS/'
+          echo "DROP DATABASE IF EXISTS gitlabhq_production;"
+          docker exec postgresql_prod pg_dump -C -U postgres gitlabhq_production
+        ) > $DUMPFILE.NEW
         mv $DUMPFILE.NEW $DUMPFILE
 
 - tags:
