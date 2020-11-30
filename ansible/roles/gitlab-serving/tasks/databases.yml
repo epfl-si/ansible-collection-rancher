@@ -103,6 +103,7 @@
 
 - name: 'Redis'
   docker_container:
+    restart_policy: unless-stopped
     name: "redis_{{ environment_name }}"
     image: redis:latest
     log_driver: json-file
