@@ -1,3 +1,3 @@
-gitlab_version: 13.6.3
+gitlab_version: 13.7.2
 postgresql_docker_image: postgres:12
 plantuml_docker_image: plantuml/plantuml-server:tomcat-v1.2020.22
