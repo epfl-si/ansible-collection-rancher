@@ -1,0 +1,95 @@
+- name: "gitlab Deployment"
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: gitlab
+        namespace: "{{ k8s_namespace }}"
+        labels:
+          app: gitlab
+      spec:
+        selector:
+          matchLabels:
+            app: gitlab
+        replicas: 1
+        template:
+          metadata:
+            labels:
+              app: gitlab
+          spec:
+            containers:
+            - name: master
+              image: "{{ k8s_gitlab_image }}"
+              ports:
+              - containerPort: 80
+              - containerPort: 22
+              volumeMounts:
+              ## Configuration file (from ConfigMap)
+              - mountPath: "/etc/gitlab/gitlab.rb"
+                name: gitlab-rails-config
+                subPath: gitlab.rb
+              ## Secrets (sourced from the configuration file)
+              - mountPath: "/secrets"
+                name: gitlab-rails-secrets
+              ## NFS assets
+              - mountPath: "/var/opt/gitlab/git-data"
+                name: git-nfs
+                subPath: data/git-data
+              - mountPath: "/var/opt/gitlab/.ssh"
+                name: git-nfs
+                subPath: data/ssh_user_public_keys
+              - mountPath: "/var/opt/gitlab/gitlab-rails/shared"
+                name: git-nfs
+                subPath: data/shared
+              - mountPath: "/var/opt/gitlab/gitlab-rails/uploads"
+                name: git-nfs
+                subPath: data/uploads
+              - mountPath: "/var/opt/gitlab/gitlab-ci/builds"
+                name: git-nfs
+                subPath: data/gitlab-ci/builds
+
+            volumes:
+              - name: gitlab-rails-config
+                configMap:
+                  name: gitlab-rails
+                  defaultMode: 0644
+              - name: gitlab-rails-secrets
+                secret:
+                  secretName: gitlab-passwords
+                  defaultMode: 0644
+
+              ## NFS volume
+              - name: git-nfs
+                persistentVolumeClaim:
+                  claimName: gitlab-epfl-ch-pvc
+
+## TODO: we will be needing this too.
+#            - name: ssh-server-secrets
+#              configMap:
+#                name: gitlab-ssh-secrets
+#                defaultMode: 0644
+
+
+- name: "gitlab Service"
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: gitlab
+        namespace: "{{ k8s_namespace }}"
+        labels:
+          app: gitlab
+      spec:
+        ports:
+        - name: http
+          port: 80
+          targetPort: 80
+        - name: ssh
+          port: 22
+          targetPort: 22
+        selector:
+          app: gitlab

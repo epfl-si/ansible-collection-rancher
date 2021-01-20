@@ -31,3 +31,13 @@
   tags:
     - k8s
     - k8s.redis
+
+- include_tasks:
+    file: k8s-gitlab.yml
+    apply:
+      tags:
+        - k8s
+        - k8s.gitlab
+  tags:
+    - k8s
+    - k8s.gitlab
