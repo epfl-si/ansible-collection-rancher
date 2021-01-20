@@ -30,8 +30,30 @@ tcp:
         - "ssh_staging"
       service: gitlab-ssh-staging
 
+    gitlab-postgres-staging:
+      rule: "{{ traefik_tcp_rule_catch_all }}"
+      entryPoints:
+        - "postgres_staging"
+      service: gitlab-postgres-staging
+
+    gitlab-postgres-prod:
+      rule: "{{ traefik_tcp_rule_catch_all }}"
+      entryPoints:
+        - "postgres_prod"
+      service: gitlab-postgres-prod
+
   services:
     gitlab-ssh-staging:
       loadBalancer:
         servers:
         - address: "{{ gitlab_docker_staging_hostname }}:22"
+
+    gitlab-postgres-staging:
+      loadBalancer:
+        servers:
+        - address: "{{ postgresql_container_name.staging }}:5432"
+
+    gitlab-postgres-prod:
+      loadBalancer:
+        servers:
+        - address: "{{ postgresql_container_name.prod }}:5432"

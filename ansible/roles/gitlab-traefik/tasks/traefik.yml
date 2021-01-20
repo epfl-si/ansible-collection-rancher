@@ -86,6 +86,8 @@
       - "80:80"
       - "443:443"
       - "444:444"
+      - "54321:54321"
+      - "54322:54322"
     volumes:
       - "{{ traefik_acme_state_dir }}:/acme"
       - "{{ traefik_static_config_file }}:/etc/traefik/traefik.yml"
