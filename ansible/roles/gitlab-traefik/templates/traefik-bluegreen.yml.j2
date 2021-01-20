@@ -30,8 +30,19 @@ tcp:
         - "ssh"
       service: gitlab-ssh
 
+    gitlab-postgres-prod:
+      rule: "{{ traefik_tcp_rule_catch_all }}"
+      entryPoints:
+        - "postgres_prod"
+      service: gitlab-postgres-prod
+
   services:
     gitlab-ssh:
       loadBalancer:
         servers:
         - address: "{{ gitlab_docker_prod_hostname }}:22"
+
+    gitlab-postgres-prod:
+      loadBalancer:
+        servers:
+        - address: "{{ postgresql_container_name.prod }}:5432"
