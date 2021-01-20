@@ -160,6 +160,10 @@
     state: directory
     mode: "01777"
 
+# TODO: ensure that user gitlab in the production database has the
+# password found in
+# /keybase/team/epfl_gitlab.ic_gitlab/postgres-password-prod.txt
+
 - name: 'Redis'
   docker_container:
     restart_policy: unless-stopped
