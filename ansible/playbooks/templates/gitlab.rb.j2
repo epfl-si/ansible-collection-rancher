@@ -36,7 +36,11 @@ gitlab_rails['db_collation'] = nil
 gitlab_rails['db_database'] = "gitlabhq_production"
 gitlab_rails['db_pool'] = 10
 gitlab_rails['db_username'] = "gitlab"
+{% if (is_kubernetes | default(False)) %}
+gitlab_rails['db_password'] =  File.read("/secrets/gitlab_rails_db_password.txt")
+{% else %}
 gitlab_rails['db_password'] = nil
+{% endif %}
 gitlab_rails['db_host'] = nil
 gitlab_rails['db_port'] = 5432
 gitlab_rails['db_socket'] = nil

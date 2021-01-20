@@ -2,9 +2,21 @@
   tags: always
 
 - include_tasks:
-    file: k8s-tasks.yml
+    file: k8s-deps.yml
     apply:
-      tags: k8s
+      tags:
+        - k8s
+        - k8s.deps
   tags:
     - k8s
     - k8s.deps
+
+- include_tasks:
+    file: k8s-tasks.yml
+    apply:
+      tags:
+        - k8s
+        - k8s.main
+  tags:
+    - k8s
+    - k8s.main

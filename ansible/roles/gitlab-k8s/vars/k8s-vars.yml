@@ -1,1 +1,2 @@
 k8s_namespace: gitlab
+keybase_gitlab_rails_password_file: /keybase/team/epfl_gitlab.ic_gitlab/postgres-password-prod.txt
