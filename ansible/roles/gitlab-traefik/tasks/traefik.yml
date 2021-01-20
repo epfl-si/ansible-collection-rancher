@@ -19,7 +19,6 @@
   register: _traefik_static_config_file
 
 - name: "{{ traefik_staging_dynamic_config_file }}"
-  when: traefik_debug is defined
   copy:
     dest: "{{ traefik_staging_dynamic_config_file }}"
     content: "{{ lookup('template', 'traefik-gitlabstaging.yml.j2') }}"
