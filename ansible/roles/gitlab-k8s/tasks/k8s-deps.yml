@@ -1,0 +1,10 @@
+# Install the far-side Python stuff that community.kubernetes wants.
+
+- apt:
+    name: python3-pip
+
+- pip:
+    name: "{{ item }}"
+  with_items:
+    - PyYAML
+    - openshift

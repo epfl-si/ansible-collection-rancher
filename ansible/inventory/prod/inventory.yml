@@ -11,3 +11,6 @@ all:
       ansible_user: root
       ansible_port: 2202
       ansible_ssh_common_args: '-o ForwardAgent=yes'
+    icvm0052:
+      ansible_host: icvm0052.xaas.epfl.ch
+      ansible_user: root

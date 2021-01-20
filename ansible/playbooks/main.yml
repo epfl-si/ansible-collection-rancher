@@ -30,3 +30,9 @@
   gather_facts: no
   roles:
     - role: ../roles/gitlab-backups
+
+- name: Kubernetes service out of ic-gitlab.epfl.ch
+  hosts: icvm0052
+  gather_facts: no
+  roles:
+    - role: ../roles/gitlab-k8s

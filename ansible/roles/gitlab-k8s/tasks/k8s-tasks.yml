@@ -1,0 +1,12 @@
+- include_tasks:
+    file: k8s-deps.yml
+    apply:
+      tags: k8s.deps
+  tags: k8s.deps
+
+- name: "{{ k8s_namespace }} namespace"
+  community.kubernetes.k8s:
+    name: "{{ k8s_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: present

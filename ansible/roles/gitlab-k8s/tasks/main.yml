@@ -1,0 +1,10 @@
+- include_vars: k8s-vars.yml
+  tags: always
+
+- include_tasks:
+    file: k8s-tasks.yml
+    apply:
+      tags: k8s
+  tags:
+    - k8s
+    - k8s.deps
