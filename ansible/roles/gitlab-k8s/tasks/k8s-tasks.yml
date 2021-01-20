@@ -63,3 +63,19 @@
           {{ lookup("template", "gitlab.rb.j2") }}
   vars:
     is_kubernetes: true
+
+- name: "gitlab-epfl-ch-pvc PersistentVolumeClaim"
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name:  gitlab-epfl-ch-pvc
+        namespace: gitlab
+      spec:
+        accessModes:
+          - ReadWriteMany
+        resources:
+          requests:
+            storage: 1Ti
