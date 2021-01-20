@@ -1,3 +1,27 @@
+- name: "Delete {{ k8s_namespace }} namespace"
+  community.kubernetes.k8s:
+    name: "{{ k8s_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: absent
+  tags:
+    - never
+    - k8s.wipe
+
+- name: "Wait for the {{ k8s_namespace }} namespace to go down"
+  changed_when: false
+  shell:
+    cmd: |
+      kubectl get namespace gitlab || true
+  register: _kubectl_get_namespace
+  until: >
+    ansible_check_mode or ("NotFound" in _kubectl_get_namespace.stderr)
+  retries: 20
+  delay: 30
+  tags:
+    - never
+    - k8s.wipe
+
 - name: "{{ k8s_namespace }} namespace"
   community.kubernetes.k8s:
     name: "{{ k8s_namespace }}"
