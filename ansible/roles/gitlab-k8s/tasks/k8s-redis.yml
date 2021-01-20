@@ -21,9 +21,15 @@
           spec:
             containers:
             - name: master
-              image: k8s.gcr.io/redis
+              image: quay.io/bitnami/redis:latest
               ports:
               - containerPort: 6379
+              env:
+                - name: REDIS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: gitlab-passwords
+                      key: gitlab_rails_redis_password.txt
 
 - name: "redis Service"
   community.kubernetes.k8s:
