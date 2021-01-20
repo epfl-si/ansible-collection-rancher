@@ -39,6 +39,36 @@
     - postgres
     - postgresql
 
+- name: "{{ postgresql_certs_dir }}"
+  file:
+    path: "{{ postgresql_certs_dir }}"
+    state: directory
+  tags: databases.certs
+
+- name: "RSA key for PostgreSQL"
+  openssl_privatekey:
+    path: "{{ postgresql_certs_dir }}/key.pem"
+    size: 2048
+    mode: "0640"    # Postgres is cool that way
+    group: "101"    # ssl-cert
+  tags: databases.certs
+
+- name: "CSR for PostgreSQL"
+  openssl_csr:
+    path: "{{ postgresql_certs_dir }}/cert.csr"
+    privatekey_path: "{{ postgresql_certs_dir }}/key.pem"
+    common_name: "gitlab.epfl.ch"
+  tags: databases.certs
+
+- name: "RSA certificate for PostgreSQL"
+  openssl_certificate:
+    path: "{{ postgresql_certs_dir }}/cert.pem"
+    privatekey_path: "{{ postgresql_certs_dir }}/key.pem"
+    csr_path: "{{ postgresql_certs_dir }}/cert.csr"
+    provider: selfsigned
+    valid_in: +36500d
+  tags: databases.certs
+
 - name: 'PostgreSQL database'
   docker_container:
     name: "postgresql_{{ environment_name }}"
@@ -67,13 +97,24 @@
       POSTGRES_PASSWORD: "roo3bezahBo6bohH3aY9"  # TODO: generate a stable password here.
                                                  # (It just needs to be set; the value isn't
                                                  # shared anywhere else.)
+    network_mode: "{{ docker_network_name }}"
+    command:
+      - postgres
+      - "-c"
+      - ssl=on
+      - "-c"
+      - ssl_cert_file=/etc/ssl/certs/cert.pem
+      - "-c"
+      - ssl_key_file=/etc/ssl/certs/key.pem
+
   vars:
     volumes:
-      staging: '{{ staging_startup_scripts + [socket_volume, doctored_passwd_volume] }}'
-      prod: '{{ [socket_volume, doctored_passwd_volume, storage_volume] }}'
+      staging: '{{ staging_startup_scripts + [socket_volume, doctored_passwd_volume, certs_volume] }}'
+      prod: '{{ [socket_volume, doctored_passwd_volume, storage_volume, certs_volume] }}'
     socket_volume: "/srv/gitlab/run/postgres-socket{{ socket_suffix }}:/run/postgresql/"
     doctored_passwd_volume: "{{ postgresql_config_dir }}/passwd:/etc/passwd:ro"
     storage_volume: "/srv/gitlab/postgresql/data:/var/lib/postgresql/data"
+    certs_volume: "{{ postgresql_certs_dir }}:/etc/ssl/certs"
     staging_startup_scripts:
       # The staging database is *not* persistent; instead, it
       # reloads from a production backup every time it starts up.
