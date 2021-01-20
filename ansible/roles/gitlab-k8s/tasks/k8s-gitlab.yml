@@ -72,24 +72,22 @@
 #                defaultMode: 0644
 
 
-- name: "gitlab Service"
+- name: "gitlab ssh Service (visible at cluster edge)"
   community.kubernetes.k8s:
     state: present
     definition:
       apiVersion: v1
       kind: Service
       metadata:
-        name: gitlab
+        name: ssh-lb
         namespace: "{{ k8s_namespace }}"
-        labels:
-          app: gitlab
       spec:
+        type: LoadBalancer
         ports:
-        - name: http
-          port: 80
-          targetPort: 80
-        - name: ssh
-          port: 22
-          targetPort: 22
+          - name: ssh
+            protocol: TCP
+            nodePort: 30022  ## Ingress traffic arrives on this port
+            port: 22         ## Egress traffic goes to that port on matching
+                             ## pods (by “selector”, below)
         selector:
           app: gitlab
