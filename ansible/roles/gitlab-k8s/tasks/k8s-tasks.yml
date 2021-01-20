@@ -29,20 +29,24 @@
     kind: Namespace
     state: present
 
-- name: "gitlab-rails-db-password secret"
+- name: "gitlab-passwords secret"
   community.kubernetes.k8s:
     state: present
     definition:
       apiVersion: v1
       kind: Secret
       metadata:
-        name: gitlab-rails-db-password
+        name: gitlab-passwords
         namespace: "{{ k8s_namespace }}"
       type: Opaque
       data:
         gitlab_rails_db_password.txt: >-
           {{ lookup('pipe',
-                    'cat {{ keybase_gitlab_rails_password_file }}')
+                    'cat {{ keybase_gitlab_rails_db_password_file }}')
+                  | b64encode }}
+        gitlab_rails_redis_password.txt: >-
+          {{ lookup('pipe',
+                    'cat {{ keybase_gitlab_rails_redis_password_file }}')
                   | b64encode }}
 
 - name: "gitlab-rails ConfigMap"
