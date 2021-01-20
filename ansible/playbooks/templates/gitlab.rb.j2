@@ -15,7 +15,11 @@
 # single-file volume, and the changes to it are *not* visible from
 # already-running Docker containers (unlike what would happen if the
 # volume was a directory)
+{% if (is_kubernetes | default(False)) %}
+external_url 'https://ic-gitlab.epfl.ch/'
+{% else %}
 external_url (ENV["ENVIRONMENT"] == "staging" ? 'https://gitlab.epfl.ch:444/' : 'https://gitlab.epfl.ch/')
+{% endif %}
 nginx['listen_port'] = 80
 nginx['listen_https'] = false
 nginx['proxy_set_headers'] = {
@@ -37,18 +41,26 @@ gitlab_rails['db_database'] = "gitlabhq_production"
 gitlab_rails['db_pool'] = 10
 gitlab_rails['db_username'] = "gitlab"
 {% if (is_kubernetes | default(False)) %}
+gitlab_rails['db_host'] = 'gitlab.epfl.ch'
+gitlab_rails['db_port'] = 54321
 gitlab_rails['db_password'] =  File.read("/secrets/gitlab_rails_db_password.txt")
+gitlab_rails['db_sslmode'] = 'require'
 {% else %}
-gitlab_rails['db_password'] = nil
-{% endif %}
 gitlab_rails['db_host'] = nil
 gitlab_rails['db_port'] = 5432
-gitlab_rails['db_socket'] = nil
+gitlab_rails['db_password'] = nil
 gitlab_rails['db_sslmode'] = nil
+gitlab_rails['db_socket'] = nil
 gitlab_rails['db_sslrootcert'] = nil
+{% endif %}
 
 redis['enable'] = false
+{% if (is_kubernetes | default(False)) %}
+gitlab_rails['redis_host'] = "redis"
+gitlab_rails['redis_password'] = File.read("/secrets/gitlab_rails_redis_password.txt")
+{% else %}
 gitlab_rails['redis_socket'] = "/var/opt/gitlab/redis/redis.socket"
+{% endif %}
 
 gitlab_rails['omniauth_enabled'] = true
 gitlab_rails['omniauth_allow_single_sign_on'] = true
