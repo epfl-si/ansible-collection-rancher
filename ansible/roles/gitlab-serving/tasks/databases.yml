@@ -24,6 +24,24 @@
       MOAR_PASSWD
       ) > "{{ postgresql_config_dir }}/passwd"
 
+- name: 'Staging PostgreSQL: script that creates pg-hba.conf'
+  when: inventory_hostname == "gitlabstaging"
+  copy:
+    dest: "{{ postgresql_staging_scripts_dir }}/setup-hba-conf.sh"
+    mode: "0755"
+    content: |
+      #!/bin/bash
+      cat > /var/lib/postgresql/data/pg_hba.conf << HBACONF
+      {{ lookup("template", "pg_hba.conf") }}
+      HBACONF
+
+- name: "{{ postgresql_prod_cluster_path }}/pg_hba.conf"
+  when: inventory_hostname == "gitlabprod"
+  copy:
+    dest: "{{ postgresql_prod_cluster_path }}/pg_hba.conf"
+    content: >-
+      {{ lookup("template", "pg_hba.conf") }}
+
 - name: 'Staging PostgreSQL: "log-queries.sh" script'
   when: inventory_hostname == "gitlabstaging"
   copy:
@@ -113,7 +131,7 @@
       prod: '{{ [socket_volume, doctored_passwd_volume, storage_volume, certs_volume] }}'
     socket_volume: "/srv/gitlab/run/postgres-socket{{ socket_suffix }}:/run/postgresql/"
     doctored_passwd_volume: "{{ postgresql_config_dir }}/passwd:/etc/passwd:ro"
-    storage_volume: "/srv/gitlab/postgresql/data:/var/lib/postgresql/data"
+    storage_volume: "{{ postgresql_prod_cluster_path }}:/var/lib/postgresql/data"
     certs_volume: "{{ postgresql_certs_dir }}:/etc/ssl/certs"
     staging_startup_scripts:
       # The staging database is *not* persistent; instead, it
@@ -122,7 +140,7 @@
       # As per https://hub.docker.com/_/postgres/, SQL / shell
       # scripts in /docker-entrypoint-initdb.d get executed at
       # startup:
-      - "{{ postgresql_staging_scripts_dir }}/log-queries.sh:/docker-entrypoint-initdb.d/log-queries.sh:ro"
+      - "{{ postgresql_staging_scripts_dir }}:/docker-entrypoint-initdb.d:rw"
       - "/srv/gitlab/backup/postgresql_dump.sql:/docker-entrypoint-initdb.d/00-restore.sql:ro"
   tags:
     - postgres
