@@ -21,3 +21,13 @@
     - k8s
     - k8s.main
     - k8s.wipe
+
+- include_tasks:
+    file: k8s-redis.yml
+    apply:
+      tags:
+        - k8s
+        - k8s.redis
+  tags:
+    - k8s
+    - k8s.redis
