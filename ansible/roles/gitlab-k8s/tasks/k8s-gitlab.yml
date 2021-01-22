@@ -1,3 +1,6 @@
+- include_vars: "../../../secrets/ssh.yml"
+  tags: always
+
 - name: "{{ k8s_persistentvolume_name }} PersistentVolume"
   community.kubernetes.k8s:
     state: present
@@ -34,6 +37,18 @@
         resources:
           requests:
             storage: 1Ti
+
+- name: "gitlab-ssh Secret"
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: gitlab-ssh
+        namespace: "{{ k8s_namespace }}"
+      type: Opaque
+      data: "{{ ssh_secrets | base64_values }}"
 
 - name: "gitlab-rails ConfigMap"
   community.kubernetes.k8s:
@@ -77,52 +92,52 @@
               ports:
               - containerPort: 80
               - containerPort: 22
-              volumeMounts:
-              ## Configuration file (from ConfigMap)
-              - mountPath: "/etc/gitlab/gitlab.rb"
-                name: gitlab-rails-config
-                subPath: gitlab.rb
-              ## Secrets (sourced from the configuration file)
-              - mountPath: "/secrets"
-                name: gitlab-rails-secrets
-              ## NFS assets
-              - mountPath: "/var/opt/gitlab/git-data"
-                name: git-nfs
-                subPath: data/git-data
-              - mountPath: "/var/opt/gitlab/.ssh"
-                name: git-nfs
-                subPath: data/ssh_user_public_keys
-              - mountPath: "/var/opt/gitlab/gitlab-rails/shared"
-                name: git-nfs
-                subPath: data/shared
-              - mountPath: "/var/opt/gitlab/gitlab-rails/uploads"
-                name: git-nfs
-                subPath: data/uploads
-              - mountPath: "/var/opt/gitlab/gitlab-ci/builds"
-                name: git-nfs
-                subPath: data/gitlab-ci/builds
-
+              volumeMounts: "{{ volume_mounts }}"
             volumes:
               - name: gitlab-rails-config
                 configMap:
                   name: gitlab-rails
-                  defaultMode: 0644
               - name: gitlab-rails-secrets
                 secret:
                   secretName: gitlab-passwords
-                  defaultMode: 0644
-
-              ## NFS volume
               - name: git-nfs
                 persistentVolumeClaim:
                   claimName: gitlab-epfl-ch-pvc
-
-## TODO: we will be needing this too.
-#            - name: ssh-server-secrets
-#              configMap:
-#                name: gitlab-ssh-secrets
-#                defaultMode: 0644
-
+              - name: ssh-server-keys
+                secret:
+                  secretName: gitlab-ssh
+                  defaultMode: 0600
+  vars:
+    volume_mounts: >-
+      {{ config_and_secret_volume_mounts +
+         nfs_volume_mounts +
+         ssh_volume_mounts }}
+    config_and_secret_volume_mounts:
+      ## Configuration file (from ConfigMap)
+      - mountPath: "/etc/gitlab/gitlab.rb"
+        name: gitlab-rails-config
+        subPath: gitlab.rb
+      ## Secrets (sourced from the configuration file)
+      - mountPath: "/secrets"
+        name: gitlab-rails-secrets
+    nfs_volume_mounts:
+      - mountPath: "/var/opt/gitlab/git-data"
+        name: git-nfs
+        subPath: data/git-data
+      - mountPath: "/var/opt/gitlab/.ssh"
+        name: git-nfs
+        subPath: data/ssh_user_public_keys
+      - mountPath: "/var/opt/gitlab/gitlab-rails/shared"
+        name: git-nfs
+        subPath: data/shared
+      - mountPath: "/var/opt/gitlab/gitlab-rails/uploads"
+        name: git-nfs
+        subPath: data/uploads
+      - mountPath: "/var/opt/gitlab/gitlab-ci/builds"
+        name: git-nfs
+        subPath: data/gitlab-ci/builds
+    ssh_volume_mounts: '{{ ssh_secrets | keys |
+                           as_volume_mounts("ssh-server-keys", "/etc/gitlab") }}'
 
 - name: "gitlab ssh Service (visible at cluster edge)"
   community.kubernetes.k8s:
