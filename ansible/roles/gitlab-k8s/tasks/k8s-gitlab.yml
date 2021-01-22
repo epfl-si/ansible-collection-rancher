@@ -1,6 +1,6 @@
 - include_vars: "{{ item }}"
   with_items:
-    - ../../../secrets/ssh.yml
+    - ssh-secrets.yml
     - ingress-tls-secrets.yml
   tags: always
 
