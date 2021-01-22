@@ -14,7 +14,7 @@ def to_omnibus(d, prefix):
 
 def _to_omnibus_lines(d, prefix):
     retval = []
-    for k in d.keys():
+    for k in sorted(d.keys()):
         v = d[k]
         if isinstance(v, dict):
             newprefix = "%s[%s]" % (prefix, _quote(k))
