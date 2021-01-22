@@ -115,6 +115,20 @@
             labels:
               app: gitlab
           spec:
+            affinity:
+              podAntiAffinity:
+                # This pod doesn't like running on VMs that have other
+                # copies of itself (obviously for HA purposes)
+                preferredDuringSchedulingIgnoredDuringExecution:
+                  - weight: 100
+                    podAffinityTerm:
+                      topologyKey: kubernetes.io/hostname
+                      labelSelector:
+                        matchExpressions:
+                          - key: app
+                            operator: In
+                            values:
+                            - "gitlab"
             containers:
             - name: master
               image: "{{ k8s_gitlab_image }}"
