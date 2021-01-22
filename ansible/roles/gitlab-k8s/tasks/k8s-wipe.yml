@@ -1,0 +1,19 @@
+# Delete everything (so as to start over)
+
+- name: "Delete the {{ k8s_namespace }} namespace"
+  community.kubernetes.k8s:
+    name: "{{ k8s_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: absent
+
+- name: "Wait for the {{ k8s_namespace }} namespace to go down"
+  changed_when: false
+  shell:
+    cmd: |
+      kubectl get namespace {{ k8s_namespace }} || true
+  register: _kubectl_get_namespace
+  until: >
+    ansible_check_mode or ("NotFound" in _kubectl_get_namespace.stderr)
+  retries: 20
+  delay: 30
