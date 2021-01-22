@@ -43,7 +43,7 @@ gitlab_rails['db_username'] = "gitlab"
 {% if (is_kubernetes | default(False)) %}
 gitlab_rails['db_host'] = 'gitlab.epfl.ch'
 gitlab_rails['db_port'] = 54321
-gitlab_rails['db_password'] =  File.read("/secrets/gitlab_rails_db_password.txt")
+gitlab_rails['db_password'] =  File.read("/secrets/external/gitlab_rails_db_password.txt")
 gitlab_rails['db_sslmode'] = 'require'
 {% else %}
 gitlab_rails['db_host'] = nil
@@ -57,7 +57,7 @@ gitlab_rails['db_sslrootcert'] = nil
 redis['enable'] = false
 {% if (is_kubernetes | default(False)) %}
 gitlab_rails['redis_host'] = "redis"
-gitlab_rails['redis_password'] = File.read("/secrets/gitlab_rails_redis_password.txt")
+gitlab_rails['redis_password'] = File.read("/secrets/external/gitlab_rails_redis_password.txt")
 {% else %}
 gitlab_rails['redis_socket'] = "/var/opt/gitlab/redis/redis.socket"
 {% endif %}
@@ -100,3 +100,8 @@ redis_exporter['enable'] = true
 {% endif %}
 postgres_exporter['enable'] = false
 pgbouncer_exporter['enable'] = true
+
+mattermost['gitlab_enable'] = false
+{% if (is_kubernetes | default(False)) %}{# For now #}
+eval(File.read "/secrets/internal/gitlab-secrets.rb")
+{% endif %}
