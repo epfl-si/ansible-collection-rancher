@@ -86,6 +86,12 @@ prometheus['flags']['web.listen-address'] = "0.0.0.0:9090"
 
 prometheus_monitoring['enable'] = true # Default
 node_exporter['enable'] = true
+{% if (is_kubernetes | default(False)) %}
+{# It looks like the Redis exporter insists on connecting to
+ # a local UNIX domain socket. Oh well. #}
+redis_exporter['enable'] = false
+{% else %}
 redis_exporter['enable'] = true
+{% endif %}
 postgres_exporter['enable'] = false
 pgbouncer_exporter['enable'] = true
