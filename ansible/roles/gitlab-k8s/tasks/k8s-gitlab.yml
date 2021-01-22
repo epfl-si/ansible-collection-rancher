@@ -1,4 +1,7 @@
-- include_vars: "../../../secrets/ssh.yml"
+- include_vars: "{{ item }}"
+  with_items:
+    - ../../../secrets/ssh.yml
+    - ingress-tls-secrets.yml
   tags: always
 
 - name: "{{ k8s_persistentvolume_name }} PersistentVolume"
@@ -162,6 +165,23 @@
     cmd: |
       kubectl -n {{ k8s_namespace }} rollout restart deployment gitlab
 
+- name: "gitlab http Service (used by the Ingress)"
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: gitlab-web
+        namespace: "{{ k8s_namespace }}"
+      spec:
+        ports:
+          - name: http
+            protocol: TCP
+            port: 80
+        selector:
+          app: gitlab
+
 - name: "gitlab ssh Service (visible at cluster edge)"
   community.kubernetes.k8s:
     state: present
@@ -181,3 +201,42 @@
                              ## pods (by “selector”, below)
         selector:
           app: gitlab
+
+- name: "Ingress secret (bogus SSL cert and key)"
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: gitlab-ingress-tls
+        namespace: "{{ k8s_namespace }}"
+      type: Opaque
+      data:
+        tls.crt: "{{ ingress_tls_certificate | b64encode }}"
+        tls.key: "{{ ingress_tls_private_key | eyaml(eyaml_keys) | b64encode }}"
+
+- name: "gitlab http Ingress (dispatched via cluster-wide ingress controller)"
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: extensions/v1beta1
+      kind: Ingress
+      metadata:
+        name: gitlab
+        namespace: "{{ k8s_namespace }}"
+        annotations:
+          nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      spec:
+        tls:
+        - hosts:
+          - ic-gitlab.epfl.ch
+          secretName: gitlab-ingress-tls
+
+        rules:
+        - host: "{{ k8s_serving_hostname }}"
+          http:
+            paths:
+            - backend:
+                serviceName: gitlab-web
+                servicePort: 80
