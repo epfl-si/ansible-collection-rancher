@@ -53,3 +53,4 @@
   tags:
     - k8s
     - k8s.gitlab
+    - k8s.gitlab.redeploy

@@ -153,6 +153,15 @@
     ssh_volume_mounts: '{{ ssh_secrets | keys |
                            as_volume_mounts("ssh-server-keys", "/etc/gitlab") }}'
 
+- name: "Redeploy gitlab"
+  tags: k8s.gitlab.redeploy
+  # Surprise, surprise, the "never" tag doesn't quite work right:
+  when: |
+    "k8s.gitlab.redeploy" in ansible_run_tags
+  shell:
+    cmd: |
+      kubectl -n {{ k8s_namespace }} rollout restart deployment gitlab
+
 - name: "gitlab ssh Service (visible at cluster edge)"
   community.kubernetes.k8s:
     state: present
