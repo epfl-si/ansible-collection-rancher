@@ -3,6 +3,7 @@
   with_items:
     - serving-vars.yml
     - serving-secrets.yml
+    - ../../../secrets/ssh.yml
 
 - name: "Configuration directories"
   file:
@@ -21,7 +22,7 @@
     content: '{{ lookup("template", "gitlab.rb.j2") }}'
 
 - name: ssh server keys
-  with_items: "{{ serving_secrets_ssh | iteritems }}"
+  with_items: "{{ ssh_secrets | iteritems }}"
   no_log: true
   copy:
     dest: "{{ serving_gitlab_ssh_secrets_dir }}/{{ item.k }}"
