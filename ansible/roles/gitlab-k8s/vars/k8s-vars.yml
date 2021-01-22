@@ -1,4 +1,5 @@
 k8s_namespace: gitlab
+k8s_serving_hostname: ic-gitlab.epfl.ch
 
 k8s_persistentvolume_name: gitlab-epfl-ch-pv
 

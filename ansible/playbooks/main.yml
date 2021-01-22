@@ -31,7 +31,7 @@
   roles:
     - role: ../roles/gitlab-backups
 
-- name: Kubernetes service out of ic-gitlab.epfl.ch
+- name: "Kubernetes service"
   hosts: icvm0052
   gather_facts: no
   roles:
