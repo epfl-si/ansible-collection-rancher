@@ -17,3 +17,21 @@
     ansible_check_mode or ("NotFound" in _kubectl_get_namespace.stderr)
   retries: 20
   delay: 30
+
+- name: "Delete the {{ k8s_persistentvolume_name }} PersistentVolume"
+  community.kubernetes.k8s:
+    kind: PersistentVolume
+    api_version: v1
+    name: "{{ k8s_persistentvolume_name }}"
+    state: absent
+
+- name: "Wait for the {{ k8s_persistentvolume_name }} PersistentVolume to go down"
+  changed_when: false
+  shell:
+    cmd: |
+      kubectl get pv {{ k8s_persistentvolume_name }} || true
+  register: _kubectl_get_namespace
+  until: >
+    ansible_check_mode or ("NotFound" in _kubectl_get_namespace.stderr)
+  retries: 20
+  delay: 30

@@ -1,17 +1,23 @@
-- name: "gitlab-rails ConfigMap"
+- name: "{{ k8s_persistentvolume_name }} PersistentVolume"
   community.kubernetes.k8s:
     state: present
     definition:
       apiVersion: v1
-      kind: ConfigMap
+      kind: PersistentVolume
       metadata:
-        name: gitlab-rails
-        namespace: "{{ k8s_namespace }}"
-      data:
-        gitlab.rb: >
-          {{ lookup("template", "gitlab.rb.j2") }}
-  vars:
-    is_kubernetes: true
+        name: "{{ k8s_persistentvolume_name }}"
+      spec:
+        capacity:
+          storage: 1Ti
+        accessModes:
+          - ReadWriteMany
+        mountOptions:
+          - nfsvers=3
+        nfs:
+          server: nas-app-ma-nfs1.epfl.ch
+          path: "/si_gitlab_app"
+        # Do the Right Thing when deleting/recreating the namespace:
+        persistentVolumeReclaimPolicy: "Recycle"
 
 - name: "gitlab-epfl-ch-pvc PersistentVolumeClaim"
   community.kubernetes.k8s:
@@ -28,6 +34,21 @@
         resources:
           requests:
             storage: 1Ti
+
+- name: "gitlab-rails ConfigMap"
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: gitlab-rails
+        namespace: "{{ k8s_namespace }}"
+      data:
+        gitlab.rb: >
+          {{ lookup("template", "gitlab.rb.j2") }}
+  vars:
+    is_kubernetes: true
 
 - name: "gitlab Deployment"
   community.kubernetes.k8s:

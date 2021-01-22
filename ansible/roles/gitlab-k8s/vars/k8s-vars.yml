@@ -1,4 +1,7 @@
 k8s_namespace: gitlab
+
+k8s_persistentvolume_name: gitlab-epfl-ch-pv
+
 keybase_gitlab_rails_db_password_file: /keybase/team/epfl_gitlab.ic_gitlab/postgres-password-prod.txt
 keybase_gitlab_rails_redis_password_file: /keybase/team/epfl_gitlab.ic_gitlab/redis-password-prod.txt
 
