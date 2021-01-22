@@ -93,6 +93,20 @@
               - containerPort: 80
               - containerPort: 22
               volumeMounts: "{{ volume_mounts }}"
+              startupProbe:      # When container starts
+                httpGet:
+                  path: /-/readiness
+                  port: 80
+                periodSeconds: 30
+                failureThreshold: 12  # 6 minutes
+              readinessProbe:    # In-flight, temporary problems
+                httpGet:
+                  path: /-/readiness
+                  port: 80
+              livenessProbe:     # In-flight, fatal problems
+                httpGet:
+                  path: /-/liveness
+                  port: 80
             volumes:
               - name: gitlab-rails-config
                 configMap:
