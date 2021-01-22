@@ -2,42 +2,5 @@
   tags: always
 
 - include_tasks:
-    file: k8s-deps.yml
-    apply:
-      tags:
-        - k8s
-        - k8s.deps
-  tags:
-    - k8s
-    - k8s.deps
-
-- include_tasks:
     file: k8s-tasks.yml
-    apply:
-      tags:
-        - k8s
-        - k8s.main
-  tags:
-    - k8s
-    - k8s.main
-    - k8s.wipe
-
-- include_tasks:
-    file: k8s-redis.yml
-    apply:
-      tags:
-        - k8s
-        - k8s.redis
-  tags:
-    - k8s
-    - k8s.redis
-
-- include_tasks:
-    file: k8s-gitlab.yml
-    apply:
-      tags:
-        - k8s
-        - k8s.gitlab
-  tags:
-    - k8s
-    - k8s.gitlab
+  tags: always  # Tag micromanagement is done inside k8s-tasks.yml

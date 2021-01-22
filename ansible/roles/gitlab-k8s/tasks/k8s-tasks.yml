@@ -1,3 +1,13 @@
+- include_tasks:
+    file: k8s-deps.yml
+    apply:
+      tags:
+        - k8s
+        - k8s.deps
+  tags:
+    - k8s
+    - k8s.deps
+
 - name: "Delete {{ k8s_namespace }} namespace"
   community.kubernetes.k8s:
     name: "{{ k8s_namespace }}"
@@ -29,53 +39,32 @@
     kind: Namespace
     state: present
 
-- name: "gitlab-passwords secret"
-  community.kubernetes.k8s:
-    state: present
-    definition:
-      apiVersion: v1
-      kind: Secret
-      metadata:
-        name: gitlab-passwords
-        namespace: "{{ k8s_namespace }}"
-      type: Opaque
-      data:
-        gitlab_rails_db_password.txt: >-
-          {{ lookup('pipe',
-                    'cat {{ keybase_gitlab_rails_db_password_file }}')
-                  | b64encode }}
-        gitlab_rails_redis_password.txt: >-
-          {{ lookup('pipe',
-                    'cat {{ keybase_gitlab_rails_redis_password_file }}')
-                  | b64encode }}
+- include_tasks:
+    file: k8s-secrets.yml
+    apply:
+      tags:
+        - k8s
+        - k8s.secrets
+  tags:
+    - k8s
+    - k8s.secrets
 
-- name: "gitlab-rails ConfigMap"
-  community.kubernetes.k8s:
-    state: present
-    definition:
-      apiVersion: v1
-      kind: ConfigMap
-      metadata:
-        name: gitlab-rails
-        namespace: "{{ k8s_namespace }}"
-      data:
-        gitlab.rb: >
-          {{ lookup("template", "gitlab.rb.j2") }}
-  vars:
-    is_kubernetes: true
+- include_tasks:
+    file: k8s-redis.yml
+    apply:
+      tags:
+        - k8s
+        - k8s.redis
+  tags:
+    - k8s
+    - k8s.redis
 
-- name: "gitlab-epfl-ch-pvc PersistentVolumeClaim"
-  community.kubernetes.k8s:
-    state: present
-    definition:
-      apiVersion: v1
-      kind: PersistentVolumeClaim
-      metadata:
-        name:  gitlab-epfl-ch-pvc
-        namespace: gitlab
-      spec:
-        accessModes:
-          - ReadWriteMany
-        resources:
-          requests:
-            storage: 1Ti
+- include_tasks:
+    file: k8s-gitlab.yml
+    apply:
+      tags:
+        - k8s
+        - k8s.gitlab
+  tags:
+    - k8s
+    - k8s.gitlab
