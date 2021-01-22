@@ -232,6 +232,7 @@
         namespace: "{{ k8s_namespace }}"
         annotations:
           nginx.ingress.kubernetes.io/proxy-body-size: "0"
+          nginx.ingress.kubernetes.io/forwarded-for-header: X-Forwarded-For
       spec:
         tls:
         - hosts:
