@@ -1,3 +1,4 @@
 .env
 ansible-deps-cache
 __pycache__
+*.pyc
