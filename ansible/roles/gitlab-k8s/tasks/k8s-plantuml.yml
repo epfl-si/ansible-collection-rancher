@@ -1,0 +1,74 @@
+- name: "plantuml Deployment"
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: plantuml
+        namespace: "{{ k8s_namespace }}"
+        labels:
+          app: plantuml
+      spec:
+        selector:
+          matchLabels:
+            app: plantuml
+        replicas: 1
+        template:
+          metadata:
+            labels:
+              app: plantuml
+          spec:
+            containers:
+            - name: plantuml
+              image: "{{ k8s_plantuml_image }}"
+              ports:
+              - containerPort: 8080
+
+- name: "plantuml HTTP Service"
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: plantuml
+        namespace: "{{ k8s_namespace }}"
+      spec:
+        ports:
+          - name: http
+            protocol: TCP
+            port: 8080
+        selector:
+          app: plantuml
+
+- name: "plantuml HTTP Ingress"
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: extensions/v1beta1
+      kind: Ingress
+      metadata:
+        name: plantuml
+        namespace: "{{ k8s_namespace }}"
+        annotations:
+          ## https://stackoverflow.com/a/65725055/435004
+          nginx.ingress.kubernetes.io/rewrite-target: /$2
+      spec:
+        tls:
+        - hosts:
+          - ic-gitlab.epfl.ch
+          ## Use same cert as gitlab (from the nginx POV; never
+          ## seen by browsers either way)
+          secretName: gitlab-ingress-tls
+
+        rules:
+        - host: "{{ k8s_serving_hostname }}"
+          http:
+            paths:
+            - pathType: Prefix
+              path: /plantuml(/|$)(.*)  ## Feeds into rewrite-target annotation
+                                        ## above
+              backend:
+                serviceName: plantuml
+                servicePort: 8080

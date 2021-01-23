@@ -54,3 +54,13 @@
     - k8s
     - k8s.gitlab
     - k8s.gitlab.redeploy
+
+- include_tasks:
+    file: k8s-plantuml.yml
+    apply:
+      tags:
+        - k8s
+        - k8s.plantuml
+  tags:
+    - k8s
+    - k8s.plantuml
