@@ -72,11 +72,13 @@ gitlab_rails['omniauth_providers'] = [
       "request_info" => {name: 'displayname', email: 'email', nickname: 'username'},
       "service_name" => "gitlab",
       "additional_parameters" => {
-              allows: "categorie=epfl-guests",
+              allows: "categorie=epfl-guests"
+       },
 {% if (is_kubernetes | default(False)) %}
+       "additional_fetchattributes_parameters" => {
               allowedrequesthosts: "{{ k8s_gitlab_tequila_client_ipv4_range }}"
+       }
 {% endif %}
-      }
     }
   }
 ]
