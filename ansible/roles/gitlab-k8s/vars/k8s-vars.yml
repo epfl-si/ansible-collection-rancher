@@ -6,8 +6,7 @@ k8s_persistentvolume_name: gitlab-epfl-ch-pv
 keybase_gitlab_rails_db_password_file: /keybase/team/epfl_gitlab.ic_gitlab/postgres-password-prod.txt
 keybase_gitlab_rails_redis_password_file: /keybase/team/epfl_gitlab.ic_gitlab/redis-password-prod.txt
 
-## TODO: sync with the home-grown image in gitlab.epfl.ch
-k8s_gitlab_image: ic-registry.epfl.ch/ic-gitlab/gitlab-docker:13.7.4
+k8s_gitlab_image: ic-registry.epfl.ch/ic-gitlab/gitlab-docker:{{ gitlab_version }}
 
 k8s_gitlab_tequila_client_ipv4_range: 10.95.32.0/24
 k8s_plantuml_image: "{{ plantuml_docker_image }}"

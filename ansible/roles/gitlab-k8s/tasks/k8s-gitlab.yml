@@ -3,7 +3,27 @@
     - ssh-secrets.yml
     - gitlab-secrets.yml
     - ingress-tls-secrets.yml
+    - harbor-credentials.yml
+    - ../../roles/gitlab-serving/vars/main.yml
   tags: always
+
+- name: "Push latest image"
+  delegate_to: gitlabstaging
+  shell:
+    executable: /bin/bash
+    cmd: |
+      set -e  # Not -x just yet — Here there be tokens
+      docker login -u '{{ harbor_credentials.username }}' \
+          -p '{{ harbor_credentials.token }}' \
+          '{{ harbor_credentials.hostname }}'
+      set -x  # Now we can
+
+      docker tag "{{ gitlab_image_name }}" "{{ k8s_gitlab_image }}"
+      docker push "{{ k8s_gitlab_image }}"
+      docker logout "{{ harbor_credentials.hostname }}"
+
+  tags:
+    - k8s.push
 
 - name: "{{ k8s_persistentvolume_name }} PersistentVolume"
   community.kubernetes.k8s:
