@@ -20,3 +20,8 @@
     name: "{{ deps_docker_package_name }}"
     state: present
 
+- name: Enable and start Docker
+  ansible.builtin.systemd:
+    name: docker.service
+    state: started
+    enabled: yes
