@@ -8,7 +8,6 @@
   pip:
     name:
       - docker
-      - docker-compose
       - requests
       # For the latter, a dab of
       # https://stackoverflow.com/a/57607284/435004 may or may not be
