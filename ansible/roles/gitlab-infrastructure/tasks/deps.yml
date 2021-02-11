@@ -15,10 +15,8 @@
       # required.
     state: latest
 
-- name: Install docker and docker-compose
+- name: Install Docker
   yum:
-    name:
-      - "{{ deps_docker_package_name }}"
-      - docker-compose
+    name: "{{ deps_docker_package_name }}"
     state: present
 
