@@ -1,3 +1,9 @@
+- name: gitlab VM
+  hosts: gitlab-outofthebox
+  gather_facts: no
+  roles:
+    - role: ../roles/gitlab-vm
+
 - name: Out-of-container infrastructure
   hosts: gitlab
   gather_facts: no

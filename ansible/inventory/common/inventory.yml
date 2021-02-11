@@ -8,3 +8,10 @@ all:
       eyaml_keys:
         priv: "/keybase/team/epfl_gitlab/eyaml/private_key.pkcs7.pem"
         pub: "{{ playbook_dir }}/../eyaml/epfl_gitlab.pkcs7.pem"
+    gitlab-outofthebox:
+      ansible_host: gitlab.epfl.ch
+      ansible_user: root
+      ansible_ssh_common_args: '-o ForwardAgent=yes'
+      eyaml_keys:
+        priv: "/keybase/team/epfl_gitlab/eyaml/private_key.pkcs7.pem"
+        pub: "{{ playbook_dir }}/../eyaml/epfl_gitlab.pkcs7.pem"

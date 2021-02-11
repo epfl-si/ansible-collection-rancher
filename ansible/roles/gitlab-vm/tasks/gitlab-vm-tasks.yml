@@ -1,0 +1,14 @@
+- name: Set sshd to use port 2202
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: 'Port 22'
+    line: Port 2202
+  register: _sshd_2202
+
+- name: Restart sshd
+  when: >-
+    _sshd_2202 is defined and
+    _sshd_2202 is changed
+
+  shell:
+    cmd: systemctl restart sshd
