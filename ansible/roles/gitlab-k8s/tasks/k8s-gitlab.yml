@@ -225,6 +225,7 @@
         subPath: data/gitlab-ci/builds
     ssh_volume_mounts: '{{ ssh_secrets | keys |
                            as_volume_mounts("ssh-server-keys", "/etc/gitlab") }}'
+  register: _gitlab_deployment
 
 - name: "Redeploy gitlab"
   tags:
@@ -235,6 +236,9 @@
     or
     (     (_gitlab_configmap is defined)
       and (_gitlab_configmap is changed) )
+    or
+    (     (_gitlab_deployment is defined)
+      and (_gitlab_deployment is changed) )
   shell:
     cmd: |
       kubectl -n {{ k8s_namespace }} rollout restart deployment gitlab
