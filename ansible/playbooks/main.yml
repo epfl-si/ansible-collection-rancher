@@ -37,6 +37,12 @@
   roles:
     - role: ../roles/gitlab-backups
 
+- name: Monitoring
+  hosts: gitlab
+  gather_facts: no
+  roles:
+    - role: ../roles/gitlab-monitoring
+
 - name: "Kubernetes service"
   hosts: icvm0052
   gather_facts: no

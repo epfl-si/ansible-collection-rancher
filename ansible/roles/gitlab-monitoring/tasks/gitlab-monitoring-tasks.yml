@@ -1,0 +1,5 @@
+- name: "GitlabStatisticsPrometheusExporter"
+  import_tasks: GitlabStatisticsPrometheusExporter.yml
+  tags:
+    - monitoring
+    - monitoring.statistics
