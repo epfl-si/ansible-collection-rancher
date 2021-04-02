@@ -1,6 +1,6 @@
 # -*- mode: yaml; -*-
 
-############## Sending traffic to PlantUML, the internal Promethei, and more
+############## Sending traffic to PlantUML and the sorry server
 #
 # This is a so-called “dynamic” configuration, i.e. if we change it,
 # Træfik will re-read it.
@@ -19,50 +19,16 @@ http:
         - plantuml-rewrite-host-header
         - plantuml-rewrite-path
         - sorryserver
-    prometheus-in-gitlabprod:
-      rule: "Host(`gitlab.epfl.ch`) && PathPrefix(`/federate`)"
-      entrypoints:
-        - websecure
-      tls:
-        certresolver: letsencrypt
-      service: prometheus-in-gitlabprod
-      middlewares:
-        - prometheus-basic-auth
-    prometheus-of-traefik:
-      rule: "Host(`gitlab.epfl.ch`) && PathPrefix(`/metrics`)"
-      entrypoints:
-        - websecure
-      tls:
-        certresolver: letsencrypt
-      service: prometheus@internal
-    gitlab-stats-exporter:
-      rule: "Host(`gitlab.epfl.ch`) && PathPrefix(`/GitlabStatistics`)"
-      entrypoints:
-        - websecure
-      tls:
-        certresolver: letsencrypt
-      service: gitlab-stats-exporter
-      middlewares:
-        - gitlab-stats-exporter-basic-auth
-        - gitlab-stats-exporter-rewrite-path
 
   services:
     plantuml:
       loadBalancer:
         servers:
           - url: "http://plantuml:8080/"
-    prometheus-in-gitlabprod:
-      loadBalancer:
-        servers:
-          - url: "http://{{ gitlab_docker_prod_hostname }}:9090/"
     sorryserver:
       loadBalancer:
         servers:
           - url: "http://sorryserver:8043/"
-    gitlab-stats-exporter:
-      loadBalancer:
-        servers:
-          - url: "http://GitlabStatsExporter:3000/"
 
   middlewares:
     plantuml-rewrite-host-header:
@@ -73,21 +39,9 @@ http:
       replacePathRegex:
         regex: "^/plantuml/(.*)"
         replacement: "/$1"
-    prometheus-basic-auth:
-      basicAuth:
-        users:
-          - '{{ traefik_idev_fsd_noc_htpasswd_line }}'
     sorryserver:
       errors:
         status:
           - "502"
         service: sorryserver
         query: "/502.html"
-    gitlab-stats-exporter-basic-auth:
-      basicAuth:
-        users:
-          - '{{ gitlab_stats_exporter_htpasswd_line }}'
-    gitlab-stats-exporter-rewrite-path:
-      replacePathRegex:
-        regex: "^/.*"
-        replacement: "/"

@@ -1,0 +1,59 @@
+# -*- mode: yaml; -*-
+
+############## Sending traffic to various Prometheus-style endpoints
+#
+# This is a so-called “dynamic” configuration, i.e. if we change it,
+# Træfik will notice the change and immediately re-read it.
+
+http:
+  routers:
+    prometheus-in-gitlabprod:
+      rule: "Host(`gitlab.epfl.ch`) && PathPrefix(`/federate`)"
+      entrypoints:
+        - websecure
+      tls:
+        certresolver: letsencrypt
+      service: prometheus-in-gitlabprod
+      middlewares:
+        - prometheus-basic-auth
+    prometheus-of-traefik:
+      rule: "Host(`gitlab.epfl.ch`) && PathPrefix(`/metrics`)"
+      entrypoints:
+        - websecure
+      tls:
+        certresolver: letsencrypt
+      service: prometheus@internal
+    gitlab-stats-exporter:
+      rule: "Host(`gitlab.epfl.ch`) && PathPrefix(`/GitlabStatistics`)"
+      entrypoints:
+        - websecure
+      tls:
+        certresolver: letsencrypt
+      service: gitlab-stats-exporter
+      middlewares:
+        - gitlab-stats-exporter-basic-auth
+        - gitlab-stats-exporter-rewrite-path
+
+  services:
+    prometheus-in-gitlabprod:
+      loadBalancer:
+        servers:
+          - url: "http://{{ gitlab_docker_prod_hostname }}:9090/"
+    gitlab-stats-exporter:
+      loadBalancer:
+        servers:
+          - url: "http://GitlabStatsExporter:3000/"
+
+  middlewares:
+    prometheus-basic-auth:
+      basicAuth:
+        users:
+          - '{{ traefik_idev_fsd_noc_htpasswd_line }}'
+    gitlab-stats-exporter-basic-auth:
+      basicAuth:
+        users:
+          - '{{ gitlab_stats_exporter_htpasswd_line }}'
+    gitlab-stats-exporter-rewrite-path:
+      replacePathRegex:
+        regex: "^/.*"
+        replacement: "/"
