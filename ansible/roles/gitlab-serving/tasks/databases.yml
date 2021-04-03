@@ -90,7 +90,7 @@
 - name: 'PostgreSQL database'
   docker_container:
     name: "postgresql_{{ environment_name }}"
-    image: postgres:12
+    image: "{{ postgresql_docker_image }}"
     detach: yes
     restart_policy: unless-stopped
     # Kick the staging database (so that it reloads from a production
