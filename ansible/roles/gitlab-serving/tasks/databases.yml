@@ -164,6 +164,22 @@
 # password found in
 # /keybase/team/epfl_gitlab.ic_gitlab/postgres-password-prod.txt
 
+- name: "PostgreSQL exporter"
+  when: inventory_hostname == "gitlabprod"
+  docker_container:
+    name: postgres-exporter-prod
+    image: "{{ postgresql_monitoring_exporter_image }}"
+    restart_policy: unless-stopped
+    log_driver: json-file
+    log_options:
+      max-size: 10m
+      max-file: "3"
+    network_mode: "{{ docker_network_name }}"
+    env:
+      DATA_SOURCE_NAME: "postgresql://postgres@localhost:5432/postgres?sslmode=disable"
+    volumes:
+      - "/srv/gitlab/run/postgres-socket{{ socket_suffix }}:/run/postgresql/"
+
 - name: 'Redis'
   docker_container:
     restart_policy: unless-stopped
