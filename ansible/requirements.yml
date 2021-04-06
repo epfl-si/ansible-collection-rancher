@@ -3,3 +3,4 @@ collections:
   - community.kubernetes
 roles:
 - src: epfl_si.ansible_module_eyaml
+- src: epfl_si.traefik
