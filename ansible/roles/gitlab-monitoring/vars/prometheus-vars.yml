@@ -1,0 +1,2 @@
+prometheus_config_dir: /srv/gitlab/prometheus/config
+prometheus_image: quay.io/prometheus/prometheus:v2.25.2

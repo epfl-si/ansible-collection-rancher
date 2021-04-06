@@ -16,3 +16,14 @@
   tags:
     - monitoring.traefik
     - monitoring.træfik
+
+- include_tasks:
+    file: gitlab-monitoring-prometheus.yml
+    apply:
+      tags:
+        - monitoring
+        - monitoring.prometheus
+  tags:
+    - monitoring
+    - monitoring.prometheus
+    - monitoring.prometheus.discovery

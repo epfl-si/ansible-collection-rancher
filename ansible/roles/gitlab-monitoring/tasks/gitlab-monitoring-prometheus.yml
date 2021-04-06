@@ -1,0 +1,67 @@
+- include_vars: prometheus-vars.yml
+  tags: always
+
+- name: "{{ prometheus_config_dir }}/dynamic"
+  file:
+    path: "{{ prometheus_config_dir }}/dynamic"
+    state: directory
+    recurse: yes
+
+- name: "{{ prometheus_config_dir }}/prometheus.yml"
+  copy:
+    dest: "{{ prometheus_config_dir }}/prometheus.yml"
+    content: |
+      scrape_configs:
+        - job_name: INVALID   # Should be relabeled
+          file_sd_configs:
+          - files:
+            - /etc/prometheus/dynamic/*.yml
+  register: _prometheus_config_file
+
+- name: "`prometheus` container"
+  docker_container:
+    name: prometheus
+    image: "{{ prometheus_image }}"
+    restart: >-
+      {{ (_prometheus_config_file is defined) and (_prometheus_config_file is changed) }}
+    restart_policy: unless-stopped
+    log_driver: json-file
+    log_options:
+      max-size: 10m
+      max-file: "3"
+    network_mode: "{{ docker_network_name }}"
+    volumes:
+      - "{{ prometheus_config_dir }}:/etc/prometheus"
+
+- name: "Watch Docker containers and set up Prometheus targets for them"
+  epfl_si.traefik.docker_observer:
+    name: prometheus-discovery
+    volumes:
+      - "{{ prometheus_config_dir }}/dynamic:/prometheus_dynamic"
+    python_script: |
+      @on_docker_containers_changed
+      @to_yaml_file("/prometheus_dynamic/docker-targets.yml")
+      @map_concat
+      async def prometheus_static_config_of_container (container):
+          details = await container.show()
+          name = details.get("Name").strip("/")
+          if not name:
+              return None
+
+          if name.startswith("gitlab"):
+              port = 9090
+          elif "postgres-exporter" in name:
+              port = 9187
+          elif "GitlabStatsExporter" in name:
+              port = 3000
+          else:
+              return None
+
+          return dict(
+                targets=["%s:%d" % (name, port)],
+                labels=dict(
+                    job=name,
+                    instance="docker-%s" % container["Id"][:12]))
+
+  tags:
+    - monitoring.prometheus.discovery
