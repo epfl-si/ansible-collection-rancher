@@ -12,7 +12,7 @@
     dest: "{{ prometheus_config_dir }}/prometheus.yml"
     content: |
       scrape_configs:
-        - job_name: INVALID   # Should be relabeled
+        - job_name: gitlab   # Should be relabeled - This is just for the /targets UI
           file_sd_configs:
           - files:
             - /etc/prometheus/dynamic/*.yml
