@@ -1,12 +1,12 @@
 # Install Gitlab Statistics Prometheus Exporter
-- include_vars: GitlabStatisticsPrometheusExporter-secrets.yml
+- include_vars: GitlabStatisticsPrometheusExporter-vars.yml
   tags: always
 
 - name: GitlabStatsExporter container
   docker_container:
     name: GitlabStatsExporter
     detach: yes
-    image: epfldojo/gitlabstatisticsprometheusexporter:latest
+    image: epfldojo/gitlabstatisticsprometheusexporter:{{ gitlabstatisticsprometheusexporter_version }}
     restart_policy: unless-stopped
     user: node
     working_dir: /app
