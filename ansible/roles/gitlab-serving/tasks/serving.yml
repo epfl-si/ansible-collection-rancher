@@ -80,6 +80,10 @@
     docker inspect  --format '{{ "{{" }} .State.Health.Status }}' {{ serving_hostname }}
   register: _serving_healthy
   until: >
-    ansible_check_mode or ("healthy" in _serving_healthy.stdout)
+    ansible_check_mode or (
+       ("unhealthy" not in _serving_healthy.stdout)
+       and
+       ("healthy" in _serving_healthy.stdout)
+    )
   retries: 20
   delay: 30
