@@ -12,10 +12,19 @@
     dest: "{{ prometheus_config_dir }}/prometheus.yml"
     content: |
       scrape_configs:
-        - job_name: gitlab   # Should be relabeled - This is just for the /targets UI
+        - job_name: metrics           # Should be relabeled - This is just for the /targets UI
           file_sd_configs:
           - files:
-            - /etc/prometheus/dynamic/*.yml
+            - /etc/prometheus/dynamic/metrics_targets.yml
+        - job_name: gitlab_federate   # Ditto
+          metrics_path: /federate
+          honor_labels: true
+          params:
+            'match[]':
+              - '{service="gitlab"}'
+          file_sd_configs:
+          - files:
+            - /etc/prometheus/dynamic/gitlab_federate_targets.yml
   register: _prometheus_config_file
 
 - name: "`prometheus` container"
@@ -40,23 +49,27 @@
       - "{{ prometheus_config_dir }}/dynamic:/prometheus_dynamic"
     python_script: |
       @on_docker_containers_changed
-      @to_yaml_file("/prometheus_dynamic/docker-targets.yml")
-      @map_concat
-      async def prometheus_static_config_of_container (container):
-          details = await container.show()
-          name = details.get("Name").strip("/")
-          if not name:
-              return None
+      async def prometheus_static_config_of_container (containers):
+          metrics_targets = []
+          gitlab_federate_targets = []
 
-          if name.startswith("gitlab"):
-              port = 9090
-          elif "postgres-exporter" in name:
-              port = 9187
-          elif "GitlabStatsExporter" in name:
-              port = 3000
-          else:
-              return None
+          for container in containers:
+              details = await container.show()
+              name = details.get("Name").strip("/")
+              if not name:
+                  pass
+              if "GitlabStatsExporter" in name:
+                  metrics_targets.append(static_config(container, name, port=3000))
+              elif name.startswith("gitlab"):
+                  metrics_targets.append(static_config(container, name, port=9090))
+                  gitlab_federate_targets.append(static_config(container, name, port=9090))
+              elif "postgres-exporter" in name:
+                  metrics_targets.append(static_config(container, name, port=9187))
 
+          write_yaml_file("/prometheus_dynamic/metrics_targets.yml", metrics_targets)
+          write_yaml_file("/prometheus_dynamic/gitlab_federate_targets.yml", gitlab_federate_targets)
+
+      def static_config(container, name, port):
           return dict(
                 targets=["%s:%d" % (name, port)],
                 labels=dict(
