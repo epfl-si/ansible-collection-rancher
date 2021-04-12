@@ -18,10 +18,18 @@
             - /etc/prometheus/dynamic/metrics_targets.yml
         - job_name: gitlab_federate   # Ditto
           metrics_path: /federate
-          honor_labels: true
           params:
             'match[]':
-              - '{service="gitlab"}'
+              - '{__name__=~".+"}'
+          # We want to override `instance` (hence no `honor_labels`),
+          # but conversely we want to keep `job` as the federated
+          # in-container Prometheus intended it:
+          metric_relabel_configs:
+            - source_labels:
+                - exported_job
+              target_label: job
+            - target_label: exported_job
+              replacement: ''
           file_sd_configs:
           - files:
             - /etc/prometheus/dynamic/gitlab_federate_targets.yml
@@ -58,23 +66,28 @@
               name = details.get("Name").strip("/")
               if not name:
                   pass
+
+              extra_labels = dict(environment = "staging" if "staging" in name else "prod")
+
               if "GitlabStatsExporter" in name:
-                  metrics_targets.append(static_config(container, name, port=3000))
+                  metrics_targets.append(static_config(container, name, port=3000,
+                                                       **extra_labels))
               elif name.startswith("gitlab"):
-                  metrics_targets.append(static_config(container, name, port=9090))
-                  gitlab_federate_targets.append(static_config(container, name, port=9090))
+                  metrics_targets.append(static_config(container, name, port=9090, **extra_labels))
+                  gitlab_federate_targets.append(static_config(container, name, port=9090, **extra_labels))
               elif "postgres-exporter" in name:
-                  metrics_targets.append(static_config(container, name, port=9187))
+                  metrics_targets.append(static_config(container, name, port=9187, **extra_labels))
 
           write_yaml_file("/prometheus_dynamic/metrics_targets.yml", metrics_targets)
           write_yaml_file("/prometheus_dynamic/gitlab_federate_targets.yml", gitlab_federate_targets)
 
-      def static_config(container, name, port):
+      def static_config(container, name, port, **extra_labels):
           return dict(
                 targets=["%s:%d" % (name, port)],
                 labels=dict(
                     job=name,
-                    instance="docker-%s" % container["Id"][:12]))
+                    instance="docker-%s" % container["Id"][:12],
+                    **extra_labels))
 
   tags:
     - monitoring.prometheus.discovery

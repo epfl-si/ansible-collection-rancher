@@ -12,10 +12,6 @@ RUN ln -s . /opt/gitlab/embedded/lib/ruby/gems/2.7.0/bundler
 RUN echo "gem 'omniauth-tequila', :git => 'https://github.com/domq/omniauth-tequila.git', :branch => 'feature/fetchattributes-options' " >> /opt/gitlab/embedded/service/gitlab-rails/Gemfile
 RUN cd /opt/gitlab/embedded/service/gitlab-rails && bundle install
 
-COPY prometheus.rb.patch /opt/gitlab/embedded/cookbooks/monitoring/libraries/
-
-RUN set -e -x; cd /opt/gitlab/embedded/cookbooks/monitoring/libraries/; git apply < prometheus.rb.patch; rm prometheus.rb.patch
-
 # Fix to https://gitlab.com/epfl-idevfsd/gitlab-docker/-/issues/9
 RUN set -e -x; \
      cd /opt/gitlab/embedded/service/gitlab-rails; \
