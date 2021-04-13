@@ -176,7 +176,7 @@
       max-file: "3"
     network_mode: "{{ docker_network_name }}"
     env:
-      DATA_SOURCE_NAME: "postgresql://postgres@localhost:5432/postgres?sslmode=disable"
+      DATA_SOURCE_NAME: "user=postgres host=/run/postgresql/ sslmode=disable"
     volumes:
       - "/srv/gitlab/run/postgres-socket{{ socket_suffix }}:/run/postgresql/"
 
