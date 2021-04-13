@@ -45,6 +45,16 @@
     - k8s.redis
 
 - include_tasks:
+    file: k8s-pgbouncer.yml
+    apply:
+      tags:
+        - k8s
+        - k8s.pgbouncer
+  tags:
+    - k8s
+    - k8s.pgbouncer
+
+- include_tasks:
     file: k8s-gitlab.yml
     apply:
       tags:

@@ -1,0 +1,92 @@
+- name: "pgbouncer ConfigMap"
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: pgbouncer
+        namespace: "{{ k8s_namespace }}"
+      data:
+        pgbouncer.ini: >
+          {{ lookup("template", "pgbouncer.ini") }}
+  register: _pgbouncer_configmap
+
+- name: "pgbouncer Secret"
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: pgbouncer
+        namespace: "{{ k8s_namespace }}"
+      type: Opaque
+      data:
+        userlist.txt: >-
+          {{ _userlist_line | b64encode }}
+  vars:
+    _userlist_line: |
+      "gitlab" "{{lookup('pipe',
+                    'cat {{ keybase_gitlab_rails_db_password_file }}') }}"
+
+- name: "pgbouncer Deployment"
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: pgbouncer
+        namespace: "{{ k8s_namespace }}"
+        labels:
+          app: pgbouncer
+      spec:
+        selector:
+          matchLabels:
+            app: pgbouncer
+        replicas: 1
+        template:
+          metadata:
+            labels:
+              app: pgbouncer
+          spec:
+            containers:
+            - name: pgbouncer
+              image: "{{ k8s_pgbouncer_image }}"
+              ports:
+              - containerPort: 6432
+              command:
+                - pgbouncer
+                - /etc/pgbouncer/pgbouncer.ini
+              volumeMounts:
+                - name: pgbouncer-config
+                  mountPath: /etc/pgbouncer
+                - name: pgbouncer-secret
+                  mountPath: /secrets
+            volumes:
+              - name: pgbouncer-config
+                configMap:
+                  name: pgbouncer
+              - name: pgbouncer-secret
+                secret:
+                  secretName: pgbouncer
+
+- name: "pgbouncer Service"
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: pgbouncer
+        namespace: "{{ k8s_namespace }}"
+        labels:
+          app: pgbouncer
+      spec:
+        ports:
+        - name: pgbouncer
+          port: 6432
+          targetPort: 6432
+        selector:
+          app: pgbouncer
