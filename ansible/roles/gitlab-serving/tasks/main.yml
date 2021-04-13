@@ -19,6 +19,8 @@
     - postgresql
     - postgres.reload.staging
     - postgresql.reload.staging
+    - postgres.monitoring
+    - postgresql.monitoring
   include_tasks:
     file: databases.yml
     apply:
