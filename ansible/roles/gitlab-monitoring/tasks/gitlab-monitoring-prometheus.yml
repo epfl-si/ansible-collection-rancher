@@ -30,6 +30,8 @@
               target_label: job
             - target_label: exported_job
               replacement: ''
+            - target_label: service
+              replacement: gitlab
           file_sd_configs:
           - files:
             - /etc/prometheus/dynamic/gitlab_federate_targets.yml
