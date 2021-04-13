@@ -13,7 +13,7 @@ http:
         - websecure
       tls:
         certresolver: letsencrypt
-      service: prometheus-in-gitlabprod
+      service: prometheus
       middlewares:
         - prometheus-basic-auth
     prometheus-of-traefik:
@@ -35,10 +35,10 @@ http:
         - gitlab-stats-exporter-rewrite-path
 
   services:
-    prometheus-in-gitlabprod:
+    prometheus:
       loadBalancer:
         servers:
-          - url: "http://{{ gitlab_docker_prod_hostname }}:9090/"
+          - url: "http://prometheus:9090/"
     gitlab-stats-exporter:
       loadBalancer:
         servers:
