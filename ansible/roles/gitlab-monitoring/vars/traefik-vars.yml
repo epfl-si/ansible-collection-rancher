@@ -2,5 +2,3 @@ traefik_monitoring_dynamic_config_file: "{{ traefik_dynamic_config_dir }}/monito
 _traefik_idev_fsd_noc_secrets: "{{ lookup('file', '/keybase/team/epfl_gitlab/nginx_metrics.yml') | from_yaml }}"
 traefik_idev_fsd_noc_htpasswd_line: "idev-fsd-noc:{{ _traefik_idev_fsd_noc_secrets.password | password_hash('bcrypt', (inventory_hostname + '_1') | bcrypt_salt) }}"
 
-_gitlab_statistics_exporter_secrets: "{{ lookup('file', '/keybase/team/epfl_gitlab/GitlabStatisticsPrometheusExporter.yml') | from_yaml }}"
-gitlab_stats_exporter_htpasswd_line: "{{ _gitlab_statistics_exporter_secrets.basic_auth_user }}:{{ _gitlab_statistics_exporter_secrets.basic_auth_pass | password_hash('bcrypt', (inventory_hostname + '_1') | bcrypt_salt) }}"

@@ -79,6 +79,8 @@
                   gitlab_federate_targets.append(static_config(container, name, port=9090, **extra_labels))
               elif "postgres-exporter" in name:
                   metrics_targets.append(static_config(container, name, port=9187, **extra_labels))
+              elif "traefik" in name:
+                  metrics_targets.append(static_config(container, name, port=8080, **extra_labels))
 
           write_yaml_file("/prometheus_dynamic/metrics_targets.yml", metrics_targets)
           write_yaml_file("/prometheus_dynamic/gitlab_federate_targets.yml", gitlab_federate_targets)
