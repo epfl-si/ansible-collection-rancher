@@ -41,10 +41,9 @@ gitlab_rails['db_database'] = "gitlabhq_production"
 gitlab_rails['db_pool'] = 10
 gitlab_rails['db_username'] = "gitlab"
 {% if (is_kubernetes | default(False)) %}
-gitlab_rails['db_host'] = 'gitlab.epfl.ch'
-gitlab_rails['db_port'] = 54321
+gitlab_rails['db_host'] = 'pgbouncer'
+gitlab_rails['db_port'] = 6432
 gitlab_rails['db_password'] =  File.read("/secrets/external/gitlab_rails_db_password.txt")
-gitlab_rails['db_sslmode'] = 'require'
 {% else %}
 gitlab_rails['db_host'] = nil
 gitlab_rails['db_port'] = 5432
