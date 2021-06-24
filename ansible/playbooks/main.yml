@@ -1,8 +1,8 @@
-- name: gitlab VM
+- name: gitlab ssh on port 2202
   hosts: gitlab-outofthebox
   gather_facts: no
   roles:
-    - role: ../roles/gitlab-vm
+    - role: ../roles/gitlab-ssh
 
 - name: Out-of-container infrastructure
   hosts: gitlab
