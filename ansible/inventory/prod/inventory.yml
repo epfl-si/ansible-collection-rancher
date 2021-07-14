@@ -17,6 +17,7 @@ all:
     icvm0052:
       ansible_host: icvm0052.xaas.epfl.ch
       ansible_user: root
+      inventory_automigrate: false
       eyaml_keys:
         priv: "/keybase/team/epfl_gitlab.ic_gitlab/eyaml/private_key.pkcs7.pem"
         pub: "{{ playbook_dir }}/../eyaml/epfl_gitlab.ic_gitlab.pkcs7.pem"
