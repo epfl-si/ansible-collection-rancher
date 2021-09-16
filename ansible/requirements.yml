@@ -1,6 +1,6 @@
 collections:
   - community.general
   - community.kubernetes
+  - epfl_si.docker
 roles:
 - src: epfl_si.ansible_module_eyaml
-- src: epfl_si.traefik

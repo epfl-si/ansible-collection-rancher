@@ -53,7 +53,7 @@
       - "{{ prometheus_config_dir }}:/etc/prometheus"
 
 - name: "Watch Docker containers and set up Prometheus targets for them"
-  epfl_si.traefik.docker_observer:
+  epfl_si.docker.docker_observer:
     name: prometheus-discovery
     volumes:
       - "{{ prometheus_config_dir }}/dynamic:/prometheus_dynamic"
