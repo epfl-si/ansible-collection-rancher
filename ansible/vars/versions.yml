@@ -1,4 +1,4 @@
-gitlab_version: 14.0.5
+gitlab_version: 14.1.0
 gitlabstatisticsprometheusexporter_version: v1.0.6
 k8s_pgbouncer_version: 1.15.0
 postgresql_docker_image: postgres:12
