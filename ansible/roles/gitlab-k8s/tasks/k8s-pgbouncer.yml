@@ -1,5 +1,5 @@
 - name: "pgbouncer ConfigMap"
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: v1
@@ -13,7 +13,7 @@
   register: _pgbouncer_configmap
 
 - name: "pgbouncer Secret"
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: v1
@@ -31,7 +31,7 @@
                     'cat {{ keybase_gitlab_rails_db_password_file }}') }}"
 
 - name: "pgbouncer Deployment"
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: apps/v1
@@ -73,7 +73,7 @@
                   secretName: pgbouncer
 
 - name: "pgbouncer Service"
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: v1

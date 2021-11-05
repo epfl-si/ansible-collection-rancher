@@ -1,5 +1,5 @@
 - name: "redis Deployment"
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: apps/v1
@@ -32,7 +32,7 @@
                       key: gitlab_rails_redis_password.txt
 
 - name: "redis Service"
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: v1

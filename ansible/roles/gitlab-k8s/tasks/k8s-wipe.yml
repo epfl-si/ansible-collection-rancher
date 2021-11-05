@@ -1,7 +1,7 @@
 # Delete everything (so as to start over)
 
 - name: "Delete the {{ k8s_namespace }} namespace"
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     name: "{{ k8s_namespace }}"
     api_version: v1
     kind: Namespace
@@ -19,7 +19,7 @@
   delay: 30
 
 - name: "Delete the {{ k8s_persistentvolume_name }} PersistentVolume"
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     kind: PersistentVolume
     api_version: v1
     name: "{{ k8s_persistentvolume_name }}"

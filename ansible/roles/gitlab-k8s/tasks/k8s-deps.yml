@@ -6,4 +6,4 @@
 - pip:
     name:
     - PyYAML
-    - openshift
+    - kubernetes >= 12.0.0

@@ -26,7 +26,7 @@
     - k8s.push
 
 - name: "{{ k8s_persistentvolume_name }} PersistentVolume"
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: v1
@@ -47,7 +47,7 @@
         persistentVolumeReclaimPolicy: "Recycle"
 
 - name: "gitlab-epfl-ch-pvc PersistentVolumeClaim"
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: v1
@@ -63,7 +63,7 @@
             storage: 1Ti
 
 - name: "gitlab-ssh Secret"
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: v1
@@ -75,7 +75,7 @@
       data: "{{ ssh_secrets | base64_values }}"
 
 - name: "gitlab-ruby Secret"
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: v1
@@ -99,7 +99,7 @@
       {{ gitlab_secrets.postgresql       | to_omnibus("postgresql")       }}
 
 - name: "gitlab-rails ConfigMap"
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: v1
@@ -115,7 +115,7 @@
   register: _gitlab_configmap
 
 - name: "gitlab Deployment"
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: apps/v1
@@ -244,7 +244,7 @@
       kubectl -n {{ k8s_namespace }} rollout restart deployment gitlab
 
 - name: "gitlab http Service (used by the Ingress)"
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: v1
@@ -261,7 +261,7 @@
           app: gitlab
 
 - name: "gitlab ssh Service (visible at cluster edge)"
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: v1
@@ -281,7 +281,7 @@
           app: gitlab
 
 - name: "Ingress secret (bogus SSL cert and key)"
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: v1
@@ -295,7 +295,7 @@
         tls.key: "{{ ingress_tls_private_key | eyaml(eyaml_keys) | b64encode }}"
 
 - name: "gitlab http Ingress (dispatched via cluster-wide ingress controller)"
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: extensions/v1beta1
