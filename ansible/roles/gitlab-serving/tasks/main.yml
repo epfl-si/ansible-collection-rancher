@@ -30,6 +30,7 @@
 - name: Serving containers
   tags:
     - serving
+    - serving.gitlab
   include_tasks:
     file: serving.yml
     apply:

@@ -73,6 +73,7 @@
       - "/srv/gitlab/run/redis-socket{{ socket_suffix }}:/var/opt/gitlab/redis"
       - "/srv/gitlab/run/postgres-socket{{ socket_suffix }}:/var/opt/gitlab/postgresql"
     network_mode: "{{ docker_network_name }}"
+  tags: serving.gitlab
 
 - name: "Wait for {{ serving_hostname }} to become healthy"
   changed_when: false
@@ -87,3 +88,4 @@
     )
   retries: 20
   delay: 30
+  tags: serving.gitlab
