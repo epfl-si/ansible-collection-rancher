@@ -13,7 +13,7 @@
   register: _serving_build_dir
 
 - name: "{{ gitlab_image_name }}"
-  docker_image:
+  community.docker.docker_image:
     name: "{{ gitlab_image_name }}"
     source: build
     force_source: yes
