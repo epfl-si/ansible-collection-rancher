@@ -34,12 +34,7 @@
             rule: "PathPrefix(`/api`) || PathPrefix(`/dashboard/`)"
             service: "api@internal"
             tls: {}
-            priority: 2
-          prom:
-            rule: "PathPrefix(`/metrics`)"
-            service: "prometheus@internal"
-            tls: {}
-            priority: 2
+            entrypoints: websecure
 
 - name: delete "{{ traefik_debug_dynamic_config_file }}"
   when: traefik_debug is not defined
