@@ -31,7 +31,7 @@ gitlab_rails['smtp_enable'] = ENV["ENVIRONMENT"] != "staging"
 gitlab_rails['smtp_address'] = "mail.epfl.ch"
 gitlab_rails['gitlab_email_from'] = 'noreply@epfl.ch'
 {% if not inventory_automigrate | default(True) %}
-gitlab_rails['automigrate'] = false
+gitlab_rails['auto_migrate'] = false
 {% endif %}
 # You don't want the default setting, and there appears to be no way to not set a reply-to at all:
 gitlab_rails['gitlab_email_reply_to'] = 'noreply@epfl.ch'
