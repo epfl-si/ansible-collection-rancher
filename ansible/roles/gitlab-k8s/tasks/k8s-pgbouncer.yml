@@ -28,7 +28,7 @@
   vars:
     _userlist_line: |
       "gitlab" "{{lookup('pipe',
-                    'cat {{ keybase_gitlab_rails_db_password_file }}') }}"
+                    'keybase fs read {{ keybase_gitlab_rails_db_password_file }}') }}"
 
 - name: "pgbouncer Deployment"
   kubernetes.core.k8s:

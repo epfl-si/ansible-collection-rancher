@@ -1,1 +1,1 @@
-_gitlab_statistics_exporter_secrets: "{{ lookup('file', '/keybase/team/epfl_gitlab/GitlabStatisticsPrometheusExporter.yml') | from_yaml }}"
+_gitlab_statistics_exporter_secrets: "{{ lookup('pipe', 'keybase fs read /keybase/team/epfl_gitlab/GitlabStatisticsPrometheusExporter.yml') | from_yaml }}"
