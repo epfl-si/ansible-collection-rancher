@@ -1,5 +1,5 @@
-gitlab_version: 14.4.2
+gitlab_version: 14.6.2
 gitlabstatisticsprometheusexporter_version: v1.0.6
 k8s_pgbouncer_version: 1.15.0
 postgresql_docker_image: postgres:12
-plantuml_docker_image: plantuml/plantuml-server:tomcat-v1.2020.22
+plantuml_docker_image: plantuml/plantuml-server:tomcat-v1.2022.0
