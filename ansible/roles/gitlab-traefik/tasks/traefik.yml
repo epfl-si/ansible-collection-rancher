@@ -73,7 +73,7 @@
     name: traefik
     restart: "{{ _traefik_static_config_file is changed }}"
     detach: yes
-    image: traefik:v2.3
+    image: "{{ traefik_docker_image }}"
     restart_policy: unless-stopped
     published_ports:
       - "22:22"
