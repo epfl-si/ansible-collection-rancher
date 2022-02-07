@@ -8,7 +8,7 @@
 
 - name: "{{ image_serving_build_dir }}"
   git:
-    repo: https://gitlab.com/epfl-idevfsd/gitlab-docker.git
+    repo: https://gitlab.com/epfl-isasfsd/gitlab-docker.git
     dest: '{{ image_serving_build_dir }}'
   register: _serving_build_dir
 

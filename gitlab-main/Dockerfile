@@ -12,10 +12,10 @@ RUN ln -s . /opt/gitlab/embedded/lib/ruby/gems/2.7.0/bundler
 RUN echo "gem 'omniauth-tequila', :git => 'https://github.com/domq/omniauth-tequila.git' " >> /opt/gitlab/embedded/service/gitlab-rails/Gemfile
 RUN cd /opt/gitlab/embedded/service/gitlab-rails && bundle install
 
-# Fix to https://gitlab.com/epfl-idevfsd/gitlab-docker/-/issues/9
+# Fix to https://gitlab.com/epfl-isasfsd/gitlab-docker/-/issues/9
 RUN set -e -x; \
      cd /opt/gitlab/embedded/service/gitlab-rails; \
-     curl https://gitlab.com/epfl-idevfsd/gitlab-foss/-/merge_requests/1.diff | git apply
+     curl https://gitlab.com/epfl-isasfsd/gitlab-foss/-/merge_requests/1.diff | git apply
 
 # To check that omniauth-tequila was indeed installed in the correct place:
 # docker run --rm -it <image_hash> ls /opt/gitlab/embedded/lib/ruby/gems/2.5.0/gems/
