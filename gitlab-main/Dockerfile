@@ -10,7 +10,7 @@ RUN apt update && apt -y install nodejs iproute2 iputils-ping netcat-openbsd
 # omniauth-tequila to install, and therefore load, along with all the others:
 RUN ln -s . /opt/gitlab/embedded/lib/ruby/gems/2.7.0/bundler
 RUN echo "gem 'omniauth-tequila', :git => 'https://github.com/domq/omniauth-tequila.git' " >> /opt/gitlab/embedded/service/gitlab-rails/Gemfile
-RUN cd /opt/gitlab/embedded/service/gitlab-rails && bundle install
+RUN cd /opt/gitlab/embedded/service/gitlab-rails && bundle config unset frozen && bundle install
 
 # Fix to https://gitlab.com/epfl-isasfsd/gitlab-docker/-/issues/9
 RUN set -e -x; \
