@@ -21,7 +21,7 @@
           spec:
             containers:
             - name: master
-              image: quay.io/bitnami/redis:latest
+              image: redis:latest
               ports:
               - containerPort: 6379
               env:
