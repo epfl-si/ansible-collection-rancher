@@ -1,0 +1,99 @@
+---
+title: "Gitlab — Rapport d'utilisation"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r init, echo = FALSE, message = FALSE, results = FALSE}
+library(tidyverse)
+library(withr)
+library(dbplyr)
+library(ggplot2)
+library(RCurl)
+
+stopifnot(2 == length(find.package(c('DBI', 'RPostgres'))))
+
+if (0 == length(find.package("bbplot", quiet=TRUE))) {
+    devtools::install_github('bbc/bbplot')
+}
+library(bbplot)
+
+gitlabdb <- with_tempfile("tf", {
+
+    gitlab_selfsigned_cert <- '
+-----BEGIN CERTIFICATE-----
+MIIC/DCCAeSgAwIBAgIUZw2J9yGa+dwhKeRhsOoIOGprroowDQYJKoZIhvcNAQEL
+BQAwGTEXMBUGA1UEAwwOZ2l0bGFiLmVwZmwuY2gwHhcNMjEwMTIwMTkwODE4WhcN
+MzEwMTE4MTkwODE4WjAZMRcwFQYDVQQDDA5naXRsYWIuZXBmbC5jaDCCASIwDQYJ
+KoZIhvcNAQEBBQADggEPADCCAQoCggEBAOYd6kwlw7gyiIWQMJJQ9pePvWaFHHDC
+FmjMCXaEHdjbPR2KGeeppHY91Nc1sCLCyqil9gj4RXKeiwxQxo6UFnuJDeQg1+uU
+JHq6kPsO5jE5OpdtPTQKpsRR1sjlFG/Qqq+0+Zp9RcnhSs7hG6WFmHrWRy55yuUB
+IUBlpmnZmU43bUfSCARG9x9mzyrfxfrXEBgy7kemA+MhOf9K/IsgrjnpstvwdzDj
+1UC129VKd5K/jAFlRxyfCO7d3eyTb5ZQrmX/2xXWID2zMgxYQf2N1OTdsHOlL19Q
+YWe1ECZBJRG3n3pBC0svZNUX/NW21tZo/7TH/1VpIo6/gXV3fBlEnX0CAwEAAaM8
+MDowGQYDVR0RBBIwEIIOZ2l0bGFiLmVwZmwuY2gwHQYDVR0OBBYEFKR5ia+3qZ0Q
+Ze8tLj8b02lI5CUiMA0GCSqGSIb3DQEBCwUAA4IBAQC7q3hF0mFyMjs0mHC2EMOA
+xPPTiaozi3qgi6d/RQNZF7aVGdNEeaxdf2EXxq3dyIemmvY//m/zI4p8HaSWDegt
+sUeVYhwjWUHKVcXDRbzIBxLUdV5TxGL/E6FkZpEcyCRNlFY3Qv6lEVieocbc/SE+
+NDf2fk2sWUZSeDtzyG287j96sF+hPk2qPLiBXcIq3CdWnH4/QTXzp89U2/AyP78O
+ENuGWRf2dzIbTiJDmLrai2eU+OS2lkOysv3/PlkI+xj8FBt3iPrys9HEXo2jcpnd
+/c+zlKUmLCzImRaOI9gE//D+0g7ei4ISDznoIgybm6qxVQlwFd3zAg1KPa6Udj1o
+-----END CERTIFICATE-----
+'
+
+    write(gitlab_selfsigned_cert, tf)
+
+    DBI::dbConnect(
+             RPostgres::Postgres(),
+             host = 'gitlab.epfl.ch',
+             port = 54321,
+             dbname = 'gitlabhq_production',
+             user = 'gitlab',
+             password = system("keybase fs read /keybase/team/epfl_gitlab/pg_password", intern=TRUE),
+             sslmode = 'verify-ca',
+             sslrootcert = tf)
+})
+
+projects <- tbl(gitlabdb, "projects") %>%
+    left_join(tbl(gitlabdb, "namespaces"),
+              by = c("namespace_id"="id"),
+              suffix = c("", "_ns")) %>%
+    left_join(tbl(gitlabdb, "namespaces"),
+              by = c("parent_id"="id"),
+              suffix = c("", "_parent_ns")) %>%
+    left_join(tbl(gitlabdb, "namespaces"),
+              by = c("parent_id_parent_ns"="id"),
+              suffix = c("", "_grandparent_ns")) %>%
+    mutate(full_path = sql("'/' || concat_ws('/',
+                           path_grandparent_ns, path_parent_ns, path_ns, path)"),
+           path_first_component = sql("COALESCE(path_grandparent_ns, path_parent_ns, path_ns, path)")) %>%
+    left_join(tbl(gitlabdb, "project_statistics"),
+              by = c("id"="project_id"),
+              suffix = c("", "_stats"))
+
+users <- tbl(gitlabdb, "users") %>%
+    left_join(tbl(gitlabdb, "identities"), by = c("id"="user_id")) %>%
+    rename(sciper = extern_uid)
+```
+
+# Usagers abusifs
+
+```{r abus, echo = FALSE, message = FALSE}
+
+gigabyte <- 1024^3
+
+abusers <- projects %>%
+    filter(storage_size > 1 * !!gigabyte)
+
+abusers_leaderboard <- abusers %>%
+    group_by(path_first_component) %>%
+    summarise(n = n(), storage_size = sum(storage_size)) %>%
+    arrange(desc(storage_size))
+
+abusers_leaderboard %>%
+    collect %>%
+    transmute(`Dossier` = path_first_component,
+              `Nombre de projets` = n,
+              `Taille (Go)` = storage_size / gigabyte)
+```
