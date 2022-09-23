@@ -9,7 +9,7 @@ output:
 library(tidyverse)
 library(withr)
 library(dbplyr)
-library(ggplot2)
+library(plotly)
 library(RCurl)
 
 stopifnot(2 == length(find.package(c('DBI', 'RPostgres'))))
@@ -96,4 +96,19 @@ abusers_leaderboard %>%
     transmute(`Dossier` = path_first_component,
               `Nombre de projets` = n,
               `Taille (Go)` = storage_size / gigabyte)
+```
+
+```{r abus_camembert, echo = FALSE, message = FALSE, fig.fullwidth=TRUE, fig.caption="Abus"}
+
+abusers_leaderboard %>%
+    collect %>%
+    plotly::plot_ly(type = 'bar',
+                    y = ~(storage_size / gigabyte),
+                    hovertext = ~paste0(path_first_component, '<br>',
+                                        '(', n, ' dépôts)'),
+                    showlegend = FALSE,
+                    hovertemplate = paste('%{hovertext}<extra></extra>')) %>%
+    layout(yaxis = list(title = 'Taille (Go)'),
+           xaxis = list(visible = FALSE))
+
 ```
