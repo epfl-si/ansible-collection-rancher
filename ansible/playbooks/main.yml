@@ -44,7 +44,7 @@
     - role: ../roles/gitlab-monitoring
 
 - name: "Kubernetes service"
-  hosts: icvm0052
+  hosts: icvm0011
   gather_facts: no
   roles:
     - role: ../roles/gitlab-k8s
