@@ -23,7 +23,6 @@
 
 - name: ssh server keys
   with_items: "{{ ssh_secrets | iteritems }}"
-  no_log: true
   copy:
     dest: "{{ serving_gitlab_ssh_secrets_dir }}/{{ item.k }}"
     content: "{{ item.v }}"

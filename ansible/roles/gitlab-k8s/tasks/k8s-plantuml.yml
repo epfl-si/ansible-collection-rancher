@@ -46,7 +46,7 @@
   kubernetes.core.k8s:
     state: present
     definition:
-      apiVersion: extensions/v1beta1
+      apiVersion: networking.k8s.io/v1
       kind: Ingress
       metadata:
         name: plantuml
@@ -70,5 +70,7 @@
               path: /plantuml(/|$)(.*)  ## Feeds into rewrite-target annotation
                                         ## above
               backend:
-                serviceName: plantuml
-                servicePort: 8080
+                service:
+                  name: plantuml
+                  port: 
+                    number: 8080
