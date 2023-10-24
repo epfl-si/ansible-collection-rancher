@@ -95,6 +95,8 @@ prometheus['monitor_kubernetes'] = false
 prometheus['flags']['storage.tsdb.retention.time'] = "48h"
 prometheus['flags']['web.listen-address'] = "0.0.0.0:9090"
 
+alertmanager['enable'] = false
+
 prometheus_monitoring['enable'] = true # Default
 node_exporter['enable'] = true
 {% if (is_kubernetes | default(False)) %}
