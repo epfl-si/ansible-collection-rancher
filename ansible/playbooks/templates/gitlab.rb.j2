@@ -86,7 +86,11 @@ gitlab_rails['omniauth_providers'] = [
 ]
 
 gitlab_rails['lfs_enabled'] = false
+{% if (is_kubernetes | default(False)) %}
+gitlab_rails['packages_enabled'] = true
+{% else %}
 gitlab_rails['packages_enabled'] = false
+{% endif %}
 
 gitlab_exporter['enable'] = true
 gitlab_rails['monitoring_whitelist'] = ['127.0.0.0/8', '10.0.0.0/8']
