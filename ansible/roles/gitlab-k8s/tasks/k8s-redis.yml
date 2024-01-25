@@ -21,7 +21,7 @@
           spec:
             containers:
             - name: master
-              image: bitnami/redis:latest
+              image: "redis:{{ redis_version }}"
               ports:
               - containerPort: 6379
               env:

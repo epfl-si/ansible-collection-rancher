@@ -4,3 +4,4 @@ k8s_pgbouncer_version: 1.17.0
 postgresql_docker_image: postgres:14
 plantuml_docker_image: plantuml/plantuml-server:tomcat-v1.2022.0
 traefik_docker_image: traefik:v2.6
+redis_version: 7.2.2
