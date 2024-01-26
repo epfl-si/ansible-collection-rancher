@@ -28,7 +28,7 @@
                 - "bash"
                 - -c
                 - >-
-                  redis-server --requirepass ${REDIS_PASSWORD}
+                  exec redis-server --requirepass ${REDIS_PASSWORD}
               env:
                 - name: REDIS_PASSWORD
                   valueFrom:
