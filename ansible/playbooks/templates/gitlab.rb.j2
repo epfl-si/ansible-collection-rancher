@@ -92,6 +92,8 @@ gitlab_rails['packages_enabled'] = true
 gitlab_rails['packages_enabled'] = false
 {% endif %}
 
+sidekiq['concurrency'] = 10
+
 gitlab_exporter['enable'] = true
 gitlab_rails['monitoring_whitelist'] = ['127.0.0.0/8', '10.0.0.0/8']
 
