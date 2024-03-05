@@ -49,6 +49,7 @@
     log_options:
       max-size: 50m
       max-file: "3"
+    shm_size: 256M
     volumes:
       # Rebuildable from Ansible
       - "{{ serving_gitlab_ssh_secrets_dir }}/ssh_host_dsa_key:/etc/gitlab/ssh_host_dsa_key:ro"
