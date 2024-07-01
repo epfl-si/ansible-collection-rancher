@@ -4,7 +4,7 @@ MAINTAINER EPFL Gitlab admins <gitlab-admins@groupes.epfl.ch>
 
 # node is a hidden dependency of "bundle exec rake db:migrate RAILS_ENV=production"
 # The rest are debugging tools
-RUN apt update && apt -y install nodejs iproute2 iputils-ping netcat-openbsd
+RUN apt update && apt -y install nodejs iproute2 iputils-ping netcat-openbsd libssh2-1 openssh-server
 
 # This may not be the smartest way of achieving this, but it does get
 # omniauth-tequila to install, and therefore load, along with all the others:
