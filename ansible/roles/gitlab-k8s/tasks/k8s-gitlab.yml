@@ -93,7 +93,6 @@
       {{ gitlab_secrets.gitlab_kas       | to_omnibus("gitlab_kas")       }}
       {{ gitlab_secrets.gitlab_workhorse | to_omnibus("gitlab_workhorse") }}
       {{ gitlab_secrets.gitlab_shell     | to_omnibus("gitlab_shell")     }}
-      {{ gitlab_secrets.grafana          | to_omnibus("grafana")          }}
       {{ gitlab_secrets.registry         | to_omnibus("registry")         }}
       {{ gitlab_secrets.letsencrypt      | to_omnibus("letsencrypt")      }}
       {{ gitlab_secrets.postgresql       | to_omnibus("postgresql")       }}
