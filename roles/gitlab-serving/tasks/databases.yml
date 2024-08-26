@@ -84,7 +84,7 @@
     privatekey_path: "{{ postgresql_certs_dir }}/key.pem"
     csr_path: "{{ postgresql_certs_dir }}/cert.csr"
     provider: selfsigned
-    valid_in: +36500d
+    selfsigned_not_after: +36500d
   tags: databases.certs
 
 - name: Should we purge the staging PostgreSQL?

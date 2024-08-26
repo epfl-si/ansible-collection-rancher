@@ -13,11 +13,11 @@ all:
       ansible_ssh_common_args: '-o ForwardAgent=yes'
       eyaml_keys:
         priv: "/keybase/team/epfl_gitlab/eyaml/private_key.pkcs7.pem"
-        pub: "{{ playbook_dir }}/../eyaml/epfl_gitlab.pkcs7.pem"
+        pub: "{{ playbook_dir }}/eyaml/epfl_gitlab.pkcs7.pem"
     icvm0011:
       ansible_host: icvm0011.xaas.epfl.ch
       ansible_user: root
       inventory_automigrate: false
       eyaml_keys:
         priv: "/keybase/team/epfl_gitlab.ic_gitlab/eyaml/private_key.pkcs7.pem"
-        pub: "{{ playbook_dir }}/../eyaml/epfl_gitlab.ic_gitlab.pkcs7.pem"
+        pub: "{{ playbook_dir }}/eyaml/epfl_gitlab.ic_gitlab.pkcs7.pem"
