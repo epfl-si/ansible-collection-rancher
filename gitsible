@@ -40,8 +40,8 @@ ensure_suitcase
 inventory_mode="staging"
 inventories () {
     case "$inventory_mode" in
-        staging) echo "-i inventory/common -i inventory/staging" ;;
-        prod)    echo "-i inventory/common -i inventory/staging -i inventory/prod" ;;
+        staging) echo "-i inventory/staging" ;;
+        prod)    echo "-i inventory/staging -i inventory/prod" ;;
     esac
 }
 
