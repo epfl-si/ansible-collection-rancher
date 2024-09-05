@@ -1,3 +1,19 @@
 # -*- mode: yaml; -*-
 
-all: []
+all:
+  children:
+    gitlab_rke2_vms:
+      vars:
+        ansible_user: root
+        ansible_python_interpreter: /usr/bin/python3
+        ansible_host: "{{ inventory_hostname }}.xaas.epfl.ch"
+      children:
+        gitlab_rke2_workers:
+          hosts:
+            itsgitlab0004:
+            itsgitlab0005:
+        gitlab_rke2_control_plane_nodes:
+          hosts:
+            itsgitlab0006:
+            itsgitlab0007:
+            itsgitlab0008:
