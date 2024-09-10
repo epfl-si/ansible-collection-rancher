@@ -1,0 +1,5 @@
+- name: System-level requirements for NFS clients
+  apt:
+    name: nfs-common
+  tags:
+  - rke2.worker

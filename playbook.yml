@@ -1,1 +1,4 @@
-[]
+- hosts: gitlab_rke2_workers
+  gather_facts: no
+  roles:
+    - role: rke2-worker
