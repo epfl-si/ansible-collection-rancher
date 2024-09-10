@@ -15,7 +15,17 @@
       metadata:
         name: "{{ rke2_nfs_storage_namespace }}"
 
-- name: "Install `nfs-subdir-external-provisioner`"
+- name: "Check whether `App/nfs-subdir-external-provisioner` already exists"
+  epfl_si.k8s.k8s:
+     kind: App
+     name: nfs-subdir-external-provisioner
+     namespace: "{{ rke2_nfs_storage_namespace }}"
+     state: patched
+  register: _app_already_installed
+
+- when: >-
+    (_app_already_installed.result | string) == "{}"
+  name: "Install `nfs-subdir-external-provisioner`"
   epfl_si.rancher.rancher_k8s_api_call:
     kubeconfig: >-
       {{ lookup("file", ansible_k8s_kubeconfig) | from_yaml }}
