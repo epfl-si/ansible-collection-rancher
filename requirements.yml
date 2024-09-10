@@ -1,8 +1,4 @@
 collections:
   - community.general
-  - community.kubernetes
-  - name: epfl_si.docker
-    version: ">=0.2.2"
-    source: https://galaxy.ansible.com
 roles:
 - src: epfl_si.ansible-module-eyaml
