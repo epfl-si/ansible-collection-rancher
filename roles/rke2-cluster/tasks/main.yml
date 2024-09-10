@@ -12,6 +12,15 @@
   - rke2.login
 
 - include_tasks:
+    file: nfs-storage-class-uninstall.yml
+    apply:
+      tags:
+        - rke2.storage.uninstall
+  tags: rke2.storage.uninstall
+  when: >-
+    "rke2.storage.uninstall" in ansible_run_tags
+
+- include_tasks:
     file: nfs-storage-class.yml
     apply:
       tags:
