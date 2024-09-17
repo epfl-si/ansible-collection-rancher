@@ -1,0 +1,41 @@
+- name: '`{{ rke2_cluster_token_store | dirname }}`'
+  delegate_to: localhost
+  file:
+    path: '{{ rke2_cluster_token_store | dirname }}'
+    state: directory
+    recurse: yes
+
+- ignore_errors: true
+  name: 'Check Kubernetes access'
+  set_fact:
+    _test_please_ignore: >-
+      {{ query("kubernetes.core.k8s", kind="namespace", kubeconfig=rke2_cluster_token_store) }}
+  register: _rke2_check_access
+
+- when: >-
+    _rke2_check_access | default({"failed": True}) is failed
+  name: '`{{ rke2_cluster_token_store }}`'
+  delegate_to: localhost
+  shell:
+    cmd: |
+      remote_kubectl () {
+        ssh root@"{{ rancher_hostname }}" \
+          env KUBECONFIG=/etc/rancher/k3s/k3s.yaml \
+          kubectl "$@"
+      }
+
+      set -e -x
+
+      kubeconfig="$(remote_kubectl get secret -n fleet-default {{ rke2_cluster_name }}-kubeconfig \
+      {% raw %} --template="'{{ .data.value | base64decode }}'")" {% endraw %}
+
+      {# TODO: we might want to use the direct path for URL and TLS CA
+       # (i.e. bypassing Rancher). #}
+
+      tls_ca="$(remote_kubectl get secret -n cattle-system tls-rancher-ingress \
+      {% raw %} --template="'{{ index .data \"ca.crt\" }}'")" {% endraw %}
+
+      echo "$kubeconfig" \
+        | sed -e 's|https://10[.][0-9.]*|https://{{ rancher_hostname }}|' \
+              -e 's|certificate-authority-data: .*|certificate-authority-data: '"$(echo "$tls_ca")"'|' \
+        > "{{ rke2_cluster_token_store }}"
