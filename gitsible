@@ -37,8 +37,6 @@ ensure_suitcase () {
 
 ensure_suitcase
 
-ansible_flags="-e @vars/versions.yml -e @vars/docker-networking.yml $(ansible_flag_set_var_git_current_branch)"
-
 inventory_mode="staging"
 inventories () {
     case "$inventory_mode" in
@@ -70,10 +68,9 @@ set -e
 case "$mode" in
     ansible-playbook)
         ansible-playbook $playbook_flags $(inventories) "${ansible_args[@]}" \
-                         -e "wpsible_cwd=$OLDPWD" $ansible_flags \
-                         playbook.yml
+                         -e "wpsible_cwd=$OLDPWD" playbook.yml
         ;;
     ansible)
-        ansible $(inventories) $ansible_flags "${ansible_args[@]}"
+        ansible $(inventories) "${ansible_args[@]}"
         ;;
 esac
