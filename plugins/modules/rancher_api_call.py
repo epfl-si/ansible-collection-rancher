@@ -4,6 +4,12 @@ import json
 from ansible_collections.kubernetes.core.plugins.module_utils.k8s.core import AnsibleK8SModule
 from ansible_collections.kubernetes.core.plugins.module_utils.k8s.client import get_api_client
 
+DOCUMENTATION = r"""
+---
+module: rancher_api_call
+short_description: Exert a (non-Kubernetes) API call against Rancher.
+"""
+
 class RancherAPICall:
     """Implementation for `rancher_api_call` Ansible tasks."""
     module_args = dict(
