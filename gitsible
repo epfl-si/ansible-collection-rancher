@@ -27,6 +27,7 @@ ensure_suitcase () {
             SUITCASE_DIR="$(ansible_suitcase_dir)" \
             SUITCASE_ANSIBLE_VERSION=10.3.0 \
             SUITCASE_WITH_EYAML=1 \
+            SUITCASE_PIP_EXTRA="kubernetes" \
             SUITCASE_ANSIBLE_REQUIREMENTS=requirements.yml \
             bash -x
     fi

@@ -1,4 +1,6 @@
 collections:
-  - community.general
+  - name: community.general
+  - name: kubernetes.core
+  - name: epfl_si.rancher
 roles:
 - src: epfl_si.ansible-module-eyaml
