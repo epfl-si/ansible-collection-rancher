@@ -16,7 +16,8 @@ license:
 tags:
 - rancher
 
-dependencies: {}
+dependencies:
+- kubernetes.core
 
 repository: https://github.com/epfl-si/ansible-collection-rancher
 
