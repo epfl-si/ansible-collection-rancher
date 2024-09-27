@@ -1,3 +1,6 @@
+- tags: always
+  include_vars: rke2-vars.yml
+
 - include_tasks:
     file: rke2-login.yml
     apply:
@@ -7,3 +10,13 @@
   tags:
   - rke2
   - rke2.login
+
+- include_tasks:
+    file: nfs-storage-class.yml
+    apply:
+      tags:
+        - rke2
+        - rke2.storage
+  tags:
+    - rke2
+    - rke2.storage
