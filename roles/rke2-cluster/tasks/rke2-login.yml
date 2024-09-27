@@ -1,0 +1,18 @@
+# Log in to rke2 cluster, and store the
+# kubeconfig into {{ ansible_k8s_kubeconfig }}.
+
+- epfl_si.rancher.rancher_login:
+  register: _rancher_login
+
+- delegate_to: localhost
+  run_once: true
+  name: "{{ ansible_k8s_kubeconfig | dirname }}"
+  file:
+    path: "{{ ansible_k8s_kubeconfig | dirname }}"
+    state: directory
+
+- delegate_to: localhost
+  name: "{{ ansible_k8s_kubeconfig }}"
+  copy:
+    dest: "{{ ansible_k8s_kubeconfig }}"
+    content: "{{ _rancher_login.kubeconfig }}"

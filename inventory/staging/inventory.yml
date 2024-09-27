@@ -17,3 +17,18 @@ all:
             itsgitlab0006:
             itsgitlab0007:
             itsgitlab0008:
+    gitlab_rke2_clusters:
+      vars:
+        ansible_rancher_url: https://rancher-fsd.epfl.ch
+        ansible_rancher_credentials_dir: "rke2-credentials-cache"
+
+        ansible_connection: local
+        # ... Except for `rancher_login` tasks, which do their own thing and
+        # use ssh; in which case we have
+        ansible_ssh_user: root
+
+      "hosts":  # Scarequotes intended — These are Kubernetes
+                # clusters, even though we access them over HTTP/S
+                # from the local workstation (as opposed to ssh)
+        gitlab-k8s-test:
+          ansible_rancher_cluster_name: gitlab

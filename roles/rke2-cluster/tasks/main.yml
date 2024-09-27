@@ -1,0 +1,9 @@
+- include_tasks:
+    file: rke2-login.yml
+    apply:
+      tags:
+      - rke2
+      - rke2.login
+  tags:
+  - rke2
+  - rke2.login
