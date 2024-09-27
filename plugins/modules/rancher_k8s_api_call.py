@@ -2,7 +2,7 @@ from functools import cached_property
 import json
 
 from ansible_collections.kubernetes.core.plugins.module_utils.k8s.core import AnsibleK8SModule
-from ansible_collections.kubernetes.core.plugins.module_utils.k8s.client import get_api_client
+from ansible_collections.epfl_si.rancher.plugins.module_utils.rancher_api import RancherAPIClient
 
 DOCUMENTATION = r"""
 ---
@@ -18,9 +18,8 @@ class RancherAPICall:
         body=dict(type='dict'))
 
     @cached_property
-    def k8s_client (self):
-        client = get_api_client(self.module)
-        return client.client
+    def client (self):
+        return RancherAPIClient(module=self.module)
 
     @cached_property
     def module (self):
@@ -29,11 +28,9 @@ class RancherAPICall:
 
     def run (self):
         # https://stackoverflow.com/a/63747147
-        (data, status, headers) = self.k8s_client.client.call_api(
-            self.module.params['uri'],
+        data = self.client.call_k8s_api(
             self.module.params['method'],
-            auth_settings = ['BearerToken'],
-            response_type="object",
+            self.module.params['uri'],
             body=self.module.params['body'])
 
         self.module.exit_json(
