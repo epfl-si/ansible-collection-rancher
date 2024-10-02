@@ -40,6 +40,10 @@ same bearer tokens for authentication.
 """
 
 from functools import cached_property
+import os
+from urllib.parse import urlparse
+
+import kubernetes   # Because Ansible code has this bizarre `except ImportError` clause on it, which we really don't want to investigate (again)
 from ansible_collections.kubernetes.core.plugins.module_utils.k8s.client import get_api_client
 
 class RancherAPIError (Exception):
@@ -47,8 +51,27 @@ class RancherAPIError (Exception):
 
 class RancherAPIClient:
     """A thin wrapper around Ansible's Kubernetes API."""
-    def __init__ (self, module):
-        self.client = get_api_client(module=module)
+    def __init__ (self,
+                  module=None,
+                  kubeconfig=None, context=None,
+                  api_key=None, base_url=None, rancher_api_cluster_id=None, ca_cert=None, validate_certs=True):
+        if module is not None:
+            # Ansible-style API: pass in an AnsibleModule instance
+            client = get_api_client(module=module)
+        elif kubeconfig is not None:
+            client = get_api_client(kubeconfig=kubeconfig, context=context)
+        elif (api_key is not None) and (base_url is not None) and (rancher_api_cluster_id is not None):
+            # The `kubernetes` Python client insists to test its
+            # connection against (you guessed it) a
+            # Kubernetes-compatible API endpoint (even if we end up
+            # only making Norman calls):
+            server_uri = '%s/k8s/clusters/%s' % (base_url, rancher_api_cluster_id)
+            client = get_api_client(api_key=api_key, host=server_uri,
+                                    ca_cert=ca_cert, validate_certs=validate_certs)
+        else:
+            raise ValueError("Unable to create API client from constructor arguments")
+
+        self.client = client
 
     @property
     def k8s_client (self):
@@ -68,7 +91,40 @@ class RancherAPIClient:
 
     call_steve = call_k8s_api
 
+    def call_rancher_v3_api (self, method, query_params, body=None):
+        (data, status, headers) = self.k8s_client.call_api(
+            '/v3/clusters/%s' % self.rancher_api_cluster_id,
+            method,
+            auth_settings=['BearerToken'],
+            response_type="object",
+            body=body,
+            query_params=query_params,
+            # Yeah, private parameter. No, I won't duplicate the whole
+            # Python kubernetes API's token management code, just to
+            # avoid using the private parameter. Sue me.
+            _host=self.rancher_root_url)
+
+        if status not in (200, 201):
+            raise RancherAPIError(data)
+
+        return data
+
+    call_norman = call_rancher_v3_api
+
+    @property
+    def k8s_api_url (self):
+        return self.k8s_client.configuration.host
+
+    @property
+    def rancher_api_cluster_id (self):
+        uri_path = urlparse(self.k8s_api_url).path
+        return os.path.basename(uri_path)
+
+    @property
+    def rancher_root_url (self):
+        parsed = urlparse(self.k8s_api_url)
+        return '%s://%s/' % (parsed.scheme, parsed.netloc)
+
     def download_kubeconfig (self):
-        return self.request(
-            "GET",
-            "?action=generateKubeconfig")
+        return self.call_rancher_v3_api("POST",
+                                        query_params=dict(action='generateKubeconfig'))['config']
