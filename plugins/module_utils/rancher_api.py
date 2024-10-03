@@ -147,3 +147,15 @@ class RancherAPIClient:
         return self.call_rancher_v3_per_cluster_api(
             "POST", "",
             query_params=dict(action='generateKubeconfig'))['config']
+
+    def get_cluster_registrations (self):
+        return self.call_rancher_v3_per_cluster_api(
+            'GET',
+            '/clusterregistrationtokens')['data']
+
+    def renew_cluster_registrations (self):
+        self.call_rancher_v3_per_cluster_api(
+            'POST',
+            '/clusterregistrationtokens',
+            # body='{"type":"clusterregistrationtoken"}')
+            body={"type":"clusterregistrationtoken"})
