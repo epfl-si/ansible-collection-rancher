@@ -32,11 +32,22 @@ affectionately called (I'm not making this up) Steve and Norman.
   then wait for some out-of-process operator to update their
   `status:`.
 
-It so happens that the official Kubernetes client API for Python is
-feature-complete enough to implement both Steve and Norman calls
-out-of-the-box; thanks in particular to the fact that both accept the
-same bearer tokens for authentication.
-
+To complicate matters, Norman accepts both “per-cluster” calls (which,
+conveniently enough, map to a namespace in the management cluster),
+and “top-level” calls. For instance, a `GET` at
+`/v3/clusters/c-m-abcdefgh/clusterregistrationtokens` will perform the
+Norman equivalent of `kubectl get
+clusterregistrationtokens.management.cattle.io -n c-m-abcdefgh`; while
+a `GET` at `/v3/clusterregistrationtokens` will return all
+`clusterregistrationtokens.management.cattle.io` objects regardless of
+namespace (meaning, across the fleet of managed clusters). However,
+the second kind requires a different bearer token (or cookie) than the
+first! For the time being, `rancher_api` carries only the
+Kubeconfig-equivalent credentials, and therefore doesn't let you
+effect “global” Norman calls. On the other hand, the “per-cluster”
+calls share the same credentials as ones that are downloaded by
+clicking on the “generate Kubeconfig” button (or equivalently, calling
+the `.download_kubeconfig()` method in `RancherAPIClient`).
 """
 
 from functools import cached_property
@@ -91,9 +102,12 @@ class RancherAPIClient:
 
     call_steve = call_k8s_api
 
-    def call_rancher_v3_api (self, method, query_params, body=None):
+    def call_rancher_v3_per_cluster_api (self, method, uri, query_params={}, body=None):
+        in_cluster_uri = (
+            '/v3/clusters/%s' % self.rancher_api_cluster_id
+            + uri)
         (data, status, headers) = self.k8s_client.call_api(
-            '/v3/clusters/%s' % self.rancher_api_cluster_id,
+            in_cluster_uri,
             method,
             auth_settings=['BearerToken'],
             response_type="object",
@@ -109,7 +123,11 @@ class RancherAPIClient:
 
         return data
 
-    call_norman = call_rancher_v3_api
+    call_norman_per_cluster = call_rancher_v3_per_cluster_api
+    # TODO: you can also call Norman at the scope of the entire
+    # Rancher fleet (e.g. GET at /v3/clusterregistrationtokens will
+    # serve you *all* cluster registration structs); but that requires
+    # a different set of credentials.
 
     @property
     def k8s_api_url (self):
@@ -126,5 +144,6 @@ class RancherAPIClient:
         return '%s://%s/' % (parsed.scheme, parsed.netloc)
 
     def download_kubeconfig (self):
-        return self.call_rancher_v3_api("POST",
-                                        query_params=dict(action='generateKubeconfig'))['config']
+        return self.call_rancher_v3_per_cluster_api(
+            "POST", "",
+            query_params=dict(action='generateKubeconfig'))['config']
