@@ -50,7 +50,6 @@ clicking on the “generate Kubeconfig” button (or equivalently, calling
 the `.download_kubeconfig()` method in `RancherAPIClient`).
 """
 
-from functools import cached_property
 import os
 from urllib.parse import urlparse
 
