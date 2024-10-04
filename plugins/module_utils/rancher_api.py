@@ -51,6 +51,7 @@ the `.download_kubeconfig()` method in `RancherAPIClient`).
 """
 
 import os
+from requests import request
 from urllib.parse import urlparse
 
 import kubernetes   # Because Ansible code has this bizarre `except ImportError` clause on it, which we really don't want to investigate (again)
@@ -153,14 +154,54 @@ class RancherAPIClient:
             "POST", "",
             query_params=dict(action='generateKubeconfig'))['config']
 
-    def get_cluster_registrations (self):
-        return self.call_rancher_v3_per_cluster_api(
-            'GET',
-            '/clusterregistrationtokens')['data']
 
-    def renew_cluster_registrations (self):
-        self.call_rancher_v3_per_cluster_api(
+class RancherManagerAPIClient:
+    def __init__(self, base_url, api_key):
+        self.base_url = base_url
+        self.api_key = api_key
+
+    _clusters_uri = '/v3/clusters'
+
+    def get_cluster_id (self, cluster_name):
+        clusters = self.call_rancher_manager_api(
+            'GET', self._clusters_uri)['data']
+        the_cluster = [c for c in clusters
+                if c['name'] == cluster_name]
+
+        if len(the_cluster) != 1:
+            raise ValueError('%d cluster(s) found for name %s; expected one.' %
+                             (len(the_cluster), cluster_name))
+        else:
+            return the_cluster[0]['id']
+
+    _cluster_registration_uri = '/v3/clusterregistrationtokens'
+
+    def get_cluster_registrations (self, rancher_cluster_id):
+        registrations = self.call_rancher_manager_api(
+            'GET', self._cluster_registration_uri)['data']
+        return [r for r in registrations
+                if r['clusterId'] == rancher_cluster_id]
+
+    def renew_cluster_registrations (self, rancher_cluster_id):
+        self.call_rancher_manager_api(
             'POST',
-            '/clusterregistrationtokens',
-            # body='{"type":"clusterregistrationtoken"}')
-            body={"type":"clusterregistrationtoken"})
+            self._cluster_registration_uri,
+            body={"type":"clusterregistrationtoken",
+                  "clusterId": rancher_cluster_id})
+
+    def call_rancher_manager_api (self, method, uri, body=None):
+        opt_args = {}
+        if body:
+            opt_args['json'] = body
+
+        response = request(method,
+                       self.base_url + uri,
+                       headers={
+                           'Authorization': 'Bearer %s' % self.api_key
+                       },
+                       **opt_args)
+
+        if response.status_code not in (200, 201):
+            raise RancherAPIError(response.text)
+
+        return response.json()

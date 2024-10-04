@@ -3,7 +3,7 @@ from functools import cached_property
 from ansible.plugins.action import ActionBase
 from ansible_collections.epfl_si.actions.plugins.module_utils.subactions import AnsibleActions
 
-from ansible_collections.epfl_si.rancher.plugins.module_utils.rancher_api import RancherAPIClient
+from ansible_collections.epfl_si.rancher.plugins.module_utils.rancher_api import RancherManagerAPIClient
 from ansible_collections.epfl_si.rancher.plugins.module_utils.rancher_actions import RancherActionMixin
 
 _not_set = object()
@@ -15,6 +15,7 @@ module: rancher_registration
 short_description: Create and download Rancher registration tokens and structures.
 description:
   - This task lets your Ansible playbook register nodes into an existing Rancher cluster. It ensures that at least one `clusterregistrationtokens.management.cattle.io` object exists for your cluster, and returns the list of them as the `registrations` property of the task's return value.
+  - This task authenticates against the master Rancher back-end (for the case where the cluster doesn't already exist). It transparently fetches (or creates) a token by connecting into the Rancher master over ssh.
 """
 
 RETURN = r"""
@@ -35,34 +36,39 @@ class RancherRegistrationAction (ActionBase, RancherActionMixin):
         super(RancherRegistrationAction, self).run(args, ansible_api)
         RancherActionMixin.run(self, args, ansible_api)
 
-        rancher = RancherAPIClient(kubeconfig=self.kubeconfig_path)
-        existing = rancher.get_cluster_registrations()
-        if existing:
+        self.rancher = RancherManagerAPIClient(
+            base_url=args["rancher_manager_url"],
+            api_key=self._obtain_token())
+
+        self.cluster_name = args["cluster_name"]
+
+        returned = {
+            "changed": False
+        }
+
+        try:
             return {
                 "changed": False,
-                # Apparently the UI always picks the first entry in the
-                # list (even if you deleted a few):
-                "registrations": existing[0]
+                "registration": self.get_first_registration()
             }
-        else:
-            # This is also what the UI does if you delete everything.
-            rancher.renew_cluster_registrations()
+        except IndexError:
+            # No more cluster tokens? Make new ones. (This is also
+            # what the UI does if you delete everything.)
+            self.rancher.renew_cluster_registrations(self.cluster_id)
             return {
                 "changed": True,
-                "registrations": rancher.get_cluster_registrations()[0]
+                "registration": self.get_first_registration()
             }
 
-    # TODO: these methods are shared with RancherLoginAction;
-    # refactor into a trait or superclass.
-    @cached_property
-    def kubeconfig_path (self):
-        return self._expand_var('ansible_rancher_credentials_file')
+    def get_first_registration (self):
+        registrations = self.rancher.get_cluster_registrations(self.cluster_id)
+        # Apparently the UI always picks the first entry in the
+        # list (even if you deleted a few).
+        return registrations[0]
 
-    def _expand_var (self, var_name, default=_not_set):
-        if default is not _not_set and not self.ansible_api.has_var(var_name):
-            return default
-        else:
-            return self.ansible_api.expand_var('{{ %s }}' % var_name)
+    @cached_property
+    def cluster_id (self):
+        return self.rancher.get_cluster_id(self.cluster_name)
 
 
 ActionModule = RancherRegistrationAction
