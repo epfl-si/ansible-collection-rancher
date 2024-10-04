@@ -31,9 +31,16 @@ class RancherActionMixin(ABC):
 
     @cached_property
     def _rancher_ssh_connection (self):
-        return self.ansible_api.make_connection(
+        connection = self.ansible_api.make_connection(
             ansible_connection="ssh",
             ansible_ssh_host=self.rancher_hostname)
+
+        build_module_command_orig = connection._shell.build_module_command
+        def no_shebang_cigar (environment_string, shebang, *args, **kwargs):
+            shebang = "python3"
+            return build_module_command_orig(environment_string, shebang,  *args, **kwargs)
+        connection._shell.build_module_command = no_shebang_cigar
+        return connection
 
     def _expand_var (self, var_name, default=_not_set):
         if default is not _not_set and not self.ansible_api.has_var(var_name):
@@ -50,6 +57,8 @@ class RancherActionMixin(ABC):
                 token="MOCK:TOKEN_FOR_CHECK_MODE")
             self.result.update(result)
         else:
+            # import debugpy; debugpy.log_to("/Users/quatrava/Dev/tmp/debugpy-logs"); debugpy.listen(5678); debugpy.wait_for_client(); debugpy.breakpoint()
+
             result = self.change(
                 self._obtain_token_action_name,
                 dict(cluster_name=self._expand_var('ansible_rancher_cluster_name'),
