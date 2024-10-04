@@ -57,8 +57,6 @@ class RancherActionMixin(ABC):
                 token="MOCK:TOKEN_FOR_CHECK_MODE")
             self.result.update(result)
         else:
-            # import debugpy; debugpy.log_to("/Users/quatrava/Dev/tmp/debugpy-logs"); debugpy.listen(5678); debugpy.wait_for_client(); debugpy.breakpoint()
-
             result = self.change(
                 self._obtain_token_action_name,
                 dict(cluster_name=self._expand_var('ansible_rancher_cluster_name'),
