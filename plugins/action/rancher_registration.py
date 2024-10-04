@@ -4,6 +4,7 @@ from ansible.plugins.action import ActionBase
 from ansible_collections.epfl_si.actions.plugins.module_utils.subactions import AnsibleActions
 
 from ansible_collections.epfl_si.rancher.plugins.module_utils.rancher_api import RancherAPIClient
+from ansible_collections.epfl_si.rancher.plugins.module_utils.rancher_actions import RancherActionMixin
 
 _not_set = object()
 
@@ -25,12 +26,14 @@ changed:
     description: Whether the task had to ask the Rancher back-end to create more `clusterregistrationtokens.management.cattle.io` objects (as the UI does if the GET API call returns an empty list).
 """
 
-class RancherRegistrationAction (ActionBase):
+
+class RancherRegistrationAction (ActionBase, RancherActionMixin):
     """Obtain the data structure that feeds the “Cluster Management” → “Registration” tab in the Rancher UI.
     """
     @AnsibleActions.run_method
     def run (self, args, ansible_api):
-        self.ansible_api = ansible_api
+        super(RancherRegistrationAction, self).run(args, ansible_api)
+        RancherActionMixin.run(self, args, ansible_api)
 
         rancher = RancherAPIClient(kubeconfig=self.kubeconfig_path)
         existing = rancher.get_cluster_registrations()
