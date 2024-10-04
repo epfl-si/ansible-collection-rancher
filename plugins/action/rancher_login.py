@@ -8,7 +8,7 @@ from ansible_collections.epfl_si.actions.plugins.module_utils.subactions import 
 from ansible_collections.kubernetes.core.plugins.module_utils.k8s.client import get_api_client
 from ansible_collections.kubernetes.core.plugins.module_utils.k8s import exceptions as k8s_exceptions
 
-from ansible_collections.epfl_si.rancher.plugins.module_utils.rancher_api import RancherAPIClient
+from ansible_collections.epfl_si.rancher.plugins.module_utils.rancher_api import RancherAPIClient, RancherManagerAPIClient
 from ansible_collections.epfl_si.rancher.plugins.module_utils.rancher_actions import RancherActionMixin
 
 class RancherLoginAction (ActionBase, RancherActionMixin):
@@ -32,8 +32,10 @@ class RancherLoginAction (ActionBase, RancherActionMixin):
         super(RancherLoginAction, self).run(args, ansible_api)
         RancherActionMixin.run(self, args, ansible_api)
 
+        rancher_cluster_name = self._expand_var("ansible_rancher_cluster_name")
+
         if not self.is_kubeconfig_still_valid():
-            self.save_kubeconfig(self.do_download_kubeconfig())
+            self.save_kubeconfig(self.do_download_kubeconfig(rancher_cluster_name))
         return self.result
 
     def save_kubeconfig (self, kubeconfig_content):
@@ -68,18 +70,19 @@ class RancherLoginAction (ActionBase, RancherActionMixin):
             # Happens when the `server:` value in the kubeconfig is bogus
             return False
 
-    def do_download_kubeconfig (self):
+    def do_download_kubeconfig (self, rancher_cluster_name):
         """The  “cold cache” path."""
+        token = self._obtain_token()
+        rancher_api_cluster_id = RancherManagerAPIClient(
+            self.rancher_base_url,
+            token).get_cluster_id(rancher_cluster_name)
+
         return RancherAPIClient(
-            api_key=self._obtain_token(),
+            api_key=token,
             base_url=self.rancher_base_url,
-            rancher_api_cluster_id=self.rancher_api_cluster_id,
+            rancher_api_cluster_id=rancher_api_cluster_id,
             ca_cert=self._expand_var("ansible_rancher_ca_cert", None),
             validate_certs=self._expand_var("ansible_rancher_validate_certs", True)).download_kubeconfig()
 
-
-    @property
-    def rancher_api_cluster_id (self):
-        return 'c-m-gdkcxchl' # XXX
 
 ActionModule = RancherLoginAction
