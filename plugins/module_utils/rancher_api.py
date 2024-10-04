@@ -61,7 +61,13 @@ class RancherAPIError (Exception):
     pass
 
 class RancherAPIClient:
-    """A thin wrapper around Ansible's Kubernetes API."""
+    """Access both “Steve” (Kubernetes) and “Norman” (“old-school” Web back-end) APIs of a given managed cluster.
+
+    Authentication is compatible between both API endpoints (both in
+    terms of tokens and transfer method i.e. `Authentication: Bearer
+    <token>`); therefore, this class also has the responsibility for
+    reading/writing Kubeconfig files.
+    """
     def __init__ (self,
                   module=None,
                   kubeconfig=None, context=None,
