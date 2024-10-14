@@ -13,16 +13,14 @@ from ansible.module_utils.basic import AnsibleModule
 DOCUMENTATION = r"""
 ---
 module: _rancher_obtain_token
-short_description: Companion task to the `rancher_login` action plugin.
+short_description: Obtain a “master” token (valid for Rancher's “Norman” API)
 description:
-  - This task ensures that a token exists on the remote Rancher.
-    It is supposed to run over ssh on the (or one of the) Rancher master
-    node(s).
-  - >
-    This task first creates a `kind: Token` object if a suitable one
-    doesn't exist already; then returns the `.token` value within.
+  - This task first creates a `kind: Token` object if a suitable one
+      doesn't exist already; then returns the `.token` value within.
+  - This task is supposed to run over ssh on (one of) the Rancher master
+      node(s).
 requirements:
-  - kubectl (go binary) installed on the remote Rancher server.
+  - The `kubectl` go binary must be installed on the remote Rancher server.
 options:
   cluster_name:
     type: str
