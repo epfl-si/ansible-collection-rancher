@@ -32,10 +32,10 @@ class RancherLoginAction (ActionBase, RancherActionMixin):
         super(RancherLoginAction, self).run(args, ansible_api)
         RancherActionMixin.run(self, args, ansible_api)
 
-        rancher_cluster_name = self._expand_var("ansible_rancher_cluster_name")
+        self.rancher_cluster_name = self._expand_var("ansible_rancher_cluster_name")
 
         if not self.is_kubeconfig_still_valid():
-            self.save_kubeconfig(self.do_download_kubeconfig(rancher_cluster_name))
+            self.save_kubeconfig(self.do_download_kubeconfig())
         return self.result
 
     def save_kubeconfig (self, kubeconfig_content):
@@ -70,12 +70,12 @@ class RancherLoginAction (ActionBase, RancherActionMixin):
             # Happens when the `server:` value in the kubeconfig is bogus
             return False
 
-    def do_download_kubeconfig (self, rancher_cluster_name):
+    def do_download_kubeconfig (self):
         """The  “cold cache” path."""
         token = self._obtain_token()
         rancher_api_cluster_id = RancherManagerAPIClient(
             self.rancher_base_url,
-            token).get_cluster_id(rancher_cluster_name)
+            token).get_cluster_id(self.rancher_cluster_name)
 
         return RancherAPIClient(
             api_key=token,
