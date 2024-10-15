@@ -10,9 +10,8 @@ DOCUMENTATION = """
 """
 
 class LookupModule(LookupBase):
-    def run(self, terms, variables=None):
-        kubeconfig = self._templar.template(
-            variables["rke2_cluster_token_store"])
+    def run(self, terms, cluster_name=None, variables=None):
+        kubeconfig = self._templar.template('{{ ansible_rancher_credentials_dir }}/{{ ansible_rancher_cluster_name }}.yml')
         env = dict(
             KUBECONFIG=kubeconfig,
             K8S_AUTH_KUBECONFIG=kubeconfig)

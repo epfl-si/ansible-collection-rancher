@@ -1,3 +1,7 @@
+# Version 0.4.0: major feature release
+
+- `rancher_login` can now log in to multiple clusters.
+
 # Version 0.3.1: major bugfix release
 
 - Turn off Ansible's Python interpreter discovery when running tasks on the Rancher back-end machine.

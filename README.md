@@ -1,5 +1,39 @@
 # Ansible Collection — `epfl_si.rancher`
 
+## `epfl_si.rancher.rancher_login` Module
+
+This module lets you retrieve Kubernetes-style credentials (i.e. `kubeconfig` files) from the Rancher back-end, and store them locally in the directory pointed to by the `ansible_rancher_credentials_dir` variable.
+
+For instance, the following task
+
+```yaml
+- epfl_si.rancher_rancher_login: {}
+```
+
+retrieves credentials for the default cluster (the one whose name is in the `ansible_rancher_cluster_name` variable); while
+
+```yaml
+- epfl_si.rancher_rancher_login:
+    cluster_name: local
+
+- environment: '{{ lookup("epfl_si.rancher.rke2_access_environment", cluster_name="local") }}'
+  kubernetes.core.k8s:
+    apiVersion: provisioning.cattle.io/v1
+    kind: Cluster
+    metadata:
+      name: "{{ ansible_rancher_cluster_name }}"
+      namespace: fleet-default
+      annotations:
+        ui.rancher/badge-color: transparent
+        ui.rancher/badge-icon-text: MYC
+    spec:
+      kubernetesVersion: v1.30.4+rke2r1
+      rkeConfig: # ...
+      # ...
+```
+
+creates the default cluster for you inside the Rancher manager.
+
 ## `epfl_si.rancher.rancher_k8s_api_call` Module
 
 This module lets your configuration-as-code exert the same API calls that your browser does; thereby allowing you to automate some operations typically done through the Rancher UI.

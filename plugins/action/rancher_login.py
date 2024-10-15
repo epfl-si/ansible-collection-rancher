@@ -1,4 +1,5 @@
 from functools import cached_property
+import os
 
 from kubernetes.client.exceptions import ApiException
 
@@ -20,11 +21,10 @@ class RancherLoginAction (ActionBase, RancherActionMixin):
     2. creates an authentication token as a `kind: Token` object with a very short expiration time,
     3. requests the “child” cluster's kubeconfig from the Rancher backend (like the Web UI would), using the token for authentication.
 
-    `epfl_si.rancher.login` saves the downloaded kubeconfig to the file
-    named by the `ansible_rancher_credentials_file` variable.
+    `epfl_si.rancher.login` saves the downloaded kubeconfig to the directory
+    named by the `ansible_rancher_credentials_dir` variable.
 
-    All three steps are bypassed if the
-    `ansible_rancher_credentials_file` still contains valid
+    All three steps are bypassed if a previously dowloaded kubeconfig still contains valid
     credentials.
     """
     @AnsibleActions.run_method
@@ -32,7 +32,21 @@ class RancherLoginAction (ActionBase, RancherActionMixin):
         super(RancherLoginAction, self).run(args, ansible_api)
         RancherActionMixin.run(self, args, ansible_api)
 
-        self.rancher_cluster_name = self._expand_var("ansible_rancher_cluster_name")
+        credentials_dir = self._expand_var('ansible_rancher_credentials_dir', None)
+        if credentials_dir:
+            self.rancher_cluster_name = (args['cluster_name'] if 'cluster_name' in args
+                                         else self._expand_var("ansible_rancher_cluster_name"))
+            self.kubeconfig_path = os.path.join(credentials_dir, f"{self.rancher_cluster_name}.yml")
+        else:
+            # For backwards compatibility only...
+            credentials_file = self._expand_var('ansible_rancher_credentials_file')
+            if 'cluster_name' in args:
+                # ... or lack thereof, if user tries to use the new “multi-cluster” features
+                raise ValueError('Please use `ansible_rancher_credentials_dir`, rather than '
+                                 '`ansible_rancher_credentials_file`, if you want to log in to '
+                                 'a specific cluster in the Rancher inventory.')
+            self.rancher_cluster_name = self._expand_var("ansible_rancher_cluster_name")
+            self.kubeconfig_path = self._expand_var('ansible_rancher_credentials_file')
 
         if not self.is_kubeconfig_still_valid():
             self.save_kubeconfig(self.do_download_kubeconfig())
@@ -45,10 +59,6 @@ class RancherLoginAction (ActionBase, RancherActionMixin):
                  content=kubeconfig_content),
             overrides=dict(ansible_python_interpreter=self._expand_var('ansible_playbook_python')),
             connection=self._local_connection)
-
-    @cached_property
-    def kubeconfig_path (self):
-        return self._expand_var('ansible_rancher_credentials_file')
 
     @cached_property
     def _local_connection (self):
