@@ -34,6 +34,8 @@ retrieves credentials for the default cluster (the one whose name is in the `ans
 
 creates the default cluster for you inside the Rancher manager.
 
+💡 `epfl_si.rancher.rancher_login` uses ssh regardless of your `ansible_connection` setting, and you should therefore set either the `ansible_user` or the `ansible_ssh_user` variable to specify the remote username to connect as (even though the rest of your playbook may not make use of that variable).
+
 ## `epfl_si.rancher.rancher_k8s_api_call` Module
 
 This module lets your configuration-as-code exert the same API calls that your browser does; thereby allowing you to automate some operations typically done through the Rancher UI.
