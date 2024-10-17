@@ -56,18 +56,7 @@ class RancherLoginAction (ActionBase, RancherActionMixin):
         self.change(
             "ansible.builtin.copy",
             dict(dest=self.kubeconfig_path,
-                 content=kubeconfig_content),
-            overrides=dict(ansible_python_interpreter=self._expand_var('ansible_playbook_python')),
-            connection=self._local_connection)
-
-    @cached_property
-    def _local_connection (self):
-        return self.ansible_api.make_connection(
-            ansible_connection="local",
-            # TODO: does this work sometimes? Or at all?
-            env=dict(
-                KUBECONFIG=self.kubeconfig_path,
-                K8S_AUTH_KUBECONFIG=self.kubeconfig_path))
+                 content=kubeconfig_content))
 
     def is_kubeconfig_still_valid (self):
         try:
