@@ -42,10 +42,6 @@ class RancherRegistrationAction (ActionBase, RancherActionMixin):
 
         self.cluster_name = args["cluster_name"]
 
-        returned = {
-            "changed": False
-        }
-
         try:
             return {
                 "changed": False,
