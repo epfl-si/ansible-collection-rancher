@@ -1,6 +1,7 @@
 # Version 0.4.0: major feature release
 
 - `rancher_login` can now log in to multiple clusters.
+- Fix a Python interpreter mis-discovery bug (whence the interpreter discovered over ssh would “leak” over to normal connections)
 
 # Version 0.3.1: major bugfix release
 
