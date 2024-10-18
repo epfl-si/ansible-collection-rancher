@@ -80,22 +80,16 @@ class RancherActionMixin(ABC):
     def change_over_ssh (self, task_name, task_args, **subaction_kwargs):
         result = self._subaction.change(
             task_name, task_args,
+            overrides=dict(ansible_python_interpreter='python3'),
             connection=self._rancher_ssh_connection, **subaction_kwargs)
         self.result.update(result)
         return result
 
     @cached_property
     def _rancher_ssh_connection (self):
-        connection = self.ansible_api.make_connection(
+        return self.ansible_api.make_connection(
             ansible_connection="ssh",
             ansible_ssh_host=self.rancher_hostname)
-
-        build_module_command_orig = connection._shell.build_module_command
-        def no_shebang_cigar (environment_string, shebang, *args, **kwargs):
-            shebang = "python3"
-            return build_module_command_orig(environment_string, shebang,  *args, **kwargs)
-        connection._shell.build_module_command = no_shebang_cigar
-        return connection
 
     @cached_property
     def _subaction (self):
