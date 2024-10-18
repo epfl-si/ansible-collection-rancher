@@ -29,19 +29,6 @@ class RancherActionMixin(ABC):
         self.ansible_api = ansible_api
         self.result = dict(changed=False)
 
-    @cached_property
-    def _rancher_ssh_connection (self):
-        connection = self.ansible_api.make_connection(
-            ansible_connection="ssh",
-            ansible_ssh_host=self.rancher_hostname)
-
-        build_module_command_orig = connection._shell.build_module_command
-        def no_shebang_cigar (environment_string, shebang, *args, **kwargs):
-            shebang = "python3"
-            return build_module_command_orig(environment_string, shebang,  *args, **kwargs)
-        connection._shell.build_module_command = no_shebang_cigar
-        return connection
-
     def _expand_var (self, var_name, default=_not_set):
         if default is not _not_set and not self.ansible_api.has_var(var_name):
             return default
@@ -57,12 +44,11 @@ class RancherActionMixin(ABC):
                 token="MOCK:TOKEN_FOR_CHECK_MODE")
             self.result.update(result)
         else:
-            result = self.change(
+            result = self.change_over_ssh(
                 self._obtain_token_action_name,
                 dict(cluster_name=self._expand_var('ansible_rancher_cluster_name'),
                      impersonate=self._expand_var('ansible_rancher_username', 'admin'),
-                     stem=self.token_stem),
-                connection=self._rancher_ssh_connection)
+                     stem=self.token_stem))
         return result['bearer_token']
 
     @property
@@ -85,9 +71,31 @@ class RancherActionMixin(ABC):
 
     def change (self, task_name, task_args, **subaction_kwargs):
         result = self._subaction.change(
-            task_name, task_args, **subaction_kwargs)
+            task_name, task_args,
+            overrides=dict(ansible_python_interpreter=self._expand_var('ansible_playbook_python')),
+            **subaction_kwargs)
         self.result.update(result)
         return result
+
+    def change_over_ssh (self, task_name, task_args, **subaction_kwargs):
+        result = self._subaction.change(
+            task_name, task_args,
+            connection=self._rancher_ssh_connection, **subaction_kwargs)
+        self.result.update(result)
+        return result
+
+    @cached_property
+    def _rancher_ssh_connection (self):
+        connection = self.ansible_api.make_connection(
+            ansible_connection="ssh",
+            ansible_ssh_host=self.rancher_hostname)
+
+        build_module_command_orig = connection._shell.build_module_command
+        def no_shebang_cigar (environment_string, shebang, *args, **kwargs):
+            shebang = "python3"
+            return build_module_command_orig(environment_string, shebang,  *args, **kwargs)
+        connection._shell.build_module_command = no_shebang_cigar
+        return connection
 
     @cached_property
     def _subaction (self):
