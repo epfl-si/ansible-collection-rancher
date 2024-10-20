@@ -80,7 +80,7 @@ class RancherActionMixin(ABC):
     def change_over_ssh (self, task_name, task_args, **subaction_kwargs):
         result = self._subaction.change(
             task_name, task_args,
-            overrides=dict(ansible_python_interpreter='python3'),
+            overrides=dict(ansible_python_interpreter='/usr/bin/python3'),
             connection=self._rancher_ssh_connection, **subaction_kwargs)
         self.result.update(result)
         return result
