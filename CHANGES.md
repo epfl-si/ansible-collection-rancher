@@ -1,3 +1,8 @@
+# Version 0.5.0: major bugfix and API change release
+
+- `epfl_si.rancher.rke2` connection plugin is gone
+- Fix bugs and get rid of dead code
+
 # Version 0.4.0: major feature release
 
 - `rancher_login` can now log in to multiple clusters.
