@@ -69,18 +69,17 @@ class RancherActionMixin(ABC):
     def rancher_base_url (self):
         return self._expand_var('ansible_rancher_url')
 
-    def change (self, task_name, task_args, **subaction_kwargs):
+    def change (self, task_name, task_args):
         result = self._subaction.change(
-            task_name, task_args,
-            **subaction_kwargs)
+            task_name, task_args)
         self.result.update(result)
         return result
 
-    def change_over_ssh (self, task_name, task_args, **subaction_kwargs):
+    def change_over_ssh (self, task_name, task_args):
         result = self._subaction.change(
             task_name, task_args,
             overrides=dict(ansible_python_interpreter='/usr/bin/python3'),
-            connection=self._rancher_ssh_connection, **subaction_kwargs)
+            connection=self._rancher_ssh_connection)
         self.result.update(result)
         return result
 
