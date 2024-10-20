@@ -72,7 +72,6 @@ class RancherActionMixin(ABC):
     def change (self, task_name, task_args, **subaction_kwargs):
         result = self._subaction.change(
             task_name, task_args,
-            overrides=dict(ansible_python_interpreter=self._expand_var('ansible_playbook_python')),
             **subaction_kwargs)
         self.result.update(result)
         return result
