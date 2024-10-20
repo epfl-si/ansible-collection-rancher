@@ -18,7 +18,7 @@ tags:
 
 dependencies:
   kubernetes.core: ">=5.0.0"
-  epfl_si.actions: ">=2.0.1"
+  epfl_si.actions: ">=2.0.2"
 
 repository: https://github.com/epfl-si/ansible-collection-rancher
 
