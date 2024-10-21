@@ -78,16 +78,12 @@ class RancherActionMixin(ABC):
     def change_over_ssh (self, task_name, task_args):
         result = self._subaction.change(
             task_name, task_args,
-            overrides=dict(ansible_python_interpreter='/usr/bin/python3'),
-            connection=self._rancher_ssh_connection)
+            overrides=dict(
+                ansible_connection="ssh",
+                ansible_ssh_host=self.rancher_hostname,
+                ansible_python_interpreter='/usr/bin/python3'))
         self.result.update(result)
         return result
-
-    @cached_property
-    def _rancher_ssh_connection (self):
-        return self.ansible_api.make_connection(
-            ansible_connection="ssh",
-            ansible_ssh_host=self.rancher_hostname)
 
     @cached_property
     def _subaction (self):
