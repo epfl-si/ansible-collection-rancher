@@ -3,6 +3,7 @@
 from abc import ABC, abstractmethod
 from functools import cached_property
 import getpass
+import os
 import socket
 from urllib.parse import urlparse
 
@@ -67,6 +68,22 @@ class RancherActionMixin(ABC):
     @cached_property
     def rancher_base_url (self):
         return self._expand_var('ansible_rancher_url')
+
+    @property
+    def kubeconfig_path (self):
+        credentials_dir = self._expand_var('ansible_rancher_credentials_dir')
+        return os.path.join(credentials_dir, f"{self.rancher_cluster_name}.yml")
+
+    @property
+    def rancher_cluster_name (self):
+        try:
+            return self._explicitly_set_rancher_cluster_name
+        except AttributeError:
+            return self._expand_var("ansible_rancher_cluster_name")
+
+    @rancher_cluster_name.setter
+    def rancher_cluster_name (self, cluster_name):
+        self._explicitly_set_rancher_cluster_name = cluster_name
 
     def change (self, task_name, task_args):
         result = self._subaction.change(

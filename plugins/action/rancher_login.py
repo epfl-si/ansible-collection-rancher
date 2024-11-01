@@ -1,5 +1,4 @@
 from functools import cached_property
-import os
 
 from kubernetes.client.exceptions import ApiException
 
@@ -32,21 +31,7 @@ class RancherLoginAction (ActionBase, RancherActionMixin):
         super(RancherLoginAction, self).run(args, ansible_api)
         self._init_rancher(ansible_api=ansible_api)
 
-        credentials_dir = self._expand_var('ansible_rancher_credentials_dir', None)
-        if credentials_dir:
-            self.rancher_cluster_name = (args['cluster_name'] if 'cluster_name' in args
-                                         else self._expand_var("ansible_rancher_cluster_name"))
-            self.kubeconfig_path = os.path.join(credentials_dir, f"{self.rancher_cluster_name}.yml")
-        else:
-            # For backwards compatibility only...
-            credentials_file = self._expand_var('ansible_rancher_credentials_file')
-            if 'cluster_name' in args:
-                # ... or lack thereof, if user tries to use the new “multi-cluster” features
-                raise ValueError('Please use `ansible_rancher_credentials_dir`, rather than '
-                                 '`ansible_rancher_credentials_file`, if you want to log in to '
-                                 'a specific cluster in the Rancher inventory.')
-            self.rancher_cluster_name = self._expand_var("ansible_rancher_cluster_name")
-            self.kubeconfig_path = self._expand_var('ansible_rancher_credentials_file')
+        self.cluster_name = args.get('cluster_name')
 
         if not self.is_kubeconfig_still_valid():
             self.save_kubeconfig(self.do_download_kubeconfig())
@@ -68,6 +53,20 @@ class RancherLoginAction (ActionBase, RancherActionMixin):
         except ApiException:
             # Happens when the `server:` value in the kubeconfig is bogus
             return False
+
+    @property
+    def kubeconfig_path (self):
+        if self._expand_var('ansible_rancher_credentials_dir', None) is not None:
+            return super().kubeconfig_path
+        else:
+            # For backwards compatibility...
+            retval = self._expand_var('ansible_rancher_credentials_file')
+            if self._cluster_name_explicitly_set:
+                # ... or lack thereof
+                raise ValueError('Please use `ansible_rancher_credentials_dir`, rather than '
+                                 '`ansible_rancher_credentials_file`, if you want to log in to '
+                                 'a specific cluster in the Rancher inventory.')
+            return retval
 
     def do_download_kubeconfig (self):
         """The  “cold cache” path."""
