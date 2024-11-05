@@ -17,15 +17,14 @@ class RancherActionMixin(ABC):
 
     How to use:
     - Caller class should multiply inherit from both `ansible.plugins.action.ActionBase` and this here `RancherActionMixin`
-    - Caller class should overload the `run()` method and call both super-methods, like so:
+    - Caller class must call `_init_rancher` at construction time, e.g.
 
-      @AnsibleActions.run_method
-      def run (self, args, ansible_api):
-          super(RancherLoginAction, self).run(args, ansible_api)
-          RancherActionMixin.run(self, args, ansible_api)
+        @AnsibleActions.run_method
+        def run (self, args, ansible_api):
+            self._init_rancher(ansible_api=ansible_api)
+            # ...
     """
-    @abstractmethod
-    def run (self, args, ansible_api):
+    def _init_rancher (self, ansible_api):
         self.ansible_api = ansible_api
         self.result = dict(changed=False)
 

@@ -34,7 +34,7 @@ class RancherRegistrationAction (ActionBase, RancherActionMixin):
     @AnsibleActions.run_method
     def run (self, args, ansible_api):
         super(RancherRegistrationAction, self).run(args, ansible_api)
-        RancherActionMixin.run(self, args, ansible_api)
+        self._init_rancher(ansible_api=ansible_api)
 
         self.rancher = RancherManagerAPIClient(
             base_url=args["rancher_manager_url"],

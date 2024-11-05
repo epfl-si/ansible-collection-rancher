@@ -30,7 +30,7 @@ class RancherLoginAction (ActionBase, RancherActionMixin):
     @AnsibleActions.run_method
     def run (self, args, ansible_api):
         super(RancherLoginAction, self).run(args, ansible_api)
-        RancherActionMixin.run(self, args, ansible_api)
+        self._init_rancher(ansible_api=ansible_api)
 
         credentials_dir = self._expand_var('ansible_rancher_credentials_dir', None)
         if credentials_dir:
