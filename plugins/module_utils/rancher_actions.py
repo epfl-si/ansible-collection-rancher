@@ -8,6 +8,7 @@ import socket
 from urllib.parse import urlparse
 
 from ansible_collections.epfl_si.actions.plugins.module_utils.subactions import Subaction
+from ansible_collections.epfl_si.actions.plugins.module_utils.ansible_api import AnsibleActions
 
 
 _not_set = object()
@@ -24,9 +25,20 @@ class RancherActionMixin(ABC):
         def run (self, args, ansible_api):
             self._init_rancher(ansible_api=ansible_api)
             # ...
+
+      or just (for the “old-school” API sans `AnsibleActions`)
+
+        def run (self, task_vars=None):
+            self._init_rancher(task_vars=task_vars)
+            # ...
     """
-    def _init_rancher (self, ansible_api):
-        self.ansible_api = ansible_api
+    def _init_rancher (self, ansible_api=None, task_vars=None):
+        if ansible_api is not None:
+            self.ansible_api = ansible_api
+        elif task_vars is not None:
+            self.ansible_api = AnsibleActions(self, task_vars)
+        else:
+            raise TypeError("Either `ansible_api` or `task_vars` must be set.")
         self.result = dict(changed=False)
 
     def _expand_var (self, var_name, default=_not_set):
