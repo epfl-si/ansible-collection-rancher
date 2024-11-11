@@ -6,7 +6,6 @@ import shutil
 import socket
 import string
 import subprocess
-import yaml
 
 from ansible.module_utils.basic import AnsibleModule
 
