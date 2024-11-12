@@ -42,10 +42,11 @@ class RancherActionMixin(ABC):
         self.result = dict(changed=False)
 
     def _expand_var (self, var_name, default=_not_set):
-        if default is not _not_set and not self.ansible_api.has_var(var_name):
+        jinja = self.ansible_api.jinja
+        if default is not _not_set and var_name not in jinja.vars:
             return default
         else:
-            return self.ansible_api.expand_var('{{ %s }}' % var_name)
+            return jinja.expand('{{ %s }}' % var_name)
 
     _obtain_token_action_name = 'epfl_si.rancher._rancher_obtain_token'
 
