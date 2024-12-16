@@ -2,19 +2,19 @@
 
 ## `epfl_si.rancher.rancher_login` Module
 
-**⚠ This module always returns a “changed” (yellow) Ansible result.** It is up to you to short-circuit it (using a `when:` clause), as shown below.
-
 The `epfl_si.rancher.rancher_login` module retrieves Kubernetes-style credentials (i.e. `kubeconfig` files) from the Rancher back-end. It *does not* revalidate pre-existing credentials, or store them to disk. You need to do that yourself, for instance like this:
 
 ```yaml
-- ignore_errors: true
+- changed_when: false
+  ignore_errors: true
   shell:
     cmd: |
       KUBECONFIG="$K8S_AUTH_KUBECONFIG" kubectl get pods
   register: _credentials_check
 
 - when: _credentials_check is failed
-  epfl_si.rancher.rancher_login: {}
+  epfl_si.rancher.rancher_login:
+    cluster_name: mycluster
   register: _rancher_login
 
 - when: _credentials_check is failed
@@ -28,22 +28,22 @@ The `epfl_si.rancher.rancher_login` module retrieves Kubernetes-style credential
 Or equivalently, in case you don't mind the extra complexity, but you *do* mind the red:
 
 ```yaml
-- shell:
+- changed_when: false
+  shell:
     cmd: |
       if KUBECONFIG="$K8S_AUTH_KUBECONFIG" kubectl get pods ; then
         echo "CREDENTIALS_ARE_STILL_VALID"
-      else
-        true
+        exit 0
       fi
   register: _credentials_check
-  changed_when: >-
-    "CREDENTIALS_ARE_STILL_VALID" not in _credentials_check.stdout
 
-- when: _credentials_check is changed
+- when: >-
+     "CREDENTIALS_ARE_STILL_VALID" not in _credentials_check.stdout
   epfl_si.rancher.rancher_login: {}
   register: _rancher_login
 
-- when: _credentials_check is changed
+- when: >-
+     "CREDENTIALS_ARE_STILL_VALID" not in _credentials_check.stdout
   copy:
     dest: >-
       {{ lookup("env", "K8S_AUTH_KUBECONFIG") }}
@@ -75,9 +75,11 @@ Or equivalently, in case you don't mind the extra complexity, but you *do* mind 
       # ...
 ```
 
-The above creates a cluster for you inside the Rancher manager. (It also suffers from a permayellow as explained above, that can be fixed by conditionally short-circuiting the call to `epfl_si.rancher.rancher_login`, as explained above.)
+The above creates a cluster for you inside the Rancher manager.
 
 💡 `epfl_si.rancher.rancher_login` obtains credentials over ssh, regardless of your `ansible_connection` setting; and you should therefore set either the `ansible_user` or the `ansible_ssh_user` variable to specify the remote username to connect as (even though the rest of your playbook may not make use of that variable).
+
+The status of the `epfl_si.rancher.rancher_login` task `is changed` (“yellow”) if obtaining the credentials required creating a new `Token` Kubernetes, with very short validity (2 minutes). It `is not changed` if said `Token` (“green”) could be re-used.
 
 ## `epfl_si.rancher.rancher_k8s_api_call` Module
 

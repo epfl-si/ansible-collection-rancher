@@ -26,6 +26,46 @@ class RancherLoginAction (ActionBase, RancherActionMixin):
     action doesn't store the retrieved credentials in a kubeconfig
     file. It behooves the calling role or playbook to take care of
     both.
+
+    Recognized task args:
+        cluster_name      The name of the cluster (the one you see in the
+                          “name” column on the Rancher dashboard). Defaults
+                          to the `ansible_rancher_cluster_name` variable,
+                          if set.
+
+    Ansible variables used:
+        ansible_rancher_cluster_name   The default for the `cluster_name`
+                                       task argument
+
+        ansible_rancher_url            The hostname portion of that URL
+                                       indicates the host to ssh into to
+                                       obtain credentials
+
+        ansible_rancher_ca_cert
+        ansible_rancher_validate_certs The usual parameters for
+                                       server-to-client TLS authentication,
+                                       shared with other tasks in this Ansible
+                                       collection. At least one of these
+                                       must be set. `ansible_rancher_ca_cert`,
+                                       if set, must be a string in multiline
+                                       PEM format.
+                                       `ansible_rancher_validate_certs` is
+                                       a Boolean.
+
+        ansible_rancher_username       The Rancher username that the
+                                       retrieved credentials will belong to;
+                                       defaults to “admin”
+
+        ansible_rancher_token_stem     The prefix of the short-lived bearer
+                                       token that `epfl_si.rancher.rancher_login`
+                                       creates for itself in order to
+                                       download the (longer-lived)
+                                       credentials in kubeconfig
+                                       format. Visible forever (we
+                                       think ?) with `kubectl get
+                                       token` in the `local` cluster,
+                                       even though they expire after
+                                       two minutes.
     """
     @AnsibleActions.run_method
     def run (self, args, ansible_api):
