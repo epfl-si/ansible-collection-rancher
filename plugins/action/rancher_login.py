@@ -69,18 +69,19 @@ class RancherLoginAction (ActionBase, RancherActionMixin):
             return retval
 
     def do_download_kubeconfig (self):
-        """The  “cold cache” path."""
+        """The “cold cache” path."""
         token = self._obtain_token()
         rancher_api_cluster_id = RancherManagerAPIClient(
             self.rancher_base_url,
             token).get_cluster_id(self.rancher_cluster_name)
 
-        return RancherAPIClient(
+        client = RancherAPIClient(
             api_key=token,
             base_url=self.rancher_base_url,
             rancher_api_cluster_id=rancher_api_cluster_id,
             ca_cert=self._expand_var("ansible_rancher_ca_cert", None),
-            validate_certs=self._expand_var("ansible_rancher_validate_certs", True)).download_kubeconfig()
+            validate_certs=self._expand_var("ansible_rancher_validate_certs", True))
+        return client.download_kubeconfig()
 
 
 ActionModule = RancherLoginAction
