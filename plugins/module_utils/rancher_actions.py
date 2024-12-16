@@ -94,21 +94,18 @@ class RancherActionMixin(ABC):
         self._explicitly_set_rancher_cluster_name = cluster_name
 
     def change (self, task_name, task_args):
-        result = self._subaction.change(
-            task_name, task_args)
-        self.result.update(result)
-        return result
+        return self._subaction.change(task_name, task_args)
 
     def change_over_ssh (self, task_name, task_args):
-        result = self._subaction.change(
+        return self._subaction.change(
             task_name, task_args,
             overrides=dict(
                 ansible_connection="ssh",
                 ansible_ssh_host=self.rancher_hostname,
                 ansible_python_interpreter='/usr/bin/python3'))
-        self.result.update(result)
-        return result
 
     @cached_property
     def _subaction (self):
-        return Subaction(self.ansible_api)
+        sub = Subaction(self.ansible_api)
+        sub.result = self.result
+        return sub
