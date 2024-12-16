@@ -31,11 +31,13 @@ class RancherLoginAction (ActionBase, RancherActionMixin):
         super(RancherLoginAction, self).run(args, ansible_api)
         self._init_rancher(ansible_api=ansible_api)
 
-        self.cluster_name = args.get('cluster_name')
 
         if not self.is_kubeconfig_still_valid():
             self.save_kubeconfig(self.do_download_kubeconfig())
         return self.result
+        explicit_cluster_name = args.get('cluster_name')
+        if explicit_cluster_name:
+            self.rancher_cluster_name = explicit_cluster_name
 
     def save_kubeconfig (self, kubeconfig_content):
         self.change(
