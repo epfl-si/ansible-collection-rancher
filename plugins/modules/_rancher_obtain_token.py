@@ -1,4 +1,5 @@
 import datetime
+import json
 import os
 import random
 import re
@@ -149,21 +150,21 @@ userPrincipal:
 
     def get_user_by_name (self, username):
         print("username: %s" % username)
-        [the_user] = (user for user in self._kubectl_get_yaml(
+        [the_user] = (user for user in self._kubectl_get(
                                  'User.management.cattle.io')
                       if user.get('username', None) == username)
         return the_user
 
     def _get_tokens_with_stem (self, stem):
-        return (tok for tok in self._kubectl_get_yaml(
+        return (tok for tok in self._kubectl_get(
                                  'Token.management.cattle.io')
                 if tok['metadata']['name'].startswith(stem))
 
-    def _kubectl_get_yaml (self, *cmdline):
+    def _kubectl_get (self, *cmdline):
         kubectl_stdout = self._kubectl_subprocess(
-            ['get', '-o', 'yaml'] + list(cmdline),
+            ['get', '-o', 'json'] + list(cmdline),
             stdout=subprocess.PIPE).stdout
-        return yaml.safe_load(kubectl_stdout)['items']
+        return json.loads(kubectl_stdout)['items']
 
     def _kubectl_apply (self, yaml_string):
         self._kubectl_subprocess(
