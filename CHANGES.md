@@ -1,3 +1,13 @@
+# Version 0.6.0: major bugfix and API change release
+
+- Remove responsibility for creating / maintaining kubeconfig files.
+  The `epfl_si.rancher.rancher_login` action now provides a `.kubeconfig`
+  field in its `register`ed structure; it's up to you to write that
+  into a file (should you choose to)
+- Fix: do not insist on `import yaml` working on the remote side.
+- Document `epfl_si.rancher.rancher_login` in full i.e. that action
+  plugin is ready for prime-time.
+
 # Version 0.5.0: major bugfix and API change release
 
 - `epfl_si.rancher.rke2` connection plugin is gone
