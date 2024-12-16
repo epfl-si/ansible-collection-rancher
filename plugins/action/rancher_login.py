@@ -14,64 +14,28 @@ from ansible_collections.epfl_si.rancher.plugins.module_utils.rancher_actions im
 class RancherLoginAction (ActionBase, RancherActionMixin):
     """Download a Kubeconfig file from the rancher back-end.
 
-    In the “worst best case” (i.e. success with all caches cold), this action
+    1. connect over ssh to the node where the Rancher front-end is running,
+    2. create an authentication token as a `kind: Token` object with a very short expiration time,
+    3. request the “child” cluster's kubeconfig from the Rancher backend (like the Web UI would),
+       using the token for authentication,
+    4. present the result of same as the `.kubeconfig` property of the task result.
 
-    1. connects over ssh to the node where the Rancher front-end is running,
-    2. creates an authentication token as a `kind: Token` object with a very short expiration time,
-    3. requests the “child” cluster's kubeconfig from the Rancher backend (like the Web UI would), using the token for authentication.
-
-    `epfl_si.rancher.login` saves the downloaded kubeconfig to the directory
-    named by the `ansible_rancher_credentials_dir` variable.
-
-    All three steps are bypassed if a previously dowloaded kubeconfig still contains valid
-    credentials.
+    ⚠ This action *does not* check any pre-existing credentials; as a
+    consequence, it always satisfies the `is changed` Jinja predicate
+    (a.k.a. is “always yellow” in the Ansible UI). Likewise, this
+    action doesn't store the retrieved credentials in a kubeconfig
+    file. It behooves the calling role or playbook to take care of
+    both.
     """
     @AnsibleActions.run_method
     def run (self, args, ansible_api):
         super(RancherLoginAction, self).run(args, ansible_api)
         self._init_rancher(ansible_api=ansible_api)
 
-
-        if not self.is_kubeconfig_still_valid():
-            self.save_kubeconfig(self.do_download_kubeconfig())
-        return self.result
         explicit_cluster_name = args.get('cluster_name')
         if explicit_cluster_name:
             self.rancher_cluster_name = explicit_cluster_name
 
-    def save_kubeconfig (self, kubeconfig_content):
-        self.change(
-            "ansible.builtin.copy",
-            dict(dest=self.kubeconfig_path,
-                 content=kubeconfig_content))
-
-    def is_kubeconfig_still_valid (self):
-        try:
-            RancherAPIClient(kubeconfig=self.kubeconfig_path)
-            return True
-        except k8s_exceptions.CoreException:
-            # Happens when there is no kubeconfig file
-            return False
-        except ApiException:
-            # Happens when the `server:` value in the kubeconfig is bogus
-            return False
-
-    @property
-    def kubeconfig_path (self):
-        if self._expand_var('ansible_rancher_credentials_dir', None) is not None:
-            return super().kubeconfig_path
-        else:
-            # For backwards compatibility...
-            retval = self._expand_var('ansible_rancher_credentials_file')
-            if self._cluster_name_explicitly_set:
-                # ... or lack thereof
-                raise ValueError('Please use `ansible_rancher_credentials_dir`, rather than '
-                                 '`ansible_rancher_credentials_file`, if you want to log in to '
-                                 'a specific cluster in the Rancher inventory.')
-            return retval
-
-    def do_download_kubeconfig (self):
-        """The “cold cache” path."""
         token = self._obtain_token()
         rancher_api_cluster_id = RancherManagerAPIClient(
             self.rancher_base_url,
@@ -83,7 +47,7 @@ class RancherLoginAction (ActionBase, RancherActionMixin):
             rancher_api_cluster_id=rancher_api_cluster_id,
             ca_cert=self._expand_var("ansible_rancher_ca_cert", None),
             validate_certs=self._expand_var("ansible_rancher_validate_certs", True))
-        return client.download_kubeconfig()
-
+        self.result["kubeconfig"] = client.download_kubeconfig()
+        return self.result
 
 ActionModule = RancherLoginAction

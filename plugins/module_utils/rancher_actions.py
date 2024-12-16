@@ -83,11 +83,6 @@ class RancherActionMixin(ABC):
         return self._expand_var('ansible_rancher_url')
 
     @property
-    def kubeconfig_path (self):
-        credentials_dir = self._expand_var('ansible_rancher_credentials_dir')
-        return os.path.join(credentials_dir, f"{self.rancher_cluster_name}.yml")
-
-    @property
     def rancher_cluster_name (self):
         try:
             return self._explicitly_set_rancher_cluster_name

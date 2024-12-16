@@ -2,22 +2,65 @@
 
 ## `epfl_si.rancher.rancher_login` Module
 
-This module lets you retrieve Kubernetes-style credentials (i.e. `kubeconfig` files) from the Rancher back-end, and store them locally in the directory pointed to by the `ansible_rancher_credentials_dir` variable.
+**⚠ This module always returns a “changed” (yellow) Ansible result.** It is up to you to short-circuit it (using a `when:` clause), as shown below.
 
-For instance, the following task
+The `epfl_si.rancher.rancher_login` module retrieves Kubernetes-style credentials (i.e. `kubeconfig` files) from the Rancher back-end. It *does not* revalidate pre-existing credentials, or store them to disk. You need to do that yourself, for instance like this:
 
 ```yaml
-- epfl_si.rancher_rancher_login: {}
+- ignore_errors: true
+  shell:
+    cmd: |
+      KUBECONFIG="$K8S_AUTH_KUBECONFIG" kubectl get pods
+  register: _credentials_check
+
+- when: _credentials_check is failed
+  epfl_si.rancher.rancher_login: {}
+  register: _rancher_login
+
+- when: _credentials_check is failed
+  copy:
+    dest: >-
+      {{ lookup("env", "K8S_AUTH_KUBECONFIG") }}
+    content: >-
+      {{ _rancher_login.kubeconfig }}
 ```
 
-retrieves credentials for the default cluster (the one whose name is in the `ansible_rancher_cluster_name` variable); while
+Or equivalently, in case you don't mind the extra complexity, but you *do* mind the red:
+
+```yaml
+- shell:
+    cmd: |
+      if KUBECONFIG="$K8S_AUTH_KUBECONFIG" kubectl get pods ; then
+        echo "CREDENTIALS_ARE_STILL_VALID"
+      else
+        true
+      fi
+  register: _credentials_check
+  changed_when: >-
+    "CREDENTIALS_ARE_STILL_VALID" not in _credentials_check.stdout
+
+- when: _credentials_check is changed
+  epfl_si.rancher.rancher_login: {}
+  register: _rancher_login
+
+- when: _credentials_check is changed
+  copy:
+    dest: >-
+      {{ lookup("env", "K8S_AUTH_KUBECONFIG") }}
+    content: >-
+      {{ _rancher_login.kubeconfig }}
+```
+
+`epfl_si.rancher.rancher_login` connects to the cluster designated by the `ansible_rancher_cluster_name` variable by default. This can be overridden using the `cluster_name` task argument:
 
 ```yaml
 - epfl_si.rancher_rancher_login:
     cluster_name: local
+  register: _rancher_login_to_rancher
 
 - environment: '{{ lookup("epfl_si.rancher.rke2_access_environment", cluster_name="local") }}'
   kubernetes.core.k8s:
+    kubeconfig: "{{ _rancher_login_to_rancher | from_yaml }}"
     apiVersion: provisioning.cattle.io/v1
     kind: Cluster
     metadata:
@@ -32,9 +75,9 @@ retrieves credentials for the default cluster (the one whose name is in the `ans
       # ...
 ```
 
-creates the default cluster for you inside the Rancher manager.
+The above creates a cluster for you inside the Rancher manager. (It also suffers from a permayellow as explained above, that can be fixed by conditionally short-circuiting the call to `epfl_si.rancher.rancher_login`, as explained above.)
 
-💡 `epfl_si.rancher.rancher_login` uses ssh regardless of your `ansible_connection` setting, and you should therefore set either the `ansible_user` or the `ansible_ssh_user` variable to specify the remote username to connect as (even though the rest of your playbook may not make use of that variable).
+💡 `epfl_si.rancher.rancher_login` obtains credentials over ssh, regardless of your `ansible_connection` setting; and you should therefore set either the `ansible_user` or the `ansible_ssh_user` variable to specify the remote username to connect as (even though the rest of your playbook may not make use of that variable).
 
 ## `epfl_si.rancher.rancher_k8s_api_call` Module
 
