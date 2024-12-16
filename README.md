@@ -54,7 +54,7 @@ Or equivalently, in case you don't mind the extra complexity, but you *do* mind 
 `epfl_si.rancher.rancher_login` connects to the cluster designated by the `ansible_rancher_cluster_name` variable by default. This can be overridden using the `cluster_name` task argument:
 
 ```yaml
-- epfl_si.rancher_rancher_login:
+- epfl_si.rancher.rancher_login:
     cluster_name: local
   register: _rancher_login_to_rancher
 
