@@ -54,7 +54,7 @@ class RancherActionMixin(ABC):
         if self.ansible_api.check_mode.is_active:
             result = dict(
                 changed=True,
-                token="MOCK:TOKEN_FOR_CHECK_MODE")
+                bearer_token="MOCK:TOKEN_FOR_CHECK_MODE")
             self.result.update(result)
         else:
             result = self.change_over_ssh(
