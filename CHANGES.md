@@ -1,3 +1,7 @@
+# Version 0.x.x
+
+- Upgrade to latest version of `epfl_si.actions`, thereby gaining `delegate_to:` support in all tasks
+
 # Version 0.6.0: major bugfix and API change release
 
 - Remove responsibility for creating / maintaining kubeconfig files.
