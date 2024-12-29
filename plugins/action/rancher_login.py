@@ -69,7 +69,6 @@ class RancherLoginAction (ActionBase, RancherActionMixin):
     """
     @AnsibleActions.run_method
     def run (self, args, ansible_api):
-        super(RancherLoginAction, self).run(args, ansible_api)
         self._init_rancher(ansible_api=ansible_api)
 
         explicit_cluster_name = args.get('cluster_name')
