@@ -4,6 +4,8 @@ all:
   children:
     gitlab_rke2_vms:
       vars:
+        ansible_rancher_url: https://rancher-fsd.epfl.ch
+        ansible_rancher_cluster_name: gitlab
         ansible_user: root
         ansible_python_interpreter: /usr/bin/python3
         ansible_host: "{{ inventory_hostname }}.xaas.epfl.ch"
@@ -12,11 +14,17 @@ all:
           hosts:
             itsgitlab0004:
             itsgitlab0005:
+          vars:
+            rancher_rke2_is_worker: true
+            rancher_rke2_is_controlplane: false
         gitlab_rke2_control_plane_nodes:
           hosts:
             itsgitlab0006:
             itsgitlab0007:
             itsgitlab0008:
+          vars:
+            rancher_rke2_is_worker: true   # Debatable.
+            rancher_rke2_is_controlplane: true
     rke2_clusters:
       vars:
         ansible_rancher_url: https://rancher-fsd.epfl.ch

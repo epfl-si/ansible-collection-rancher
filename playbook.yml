@@ -13,10 +13,13 @@
   vars:
     ansible_k8s_kubeconfig: "rke2-credentials-cache/local.yml"
 
-- hosts: gitlab_rke2_workers
-  gather_facts: no
+- hosts: gitlab_rke2_vms
+  gather_facts: yes   # epfl_si.rancher.rke2_node wants facts
   roles:
-    - role: rke2-worker
+    - role: epfl_si.rancher.rke2_node
+      vars:
+        rancher_rke2_insecure: false
+        # rancher_rke2_is_worker and rancher_rke2_is_controlplane are set in the inventory.
 
 - hosts: gitlab_rke2_clusters
   gather_facts: no
