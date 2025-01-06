@@ -126,11 +126,3 @@ Here is an example task to install the [NFS subdir external provisioner](https:/
 ④ Unlike what appears to happen in the UI, there is no need to transmit a complete `values.yaml` file; only those values that were edited from the defaults need to be set.
 
 ⑤ Likewise, the target namespace should exist already; which one can enforce using a `kubernetes.core.k8s` task that creates the `Namespace` object.
-
-## `epfl_si.rancher.rke2_access` Role
-
-This role ensures that a suitable Kubeconfig file exists, and contains up-to-date credentials, so as to connect to a RKE2 cluster.
-
-## `epfl_si.rancher.rke2_access_environment` Lookup Plugin
-
-This lookup plugin configures your play's or role's `environment:`, so that Ansible will make use of the `rke2_cluster_token_store` that the `epfl_si.rancher.rke2_access` role creates.
