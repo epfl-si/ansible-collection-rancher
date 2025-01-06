@@ -36,11 +36,14 @@ class RancherRegistrationAction (ActionBase, RancherActionMixin):
         super(RancherRegistrationAction, self).run(args, ansible_api)
         self._init_rancher(ansible_api=ansible_api)
 
-        self.rancher = RancherManagerAPIClient(
-            base_url=args["rancher_manager_url"],
-            api_key=self._obtain_token())
+        if "cluster_name" in args:
+            self.cluster_name = args["cluster_name"]
 
-        self.cluster_name = args["cluster_name"]
+        base_url = args.get("rancher_manager_url", self.rancher_base_url)
+
+        self.rancher = RancherManagerAPIClient(
+            base_url=base_url,
+            api_key=self._obtain_token())
 
         try:
             return {
