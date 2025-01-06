@@ -8,7 +8,7 @@ RUN apt -qy update && apt -qy install nodejs iproute2 iputils-ping netcat-openbs
 
 # This may not be the smartest way of achieving this, but it does get
 # omniauth-tequila to install, and therefore load, along with all the others:
-RUN ln -s . /opt/gitlab/embedded/lib/ruby/gems/3.1.0/bundler
+RUN ln -s . /opt/gitlab/embedded/lib/ruby/gems/3.2.0/bundler
 RUN echo "gem 'omniauth-tequila', :git => 'https://github.com/domq/omniauth-tequila.git' " >> /opt/gitlab/embedded/service/gitlab-rails/Gemfile
 RUN cd /opt/gitlab/embedded/service/gitlab-rails && bundle config unset frozen && bundle install
 
