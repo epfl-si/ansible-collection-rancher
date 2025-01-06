@@ -27,3 +27,14 @@
     name: nfs-common
     state:
       present
+
+- name: Rancher cluster membership
+  tags:
+    - rke2-node
+    - rke2-node.register
+  include_tasks:
+    file: register.yml
+    apply:
+      tags:
+        - rke2-node
+        - rke2-node.register

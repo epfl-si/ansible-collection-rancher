@@ -1,0 +1,27 @@
+- name: Probe for membership
+  changed_when: false
+  shell:
+    cmd: |-
+      curl -v --cert /var/lib/rancher/rke2/agent/client-kubelet.crt \
+              --key /var/lib/rancher/rke2/agent/client-kubelet.key \
+              --cacert /var/lib/rancher/rke2/agent/server-ca.crt \
+              https://localhost:6443/api/v1/nodes || \
+          echo NOT_A_MEMBER
+  register: _rke2_membership_probe
+
+- when: >-
+    "NOT_A_MEMBER" in (_rke2_membership_probe.stdout | default(""))
+  block:
+    - epfl_si.rancher.rancher_registration: {}
+      register: _token_etc
+
+    - name: Configure RKE2 node
+      ansible.builtin.shell:
+        cmd: >-
+          {{ _token_etc.registration.nodeCommand }}
+          {{ "--etcd" if rancher_rke2_has_etcd else "" }}
+          {{ "--controlplane" if rancher_rke2_is_controlplane else "" }}
+          {{ "--worker" if rancher_rke2_is_worker else "" }}
+      when: >-
+        rancher_rke2_has_etcd or rancher_rke2_is_controlplane or rancher_rke2_is_worker
+
