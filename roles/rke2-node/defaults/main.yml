@@ -8,6 +8,9 @@ rancher_rke2_main_network_interface: ens192
 rancher_rke2_is_worker: true
 rancher_rke2_is_controlplane: true
 
+# RKE2 offers the possibility to place etcd nodes separately from the control plane, so there.
+rancher_rke2_has_etcd: '{{ rancher_rke2_is_controlplane }}'
+
 # True iff the Rancher server *doesn't* provide a globally-valid
 # TLS certificate:
 rancher_rke2_insecure: true
