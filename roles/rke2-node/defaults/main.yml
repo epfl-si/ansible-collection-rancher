@@ -1,0 +1,16 @@
+# The name of the main interface, to disable UDP checksums on. (See
+# ../tasks/no-hardware-udp-checksum.yml)
+rancher_rke2_main_network_interface: ens192
+
+# The RKE2 roles. You will probably want to set these separately for
+# each node (either explicitly as inventory vars, or using a Jinja
+# formula in the `vars:` stanza of the playbook)
+rancher_rke2_is_worker: true
+rancher_rke2_is_controlplane: true
+
+# True iff the Rancher server *doesn't* provide a globally-valid
+# TLS certificate:
+rancher_rke2_insecure: true
+
+# ansible_rancher_url doesn't have a default value and must be set; e.g.
+#ansible_rancher_url: https://rancher-fsd.epfl.ch
