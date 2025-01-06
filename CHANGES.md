@@ -2,6 +2,7 @@
 
 - Upgrade to latest version of `epfl_si.actions`, thereby gaining `delegate_to:` support in all tasks
 - Drop `epfl_si.rancher.rke2_access` role, as it was unused and at odds with 0.6.0's strategy of not managing kubeconfig files anymore
+- `epfl_si.rancher.rke2-node` role
 
 # Version 0.6.0: major bugfix and API change release
 

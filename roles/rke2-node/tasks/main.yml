@@ -1,0 +1,29 @@
+- name: Interactive use / comfort features
+  tags:
+    - rke2-node
+    - rke2-node.interactive
+  include_tasks:
+    file: interactive.yml
+    apply:
+      tags:
+        - rke2-node
+        - rke2-node.interactive
+
+- name: VM platform-specific bugware
+  tags:
+    - rke2-node
+    - rke2-node.udp
+    - rke2-node.bugware
+  include_tasks:
+    file: no-hardware-udp-checksum.yml
+    apply:
+      tags:
+        - rke2-node
+        - rke2-node.udp
+        - rke2-node.bugware
+
+- name: Support for NFS volumes
+  ansible.builtin.apt:
+    name: nfs-common
+    state:
+      present
