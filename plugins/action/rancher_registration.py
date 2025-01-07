@@ -19,8 +19,8 @@ description:
 """
 
 RETURN = r"""
-registrations:
-    description: The list of `clusterregistrationtokens.management.cattle.io` objects stored in the management Rancher. The Rancher UI apparently uses the first entry in this list for its “Cluster Management” → “Registration” tab.
+registration:
+    description: The first entry in the list of `clusterregistrationtokens.management.cattle.io` objects stored in the management Rancher. The Rancher UI apparently uses this one for its “Cluster Management” → “Registration” tab.
     type: list
     returned: always
 changed:
