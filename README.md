@@ -126,3 +126,25 @@ Here is an example task to install the [NFS subdir external provisioner](https:/
 ④ Unlike what appears to happen in the UI, there is no need to transmit a complete `values.yaml` file; only those values that were edited from the defaults need to be set.
 
 ⑤ Likewise, the target namespace should exist already; which one can enforce using a `kubernetes.core.k8s` task that creates the `Namespace` object.
+
+## `epfl_si.rancher.rancher_project` Lookup Plugin
+
+This lookup plugin searches for `Project.management.cattle.io` objects belonging to the current cluster (the one that the `ansible_rancher_cluster_name` variable points to).
+
+Here is how to use it to make a “system” namespace, as seen by the rancher dashboard:
+
+```yaml
+- name: "`namespace/something-something-system`"
+  kubernetes.core.k8s:
+    definition:
+      kind: Namespace
+      metadata:
+        name: "something-something-system"
+        annotations:
+          field.cattle.io/projectId: "{{ _project.spec.clusterName }}:{{ _project.metadata.name }}"
+  vars:
+    _project: >-
+      {{ lookup("epfl_si.rancher.rancher_project",
+                kubeconfig="/where/the/rancher/master/credentials/are",
+                display_name="System") }}
+```
