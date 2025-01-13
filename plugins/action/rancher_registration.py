@@ -37,7 +37,7 @@ class RancherRegistrationAction (ActionBase, RancherActionMixin):
         self._init_rancher(ansible_api=ansible_api)
 
         if "cluster_name" in args:
-            self.cluster_name = args["cluster_name"]
+            self.rancher_cluster_name = args["cluster_name"]
 
         base_url = args.get("rancher_manager_url", self.rancher_base_url)
 
@@ -67,7 +67,7 @@ class RancherRegistrationAction (ActionBase, RancherActionMixin):
 
     @cached_property
     def cluster_id (self):
-        return self.rancher.get_cluster_id(self.cluster_name)
+        return self.rancher.get_cluster_id(self.rancher_cluster_name)
 
 
 ActionModule = RancherRegistrationAction
