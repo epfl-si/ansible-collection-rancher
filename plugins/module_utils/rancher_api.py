@@ -165,9 +165,8 @@ class RancherManagerAPIClient:
     def get_cluster_id (self, cluster_name):
         clusters = self.call_rancher_manager_api(
             'GET', self._clusters_uri)['data']
-        the_cluster = [c for c in clusters
-                if c['name'] == cluster_name]
 
+        the_cluster = [c for c in clusters if c['name'] == cluster_name]
         if len(the_cluster) != 1:
             raise ValueError('%d cluster(s) found for name %s; expected one.' %
                              (len(the_cluster), cluster_name))
