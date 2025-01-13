@@ -1,0 +1,60 @@
+# Create the cluster inside Rancher
+#
+# This is called by a special form in the playbook (an `include_role`
+# task with the `tasks_from` argument; see
+# https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_reuse_roles.html)
+# so that these tasks happen *before* the cluster nodes are set up.
+# This is unlike the role's `main.yml` flow, which runs *after* the
+# nodes are ready and inserted into the cluster.
+
+- include_tasks:
+    file: _rancher_login.yml
+    apply:
+      vars:
+        _login_delegated_to: rancher
+
+- name: Create GitLab cluster in Rancher
+  delegate_to: rancher
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: provisioning.cattle.io/v1
+      kind: Cluster
+      metadata:
+        name: gitlab
+        namespace: fleet-default
+        annotations:
+          ui.rancher/badge-color: transparent
+          ui.rancher/badge-icon-text: GTL
+      spec:
+        kubernetesVersion: v1.30.4+rke2r1
+        rkeConfig:
+          etcd:
+            snapshotRetention: 20
+            snapshotScheduleCron: 0 */4 * * *
+          machineGlobalConfig:
+            cni: canal
+            cluster-cidr: 192.168.128.0/20
+            service-cidr: 192.168.144.0/20
+          chartValues:
+            rke2-canal: {}
+          upgradeStrategy:
+            controlPlaneConcurrency: "1"
+            workerConcurrency: "1"
+            # I have no idea what drain options are. However, the clicky GUI
+            # sets a few values as below, which *do* differ from the default
+            # values:
+            controlPlaneDrainOptions: >
+              {{ _drain_options_as_the_gui_wants_them }}
+            workerDrainOptions: >
+              {{ _drain_options_as_the_gui_wants_them }}
+        localClusterAuthEndpoint:
+          enabled: true
+  vars:
+    _drain_options_as_the_gui_wants_them:
+      gracePeriod: -1
+      ignoreDaemonSets: true
+      deleteEmptyDirData: true
+      timeout: 120
+  tags:
+    - rke2
+    - rke2.cluster

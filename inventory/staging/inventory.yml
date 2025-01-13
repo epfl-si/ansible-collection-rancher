@@ -17,12 +17,13 @@ all:
             itsgitlab0006:
             itsgitlab0007:
             itsgitlab0008:
-    gitlab_rke2_clusters:
+    rke2_clusters:
       vars:
         ansible_rancher_url: https://rancher-fsd.epfl.ch
         ansible_rancher_credentials_dir: "rke2-credentials-cache"
 
         ansible_connection: local
+        ansible_python_interpreter: "{{ ansible_playbook_python }}"
         # ... Except for `rancher_login` tasks, which do their own thing and
         # use ssh; in which case we have
         ansible_ssh_user: root
@@ -30,5 +31,11 @@ all:
       "hosts":  # Scarequotes intended — These are Kubernetes
                 # clusters, even though we access them over HTTP/S
                 # from the local workstation (as opposed to ssh)
-        gitlab-k8s-test:
-          ansible_rancher_cluster_name: gitlab
+        rancher:   # Assumed to be up and running; only used in `delegate_to:` tasks
+          ansible_rancher_cluster_name: local
+
+      children:
+        gitlab_rke2_clusters:
+          "hosts":
+            gitlab-k8s-test:
+              ansible_rancher_cluster_name: gitlab
