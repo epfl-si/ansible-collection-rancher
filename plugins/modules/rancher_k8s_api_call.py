@@ -17,6 +17,10 @@ description:
   that your browser does; thereby allowing you to automate some
   operations typically done through the Rancher UI.
 
+- 💡 Some of these UI actions are implemented as higher-level Ansible
+  modules or action plugins, for instance C(rancher_helm_chart).
+  Consider using them instead, if applicable.
+
 - This module expects the (K8S_AUTH_KUBECONFIG) environment variable
   to be set, and to point to a suitable Kubeconfig file (e.g. one
   downloaded from the Rancher UI). This module will authenticate to
