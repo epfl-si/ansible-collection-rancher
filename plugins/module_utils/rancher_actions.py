@@ -62,6 +62,7 @@ class RancherActionMixin(ABC):
                 dict(cluster_name=self._expand_var('ansible_rancher_cluster_name'),
                      impersonate=self._expand_var('ansible_rancher_username', 'admin'),
                      stem=self.token_stem))
+            self.result.update(result)
         return result['bearer_token']
 
     @property
