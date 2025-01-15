@@ -1,0 +1,68 @@
+argument_specs:
+  main:
+    short_description: Prepare and enroll a node into a Rancher RKE2 cluster
+    description:
+      - This role does “classical” Ansible administration over ssh to insert a Rancher
+        node into the cluster.
+
+      - The role starts with installing prerequisites (such as che
+        C(mount.nfs4) command) and setting up some comfort features,
+        such as configuring the C(crictl) and (if feasible) C(kubectl)
+        commands, so that they just work.
+
+      - The role then runs the same C(curl | bash) command that the
+        Rancher UI suggests in the Registration pane as part of the
+        cluster creation workflow, taking care of setting the RKE2
+        roles (i.e. the C(--worker), C(--etcd) and C(--controlplane)
+        command-line flags) from Ansible variables.
+
+    options:
+      rancher_rke2_insecure:
+        type: bool
+        default: false
+        description: Controls the C(--insecure) installer command-line flag
+
+      rancher_rke2_is_worker:
+        type: bool
+        required: true
+        description: Controls the C(--worker) installer command-line flag
+
+      rancher_rke2_is_controlplane:
+        type: bool
+        required: true
+        description: Controls the C(--controlplane) installer command-line flag
+
+      rancher_rke2_has_etcd:
+        type: bool
+        required: false
+        default: same as C(rancher_rke2_is_controlplane)
+        description: Controls the C(--etcd) installer command-line flag
+
+      ansible_rancher_url:
+        type: str
+        required: true
+        description: The URL of the Rancher manager. Passed to M(epfl_si.rancher.rancher_registration)
+
+      ansible_rancher_validate_certs:
+        type: bool
+        required: false
+        default: true
+        description: Whether to authenticate the TLS server. Setting this to false B(is insecure).
+                     At least one of C(ansible_rancher_validate_certs) or C(ansible_rancher_ca_cert) must be set.
+
+      ansible_rancher_ca_cert:
+         type: str
+         required: false
+         description: The CA certificate to validate the Rancher TLS server, as a string
+                      in multiline PEM format.
+
+      ansible_rancher_username:
+        type: str
+        default: admin
+        description: The Rancher username to log in as.
+
+      ansible_rancher_token_stem:
+        type: str
+        default: ansible-C(username)-C(hostname)
+        description: The prefix of the short-lived bearer token that will be created as part
+                     of the underlying call to M(epfl_si.rancher.rancher_registration)
