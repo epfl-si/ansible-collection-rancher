@@ -1,3 +1,32 @@
+DOCUMENTATION = '''
+module: rancher_project
+short_description: Look up Rancher projects (groups of namespaces) by display name
+description:
+- This lookup plugin searches for C(Project.management.cattle.io) objects belonging to
+  the current cluster (the one that the C(ansible_rancher_cluster_name) variable points to).
+
+
+version_added: 0.7.0
+'''
+
+EXAMPLES = '''
+
+# Make a namespace belong to the “System” project
+- name: "`namespace/something-something-system`"
+  kubernetes.core.k8s:
+    definition:
+      kind: Namespace
+      metadata:
+        name: "something-something-system"
+        annotations:
+          field.cattle.io/projectId: "{{ _project.spec.clusterName }}:{{ _project.metadata.name }}"
+  vars:
+    _project: >-
+      {{ lookup("epfl_si.rancher.rancher_project",
+                kubeconfig="/where/the/rancher/master/credentials/are",
+                display_name="System") }}
+'''
+
 from ansible.plugins.lookup import LookupBase
 from ansible.utils.display import Display
 from ansible_collections.kubernetes.core.plugins.module_utils.k8s.client import get_api_client
