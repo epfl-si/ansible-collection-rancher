@@ -15,12 +15,12 @@ DOCUMENTATION = r"""
 module: _rancher_obtain_token
 short_description: Obtain a “master” token (valid for Rancher's “Norman” API)
 description:
-  - This task first creates a `kind: Token` object if a suitable one
-      doesn't exist already; then returns the `.token` value within.
+  - This task first creates a C(kind: Token) object if a suitable one
+      doesn't exist already; then returns the C(.token) value within.
   - This task is supposed to run over ssh on (one of) the Rancher master
       node(s).
 requirements:
-  - The `kubectl` go binary must be installed on the remote Rancher server.
+  - The C(kubectl) go binary must be installed on the remote Rancher server.
 options:
   cluster_name:
     type: str
@@ -32,13 +32,13 @@ options:
     default: "admin"
     description:
       - >
-        The name of the user to impersonate. (Equal to the `.username`
-        of the `kind: User` object to impersonate). User must already exist.
+        The name of the user to impersonate. (Equal to the C(.username)
+        of the C(kind: User) object to impersonate). User must already exist.
   stem:
     type: str
     required: true
     description:
-      - The prefix to use for the Kubernetes `name` in case a new token
+      - The prefix to use for the Kubernetes C(name) in case a new token
         needs to be created. Must end with a dash.
   validity:
     type: str
