@@ -86,12 +86,22 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
 
     @property
     def _helm_chart_is_installed (self):
-        l = self.ansible_api.jinja.expand("""{{
-  lookup('kubernetes.core.k8s', api_version='catalog.cattle.io/v1', kind='App',
-         namespace='%(namespace)s', resource_name='%(name)s')
+        return len(self._lookup_k8s(
+            api_version='catalog.cattle.io/v1',
+            kind='App',
+            resource_name=self.chart_name,
+            namespace=self.install_namespace)) > 0
 
-}}""" % dict(namespace=self.install_namespace, name=self.chart_name))
+    def _lookup_k8s (self, **lookup_kwargs):
+        # #quotefest!
 
-        return len(l) > 0
+        def quote(s):
+            return "'" + re.sub("(['\\\\])", r'\\\1', s) + "'"
+
+        selector = ', '.join(
+            f'k: { quote(v) }' for k, v in lookup_kwargs.items())
+
+        return self.ansible_api.jinja.expand(
+            "{{ lookup('kubernetes.core.k8s', %s) }}" % selector)
 
 ActionModule = RancherHelmChartAction
