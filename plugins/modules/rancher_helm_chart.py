@@ -36,9 +36,28 @@ options:
     description: The release of the chart to install.
   namespace:
     required: true
-    type: str
+    type: complex
     description: The namespace to install the chart into (same as the C(--namespace) flag
-                 on the C(helm install) command line)
+                 on the C(helm install) command line). Can either be specified as a string
+                 (same as setting O(namespace.name), or as a dict with the fields below.
+    suboptions:
+      name:
+        type: string
+        required: true
+        description: The name of the namespace
+      owned:
+        type: bool
+        default: false
+        description: Set to true to have Ansible create the namespace on install,
+                     and delete it on uninstall.
+      system:
+        type: bool
+        default: false
+        description: Set to true to create the namespace
+                     in the "System" C(Project.management.cattle.io),
+                     which makes it appear as a system namespace in the
+                     Rancher UI. Has no effect if O(namespace.owned) is false.
+
   version:
     required: true
     type: str

@@ -28,15 +28,23 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
         self.source_repository = args.get("repository", self.chart_name)
         self.timeout = args.get("timeout", "600s")
 
-        self.install_namespace = args["namespace"]
+        namespace = args["namespace"]
+        if isinstance(namespace, str):
+            namespace = { "name": namespace }
+        self.install_namespace = namespace["name"]
+        namespace_is_owned = namespace.get("owned", False)
 
         desired_state = args.get("state", "present")
         if desired_state == "present":
+            if namespace_is_owned and not self._namespace_exists:
+                self._do_create_namespace(is_system=namespace.get("system", False))
             if not self._helm_chart_is_installed:
                 self._do_install_helm_chart(args["version"], args["values"])
         elif desired_state == "absent":
             if self._helm_chart_is_installed:
                 self._do_uninstall_helm_chart()
+            if namespace_is_owned and self._namespace_exists:
+                self._do_delete_namespace()
         else:
             raise ValueError(f"Unsupported value for state: {desired_state}")
 
@@ -84,24 +92,47 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
             }
         )
 
+    def _make_k8s_ns_definition (self, namespace_name):
+        return {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "name": namespace_name
+            }
+        }
+
+    def _do_create_namespace (self, is_system):
+        definition = self._make_k8s_ns_definition(self.install_namespace)
+
+        if is_system:
+            # https://github.com/rancher/dashboard/commit/28b9165b3446a41a85f382df68953e209888573a
+            definition["metadata"]["annotations"] = {
+                "management.cattle.io/system-namespace": "true"
+            }
+
+        self.change("kubernetes.core.k8s",
+                    dict(definition=definition))
+
+    def _do_delete_namespace (self):
+        self.change("kubernetes.core.k8s",
+                    dict(state="absent",
+                         definition=self._make_k8s_ns_definition(self.install_namespace)))
+
     @property
     def _helm_chart_is_installed (self):
-        return len(self._lookup_k8s(
+        return len(self.ansible_api.jinja.lookup(
+            'kubernetes.core.k8s',
             api_version='catalog.cattle.io/v1',
             kind='App',
             resource_name=self.chart_name,
             namespace=self.install_namespace)) > 0
 
-    def _lookup_k8s (self, **lookup_kwargs):
-        # #quotefest!
-
-        def quote(s):
-            return "'" + re.sub("(['\\\\])", r'\\\1', s) + "'"
-
-        selector = ', '.join(
-            f'k: { quote(v) }' for k, v in lookup_kwargs.items())
-
-        return self.ansible_api.jinja.expand(
-            "{{ lookup('kubernetes.core.k8s', %s) }}" % selector)
+    @property
+    def _namespace_exists (self):
+        return len(self.ansible_api.jinja.lookup(
+            'kubernetes.core.k8s',
+            api_version='v1',
+            kind='namespace',
+            resource_name=self.install_namespace)) > 0
 
 ActionModule = RancherHelmChartAction
