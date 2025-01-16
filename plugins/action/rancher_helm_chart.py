@@ -34,17 +34,17 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
 
         desired_state = args.get("state", "present")
         if desired_state == "present":
-            if not self._is_installed:
-                self._do_install(args["version"], args["values"])
+            if not self._helm_chart_is_installed:
+                self._do_install_helm_chart(args["version"], args["values"])
         elif desired_state == "absent":
-            if self._is_installed:
-                self._do_uninstall()
+            if self._helm_chart_is_installed:
+                self._do_uninstall_helm_chart()
         else:
             raise ValueError(f"Unsupported value for state: {desired_state}")
 
         return self.result
 
-    def _do_install (self, helm_version, helm_values):
+    def _do_install_helm_chart (self, helm_version, helm_values):
         self.change(
             "epfl_si.rancher.rancher_k8s_api_call",
             {
@@ -76,7 +76,7 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
             }
         )
 
-    def _do_uninstall (self):
+    def _do_uninstall_helm_chart (self):
         self.change(
             "epfl_si.rancher.rancher_k8s_api_call",
             {
@@ -87,7 +87,7 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
         )
 
     @property
-    def _is_installed (self):
+    def _helm_chart_is_installed (self):
         l = self.ansible_api.jinja.expand("""{{
   lookup('kubernetes.core.k8s', api_version='catalog.cattle.io/v1', kind='App',
          namespace='%(namespace)s', name='%(name)s')
