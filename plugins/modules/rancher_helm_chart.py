@@ -63,7 +63,6 @@ options:
     type: str
     description: The version of the Helm chart to install.
   values:
-    required: true
     type: dict
     description: The dict of values passed as Helm's C(values.yaml) file
   timeout:

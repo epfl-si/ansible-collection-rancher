@@ -39,7 +39,7 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
             if namespace_is_owned and not self._namespace_exists:
                 self._do_create_namespace(is_system=namespace.get("system", False))
             if not self._helm_chart_is_installed:
-                self._do_install_helm_chart(args["version"], args["values"])
+                self._do_install_helm_chart(args["version"], args.get("values", {}))
         elif desired_state == "absent":
             if self._helm_chart_is_installed:
                 self._do_uninstall_helm_chart()
