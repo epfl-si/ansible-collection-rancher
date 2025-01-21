@@ -1,3 +1,6 @@
+- tags: always
+  include_vars: ../../../vars/storage-vars.yml
+
 - name: "`ClusterRepo/nfs-subdir-external-provisioner`"
   epfl_si.k8s.k8s:
     definition:
@@ -19,7 +22,7 @@
     version: 4.0.18
     values:
       nfs:
-        path: /svc1160_gitlab_test_app/nfs-storageclass
-        server: nas-app-ma-nfs2.epfl.ch
+        server: "{{ storage_nfs_share.server }}"
+        path: "{{ storage_nfs_share.path }}"
       storageClass:
         defaultClass: true

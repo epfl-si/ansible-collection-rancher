@@ -1,0 +1,6 @@
+storage_nfs_share: "{{ _storage_nfs_shares_by_inventory_deployment_stage[inventory_deployment_stage] }}"
+
+_storage_nfs_shares_by_inventory_deployment_stage:
+   test:
+     server: nas-app-ma-nfs2.epfl.ch
+     path: /svc1160_gitlab_test_app/nfs-storageclass
