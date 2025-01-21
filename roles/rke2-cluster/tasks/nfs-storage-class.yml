@@ -26,3 +26,22 @@
         path: "{{ storage_nfs_share.path }}"
       storageClass:
         defaultClass: true
+
+- name: create `nfs-storageclass` subdirectory on the NAS
+  delegate_to: "{{ rke2_any_worker_node_of_this_cluster }}"
+  shell:
+    cmd: |
+      set -e -x
+      mountdir="$(mktemp -d /tmp/mntXXXX)"
+      mount -t nfs {{ storage_nfs_share.server }}:{{ storage_nfs_share.path }} "$mountdir" || {
+        rmdir "$mountdir"
+        exit 2
+      }
+      trap "umount $mountdir; rmdir $mountdir" EXIT
+
+      wantdir="$mountdir/nfs-storageclass"
+      test -d "$wantdir" && exit 0
+      mkdir "$wantdir"
+  register: _mkdir_nfs
+  changed_when: >-
+    "+ mkdir" in _mkdir_nfs.stderr
