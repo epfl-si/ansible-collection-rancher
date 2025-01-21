@@ -31,3 +31,17 @@
     values:
       clickhouse:
         nameOverride: clickhouse
+
+- name: "`signoz/k8s-infra` Helm chart"
+  epfl_si.rancher.rancher_helm_chart:
+    repository: signoz
+    chart: k8s-infra
+    namespace:
+      name: "{{ rke2_signoz_namespace }}"
+    version: "{{ k8s_infra_chart_version }}"
+    values:
+      global:
+          cloud: others
+          clusterName: gitlab
+          deploymentEnvironment: '{{ inventory_deployment_stage }}'
+      otelCollectorEndpoint: signoz-otel-collector:4317
