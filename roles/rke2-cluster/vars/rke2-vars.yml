@@ -1,4 +1,5 @@
 rke2_nfs_storage_namespace: nfs-subdir-external-provisioner-system
+rke2_signoz_namespace: signoz-system
 
 rke2_any_worker_node_of_this_cluster: >-
       {{ (
