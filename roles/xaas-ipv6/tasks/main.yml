@@ -1,0 +1,12 @@
+- tags: always
+  include_vars: xaas-vars.yml
+
+- include_tasks:
+    file: xaas-vm-ipv6.yml
+    apply:
+      tags:
+        - ipv6
+        - ipv6.apply
+  tags:
+    - ipv6
+    - ipv6.apply

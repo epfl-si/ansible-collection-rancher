@@ -1,0 +1,27 @@
+# The first step (which unfortunately cannot be automated)
+# is to acquire IPv6 addresses out of the XaaS IPAM.
+#
+# This is done by (clicking your way through) a Day 2 action on the
+# VM, called “[Network] Get IPv6”
+#
+# You then receive an email confirming the success of the operation,
+# `dig -t aaaa $myvmname.xaas.epfl.ch` starts working, and you can
+# apply these tasks below.
+
+- netplan_ipv6_yaml:
+    path: /etc/netplan/50-cloud-init.yaml
+    ipv6_address: >-
+      {{ lookup('community.general.dig', inventory_hostname_short + '.xaas.epfl.ch',
+                qtype='AAAA') }}
+    ipv6_netmask: "80"
+    ipv6_gateway: "{{ xaas_ipv6_gateway }}"
+  register: _netplan_ipv6_yaml
+
+- name: Apply changes to Netplan
+  tags: ipv6.apply
+  when: >-
+    (_netplan_ipv6_yaml is changed)
+    or
+    ("ipv6.apply" in ansible_run_tags)
+  shell:
+    cmd: netplan apply
