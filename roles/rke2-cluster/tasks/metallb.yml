@@ -1,0 +1,42 @@
+- tags: always
+  include_vars: ../../../vars/versions.yml
+
+- name: "`ClusterRepo/metallb`"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: catalog.cattle.io/v1
+      kind: ClusterRepo
+      metadata:
+        name: metallb
+      spec:
+        url: https://metallb.github.io/metallb
+
+- name: "`metallb/metallb` Helm chart"
+  epfl_si.rancher.rancher_helm_chart:
+    repository: metallb
+    chart: metallb
+    namespace:
+      name: "{{ rke2_metallb_namespace }}"
+      owned: true
+      system: true
+    version: "{{ metallb_chart_version }}"
+
+- name: "VIPs for MetalLB"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: metallb.io/v1beta1
+      kind: IPAddressPool
+      metadata:
+        name: >-
+          {{ item.split(".")[0] }}
+        namespace: "{{ rke2_metallb_namespace }}"
+      spec:
+        addresses: >-
+          {{ _item_addresses | from_yaml | list }}
+  vars:
+    _item_addresses: |
+      {% set ipv4 = lookup("community.general.dig", item) %}
+      - {{ ipv4 }}/32
+      {% set ipv6 = lookup("community.general.dig", item, qtype='AAAA') %}
+      - {{ ipv6 }}/128
+  with_items: "{{ inventory_vips }}"

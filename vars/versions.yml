@@ -6,6 +6,7 @@ plantuml_docker_image: plantuml/plantuml-server:tomcat-v1.2022.0
 traefik_docker_image: traefik:v2.6
 redis_version: 7.2.2
 
+metallb_chart_version: 0.14.5
 clickhouse_chart_version: 24.1.14
 signoz_chart_version: 0.66.0
 k8s_infra_chart_version: 0.12.1
