@@ -1,0 +1,37 @@
+stages:
+  - prep
+  - build
+  - deploy
+
+prep:
+  stage: prep
+  image: public.ecr.aws/docker/library/alpine:3.18
+  script:
+    - apk add jq curl
+    - >-
+      base_image=gitlab/gitlab-ce ;
+      latest="$(curl -s "https://registry.hub.docker.com/v2/repositories/$base_image/tags"
+      | jq -r '[.results[].name | select(contains("-ce"))] | sort | last')" ;
+      sed -e 's|[$]GITLAB_CE_BASE_VERSION|'"$latest"'|' < gitlab-main/Dockerfile
+      | grep -v 'ARG GITLAB_CE_BASE_VERSION' > Dockerfile.latest
+  artifacts:
+    paths:
+      - Dockerfile.latest
+
+build:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:v1.23.2-debug
+    entrypoint: [""]
+  script:
+    - env
+    - /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile.latest"
+      --destination quay-its.epfl.ch/svc1160/gitlab
+deploy:
+  stage: deploy
+  environment: production
+  script:
+    - echo "Deploying application..."
+    - echo "Application successfully deployed."
