@@ -37,3 +37,32 @@
         create: true
       secrets:
         - name: gitlab-registration-token
+
+- name: Check build automation (manual tasks)
+  ansible.builtin.pause:
+    prompt: |
+      🛑 Please ensure that your RKE2 cluster's GitLab runner is now
+      able to build container images out of the project's public
+      repository on GitLab.com .
+
+      Just browse
+      https://gitlab.com/epfl-isasfsd/gitlab-ops/-/pipelines/new and
+      click New pipeline without setting any variables. Click on red
+      things (if any) that pop up to figure out problems.
+
+      💡 If you see
+
+        error checking push permissions [blah blah] dial tcp [blah]:
+        i/o timeout
+
+      it means that your cluster lacks IP-level access to
+      quay-its.epfl.ch through the DMZ firewall. Request it from
+      portal-xaas-its.epfl.ch → My Services → Service Broker →
+      left-hand side menu → Virtual Machines → (search for each VM in
+      the cluster) → ⋮ → [DMZ] Reconfigure ; and wait for whatever
+      needs to happen after that to complete (up to and including
+      execution by a human operator of as many ServiceNow tickets as
+      there are nodes in the RKE2 clusters).
+
+      Once that is done (or before if you are feeling lazy), press C
+      and Enter to continue:
