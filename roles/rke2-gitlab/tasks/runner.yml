@@ -25,6 +25,28 @@
       {{ lookup("pipe", "keybase fs read " + gitlab_com_registration_token_secrets_path)
       | from_yaml }}
 
+- name: "`secret/svc1160-builder-push`"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        namespace: '{{ gitlab_ops_runner_namespace }}'
+        name: svc1160-builder-push
+      type: kubernetes.io/dockerconfigjson
+      stringData:
+        .dockerconfigjson: "{{ _dockerconfigjson | to_json }}"
+  vars:
+    _secrets: >-
+       {{ lookup("pipe", "keybase fs read " + gitlab_runner_internal_secrets_path)
+       | from_yaml }}
+    _userpassword: "{{ _secrets.QUAY_PUSH_USERNAME }}:{{ _secrets.QUAY_PUSH_PASSWORD }}"
+    _dockerconfigjson:
+      auths:
+        quay-its.epfl.ch:
+          email: ""
+          auth: "{{ _userpassword | b64encode }}"
+
 - name: "`gitlab/gitlab-runner` Helm chart"
   epfl_si.rancher.rancher_helm_chart:
     repository: gitlab
@@ -37,6 +59,18 @@
         create: true
       secrets:
         - name: gitlab-registration-token
+      # Configure extra environment in the executor'd pods as per
+      # https://docs.gitlab.com/runner/executors/kubernetes/index.html#overwrite-generated-pod-specifications
+      runners:
+        config: |
+          [[runners]]
+            [runners.kubernetes]
+                [[runners.kubernetes.volumes.secret]]
+                name = "svc1160-builder-push"
+                mount_path = "/kaniko/.docker"
+                read_only = true
+                [runners.kubernetes.volumes.secret.items]
+                ".dockerconfigjson" = "config.json"
 
 - name: Check build automation (manual tasks)
   ansible.builtin.pause:
