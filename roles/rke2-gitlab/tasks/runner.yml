@@ -66,6 +66,10 @@
       runners:
         config: |
           [[runners]]
+            [runners.feature_flags]
+            # For some reason the feature flag only works here, not as
+            # an environment variable for the gitlab-runner pod:
+            FF_USE_ADVANCED_POD_SPEC_CONFIGURATION = true
             [runners.kubernetes]
                 [[runners.kubernetes.volumes.secret]]
                 name = "svc1160-builder-push"
@@ -73,6 +77,27 @@
                 read_only = true
                 [runners.kubernetes.volumes.secret.items]
                 ".dockerconfigjson" = "config.json"
+
+                [[runners.kubernetes.pod_spec]]
+                  name = "Use temporary space on NFS for builds"
+                  patch = '''
+                    containers:
+                    - name: build
+                      volumeMounts:
+                      - name: builds
+                        mountPath: /builds
+                    - name: helper
+                      volumeMounts:
+                      - name: builds
+                        mountPath: /builds
+                    volumes:
+                    - name: builds
+                      ephemeral:
+                        volumeClaimTemplate:
+                          spec:
+                            storageClassName: nfs-client
+                            accessModes: [ ReadWriteOnce ]
+                  '''
 
 - name: Check build automation (manual tasks)
   ansible.builtin.pause:
