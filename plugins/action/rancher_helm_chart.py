@@ -38,8 +38,7 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
         if desired_state == "present":
             if namespace_is_owned and not self._namespace_exists:
                 self._do_create_namespace(is_system=namespace.get("system", False))
-            if not self._helm_chart_is_installed:
-                self._do_install_helm_chart(args["version"], args.get("values", {}))
+            self._maybe_install_or_upgrade_helm_chart(args["version"], args.get("values", {}))
         elif desired_state == "absent":
             if self._helm_chart_is_installed:
                 self._do_uninstall_helm_chart()
@@ -51,11 +50,12 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
         return self.result
 
     def _do_install_helm_chart (self, helm_version, helm_values):
+        action = "upgrade" if self._helm_chart_is_installed else "install"
         self.change(
             "epfl_si.rancher.rancher_k8s_api_call",
             {
                 "method": "POST",
-                "uri": f"/v1/catalog.cattle.io.clusterrepos/{self.source_repository}?action=install",
+                "uri": f"/v1/catalog.cattle.io.clusterrepos/{self.source_repository}?action={action}",
                 "body": {
                     "namespace": self.install_namespace,
                     "charts": [
