@@ -57,6 +57,8 @@
       gitlabUrl: https://gitlab.com
       rbac:
         create: true
+      serviceAccount:
+        create: true
       secrets:
         - name: gitlab-registration-token
       # Configure extra environment in the executor'd pods as per
