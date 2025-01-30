@@ -1,7 +1,5 @@
 from functools import cached_property
 
-from kubernetes.client.exceptions import ApiException
-
 from ansible.errors import AnsibleUndefinedVariable
 from ansible.plugins.action import ActionBase
 from ansible_collections.epfl_si.actions.plugins.module_utils.subactions import AnsibleActions
