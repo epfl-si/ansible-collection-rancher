@@ -1,0 +1,28 @@
+# Disable “hardware”-assisted UDP checksumming on VMware VMs to
+# work around https://github.com/flannel-io/flannel/issues/1279
+
+- tags: rke2-node.udp
+  block:
+  - name: udp-checksum-offload-disable.service definition
+    ansible.builtin.copy:
+      content: |
+        ; This file is maintained by Ansible
+        [Unit]
+        Description=Disable udp checksum offload
+        Before=rancher-system-agent.service
+        [Install]
+        WantedBy=rancher-system-agent.service
+        [Service]
+        Type=oneshot
+        RemainAfterExit=true
+        ExecStart=ethtool --offload  {{ rancher_rke2_main_network_interface }}  rx off  tx off
+      dest: /etc/systemd/system/udp-checksum-offload-disable.service
+    register: _ethtool_offload_systemd_definition_file
+
+  - name: udp-checksum-offload-disable.service activation
+    ansible.builtin.systemd_service:
+      name: udp-checksum-offload-disable.service
+      state: started
+      enabled: true
+      daemon_reload: >
+        {{ _ethtool_offload_systemd_definition_file | default({}) is changed }}
