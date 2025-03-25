@@ -1,7 +1,9 @@
 # Disable “hardware”-assisted UDP checksumming on VMware VMs to
 # work around https://github.com/flannel-io/flannel/issues/1279
 
-- tags: rke2-node.udp
+- name: Disable UDP checksum offload (VMware)
+  when: ansible_facts['virtualization_type'] == "VMware"
+  tags: rke2-node.udp
   block:
   - name: udp-checksum-offload-disable.service definition
     ansible.builtin.copy:
