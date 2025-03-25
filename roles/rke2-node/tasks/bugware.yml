@@ -28,3 +28,28 @@
       enabled: true
       daemon_reload: >
         {{ _ethtool_offload_systemd_definition_file | default({}) is changed }}
+
+- name: Blacklist ip6tables-MARK impaired kernel (Ubuntu Noble)
+  vars:
+    _is_ubuntu_noble: >-
+       ansible_facts['distribution'] == "Ubuntu"
+       and ansible_facts['distribution_version'] is version('24.04', '==')
+  when: _is_ubuntu_noble
+  block:
+  - name: APT pin on last known-good kernel version
+    copy:
+        dest: "/etc/apt/preferences.d/no-linux-image-56-generic"
+        # What we actually want, would be to blacklist 6.8.0-56.58, as it exhibits
+        # the symptoms of https://github.com/rancher/rke2/issues/7438 . But
+        # it appears that you cannot do that with APT — At least, not when the
+        # defective package is already installed. The next best thing is to
+        # “whiter-than-whitelist” the last known good version:
+        content: |
+          Package: linux-image-generic linux-generic linux-headers-generic
+          Pin: version 6.8.0-55.57
+          Pin-Priority: 1000
+    register: _apt_pin
+  - name: Update APT cache
+    when: _apt_pin is changed
+    apt:
+      update_cache: yes
