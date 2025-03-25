@@ -9,17 +9,16 @@
         - rke2-node
         - rke2-node.interactive
 
-- name: VM platform-specific bugware
+- name: Platform-specific bugware
   tags:
     - rke2-node
     - rke2-node.udp
     - rke2-node.bugware
   include_tasks:
-    file: no-hardware-udp-checksum.yml
+    file: bugware.yml
     apply:
       tags:
         - rke2-node
-        - rke2-node.udp
         - rke2-node.bugware
 
 - name: Support for NFS volumes
