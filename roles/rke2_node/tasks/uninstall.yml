@@ -13,6 +13,7 @@
       {{ hostvars.values()
          | selectattr("ansible_rancher_cluster_name", "defined")
          | selectattr("ansible_rancher_cluster_name", "==", ansible_rancher_cluster_name)
+         | selectattr("inventory_hostname", "!=", inventory_hostname)
          | select("epfl_si.rancher.control_plane_node")
          | shuffle | first }}
 
