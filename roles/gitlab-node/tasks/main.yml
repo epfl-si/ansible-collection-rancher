@@ -1,6 +1,17 @@
 - tags: always
   include_vars: node-vars.yml
 
+- name: Uninstall Rancher
+  tags:
+    - never
+    - rke2-node.uninstall
+  include_role:
+    name: epfl_si.rancher.rke2_node
+    tasks_from: uninstall
+    apply:
+      tags:
+        - rke2-node.uninstall
+
 - include_tasks:
     file: storage.yml
     apply:
