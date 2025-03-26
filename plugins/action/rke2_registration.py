@@ -3,7 +3,6 @@ from functools import cached_property
 from ansible.plugins.action import ActionBase
 from ansible_collections.epfl_si.actions.plugins.module_utils.subactions import AnsibleActions
 
-from ansible_collections.epfl_si.rancher.plugins.module_utils.rancher_api import RancherManagerAPIClient
 from ansible_collections.epfl_si.rancher.plugins.module_utils.rancher_actions import RancherActionMixin
 
 _not_set = object()
@@ -23,11 +22,8 @@ class RancherRegistrationAction (ActionBase, RancherActionMixin):
         if "cluster_name" in args:
             self.rancher_cluster_name = args["cluster_name"]
 
-        base_url = args.get("rancher_manager_url", self.rancher_base_url)
-
-        self.rancher = RancherManagerAPIClient(
-            base_url=base_url,
-            api_key=self._obtain_token())
+        if "rancher_manager_url" in args:
+            self.rancher_base_url = args["rancher_manager_url"]
 
         try:
             return {
