@@ -38,3 +38,16 @@
   register: _uninstall_script
   changed_when: >-
     "DOING_WORK" in _uninstall_script.stdout
+
+- name: Check that /var/lib/rancher is (almost) empty
+  changed_when: false
+  ansible.builtin.shell:
+    cmd: |
+      set -e -x
+      if [ ! -d /var/lib/rancher ]; then exit 0; fi
+      remaining="$(du -sb /var/lib/rancher | cut -f1)"
+      if [ remaining -ge 1024 ]; then
+         echo >&2 "FAILED: too much stuff in /var/lib/rancher after (botched?) uninstall."
+         echo >&2 "FAILED: Please wield the chainsaw yourself."
+         exit 2
+      fi
