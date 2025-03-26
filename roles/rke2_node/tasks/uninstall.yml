@@ -23,6 +23,11 @@
     name: "{{ rancher_rke2_node_name }}"
     state: absent
 
+# TODO: here we should wait for Rancher to be done wrangling the etcd
+# quorum, in case the deleted node was a quorum node; i.e. in terms of
+# the UI, we should wait for all surviving nodes to reach Running
+# state again.
+
 - ansible.builtin.shell:
     cmd: |
       set -e -x
