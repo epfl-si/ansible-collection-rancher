@@ -3,7 +3,7 @@
 - Upgrade to latest version of `epfl_si.actions`, thereby gaining `delegate_to:` support in all tasks
 - Rewrite documentation using the `ansible-doc` standard
 - Drop `epfl_si.rancher.rke2_access` role, as it was unused and at odds with 0.6.0's strategy of not managing kubeconfig files anymore
-- `epfl_si.rancher.rke2-node` role
+- `epfl_si.rancher.rke2_node` role
 - `epfl_si.rancher.rancher_project` lookup plugin
 - `epfl_si.rancher.rancher_helm_chart` action plugin
 - Rename `epfl_si.rancher.rancher_registration` to `epfl_si.rancher.rke2_registration`
