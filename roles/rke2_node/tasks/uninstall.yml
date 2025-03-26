@@ -1,0 +1,33 @@
+# Secondary entry point for the `epfl_si.rancher.rke2_node` (*not* invoked by main.yml)
+# that *uninstalls* RKE2 from a node, after unregistering it from Kubernetes.
+
+- include_tasks:
+    file: _remove_k8s_node.yml
+    apply:
+      tags: always
+      delegate_to: "{{ _some_rke2_controlplane_node }}"
+  vars:
+    _some_rke2_controlplane_node: >-
+      {{ _some_rke2_controlplane_hostvars["inventory_hostname"] }}
+    _some_rke2_controlplane_hostvars: >-
+      {{ hostvars.values()
+         | selectattr("ansible_rancher_cluster_name", "defined")
+         | selectattr("ansible_rancher_cluster_name", "==", ansible_rancher_cluster_name)
+         | select("epfl_si.rancher.control_plane_node")
+         | shuffle | first }}
+
+- ansible.builtin.shell:
+    cmd: |
+      set -e -x
+
+      if [ -f "/usr/local/bin/rancher-system-agent-uninstall.sh" ]; then
+        systemctl stop rancher-system-agent
+        /usr/local/bin/rancher-system-agent-uninstall.sh
+      fi
+
+      if [ -f "/usr/local/bin/rke2-killall.sh" ]; then
+        /usr/local/bin/rke2-killall.sh
+      fi
+      if [ -f "/usr/local/bin/rke2-uninstall.sh" ]; then
+        /usr/local/bin/rke2-uninstall.sh
+      fi
