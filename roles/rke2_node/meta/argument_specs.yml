@@ -82,6 +82,7 @@ argument_specs:
         is given by the C(rancher_rke2_node_name) variable, which defaults to
         C(inventory_hostname).
 
-      - The C(uninstall) entry point then stops and uninstalls RKE2.
+      - The C(uninstall) entry point then stops and uninstalls RKE2, and ensures that the
+        C(/var/lib/rancher) directory is (almost) empty.
 
     version_added: 0.7.0
