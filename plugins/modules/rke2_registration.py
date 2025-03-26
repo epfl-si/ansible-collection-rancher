@@ -4,7 +4,7 @@
 
 DOCUMENTATION = r'''
 ---
-module: rancher_registration
+module: rke2_registration
 short_description: Prepare the command line for registering a node into Rancher
 description:
 

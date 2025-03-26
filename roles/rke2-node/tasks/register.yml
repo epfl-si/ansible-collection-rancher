@@ -12,7 +12,7 @@
 - when: >-
     "NOT_A_MEMBER" in (_rke2_membership_probe.stdout | default(""))
   block:
-    - epfl_si.rancher.rancher_registration: {}
+    - epfl_si.rancher.rke2_registration: {}
       register: _token_etc
 
     - name: Configure RKE2 node
