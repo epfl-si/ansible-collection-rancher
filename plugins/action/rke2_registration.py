@@ -12,7 +12,7 @@ class RancherRegistrationAction (ActionBase, RancherActionMixin):
     """Obtain the data structure that feeds the “Cluster Management” → “Registration” tab in the Rancher UI.
 
     See operation details and Ansible-level documentation in
-    ../modules/rancher_registration.py which only exists for documentation
+    ../modules/rke2_registration.py which only exists for documentation
     purposes.
     """
     @AnsibleActions.run_method

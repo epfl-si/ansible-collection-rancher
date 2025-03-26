@@ -1,4 +1,8 @@
 from functools import cached_property
+import json
+import zlib
+
+import kubernetes
 
 from ansible.plugins.action import ActionBase
 from ansible_collections.epfl_si.actions.plugins.module_utils.subactions import AnsibleActions
@@ -49,8 +53,14 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
 
         return self.result
 
-    def _do_install_helm_chart (self, helm_version, helm_values):
-        action = "upgrade" if self._helm_chart_is_installed else "install"
+    def _maybe_install_or_upgrade_helm_chart (self, helm_version, helm_values):
+        if not self._helm_chart_is_installed:
+            action = "install"
+        elif self._helm_values_are_changed(helm_version, helm_values):
+            action = "upgrade"
+        else:
+            return
+
         self.change(
             "epfl_si.rancher.rancher_k8s_api_call",
             {
@@ -91,6 +101,24 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
                 "body": {}
             }
         )
+
+    def _helm_values_are_changed (self, helm_version, helm_values):
+        # Find the Helm Secret (Helm 3 stores releases as secrets)
+        secret_name = f"sh.helm.release.v1.{self.release_name}.v1"  # Adjust 'v1' if there are multiple revisions
+        secret = v1.read_namespaced_secret(secret_name, namespace)
+
+        # Decode Helm's base64-encoded release data
+        release_data = base64.b64decode(secret.data["release"]).decode("utf-8")
+
+        # Helm stores values.yaml inside a compressed archive, decode it
+
+        decoded_data = zlib.decompress(base64.b64decode(release_data), 16 + zlib.MAX_WBITS)
+        release_json = json.loads(decoded_data)
+
+        # Extract and parse values.yaml
+        values_yaml = yaml.safe_load(release_json["config"])
+        return values_yaml
+
 
     def _make_k8s_ns_definition (self, namespace_name):
         return {

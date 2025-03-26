@@ -41,7 +41,7 @@ argument_specs:
       ansible_rancher_url:
         type: str
         required: true
-        description: The URL of the Rancher manager. Passed to M(epfl_si.rancher.rancher_registration)
+        description: The URL of the Rancher manager. Passed to M(epfl_si.rancher.rke2_registration)
 
       ansible_rancher_validate_certs:
         type: bool
@@ -65,4 +65,4 @@ argument_specs:
         type: str
         default: ansible-C(username)-C(hostname)
         description: The prefix of the short-lived bearer token that will be created as part
-                     of the underlying call to M(epfl_si.rancher.rancher_registration)
+                     of the underlying call to M(epfl_si.rancher.rke2_registration)

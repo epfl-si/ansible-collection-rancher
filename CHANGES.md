@@ -6,6 +6,7 @@
 - `epfl_si.rancher.rke2-node` role
 - `epfl_si.rancher.rancher_project` lookup plugin
 - `epfl_si.rancher.rancher_helm_chart` action plugin
+- Rename `epfl_si.rancher.rancher_registration` to `epfl_si.rancher.rke2_registration`
 
 # Version 0.6.0: major bugfix and API change release
 
