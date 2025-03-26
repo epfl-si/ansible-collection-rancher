@@ -1,5 +1,9 @@
 # This file is for calling with `include_tasks:` from `uninstall.yml` **only.**
 
+- when: ansible_facts['distribution'] == "Ubuntu"
+  package:
+    name: python3-pip
+
 - ansible.builtin.pip:
     break_system_packages: true
     name: kubernetes
