@@ -3,3 +3,12 @@ node_storage_pvs:
   - /dev/sda3
   - /dev/sdb1
 node_storage_vg: ubuntu-vg
+
+node_storage_rancher_lv:
+  fs: ext4
+  name: rancher
+  mountpoint: /var/lib/rancher
+  size: 50G
+
+node_storage_rancher_lv_devname: >-
+  /dev/{{ node_storage_vg }}/{{ node_storage_rancher_lv.name }}

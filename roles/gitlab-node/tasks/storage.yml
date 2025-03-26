@@ -3,6 +3,7 @@
     name:
       - lvm2
       - parted
+      - e2fsprogs
 
 - name: "Check if {{ node_storage_pvs[-1] }} already exists"
   command: "lsblk -no NAME {{ node_storage_secondary_disk }}"
@@ -28,3 +29,29 @@
     state: present
     vg: "{{ node_storage_vg }}"
     pvs: "{{ node_storage_pvs }}"
+
+- name: "{{ node_storage_rancher_lv_devname }}"
+  lvol:
+    state: present
+    vg: "{{ node_storage_vg }}"
+    lv: "{{ node_storage_rancher_lv.name }}"
+    size: "{{ node_storage_rancher_lv.size }}"
+
+- name: Check if the Rancher LV has a filesystem
+  shell: "blkid {{ node_storage_rancher_lv_devname }} || true"
+  register: _blkid_output
+  changed_when: false
+
+- name: "Format the Rancher LV with {{ node_storage_rancher_lv.fs }}"
+  filesystem:
+    fstype: "{{ node_storage_rancher_lv.fs }}"
+    dev: "{{ node_storage_rancher_lv_devname }}"
+  when: >-
+    'TYPE="{{ node_storage_rancher_lv.fs }}"' not in _blkid_output.stdout
+
+- name: "Put up {{ node_storage_rancher_lv_devname }} in fstab and mount it"
+  ansible.posix.mount:
+     state: mounted
+     path: "{{ node_storage_rancher_lv.mountpoint }}"
+     src: "{{ node_storage_rancher_lv_devname }}"
+     fstype: "{{ node_storage_rancher_lv.fs }}"
