@@ -198,3 +198,21 @@ class RancherManagerAPIClient:
             raise RancherAPIError(response.text)
 
         return response.json()
+
+    _machines_uri = '/v1/cluster.x-k8s.io.machines'
+    def get_machine_by_name (self, cluster_name, machine_name):
+        cluster_id = self.get_cluster_id(cluster_name)
+        machines = self.call_rancher_manager_api(
+            'GET', self._machines_uri)
+
+        matching = [m for m in machines["data"] if m.get("status", {}).get("nodeRef", {}).get("name", {}) == machine_name]
+
+        if len(matching) == 1:
+            return matching[0]
+        elif len(matching) == 0:
+            return None
+            raise ValueError(f"GET {_machines_uri}: got {len(matching)} matches, expected 1")
+
+    def delete_machine (self, machine_struct):
+        self.call_rancher_manager_api(
+            'DELETE', f'{self._machines_uri}/{machine_struct["metadata"]["namespace"]}/{machine_struct["metadata"]["name"]}')
