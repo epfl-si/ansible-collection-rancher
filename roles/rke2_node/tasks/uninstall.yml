@@ -17,6 +17,12 @@
          | select("epfl_si.rancher.control_plane_node")
          | shuffle | first }}
 
+- epfl_si.rancher.rancher_machine:
+    # Note: rancher_rke2_node_name comes from ../defaults/main.yml
+    # (unless overridden e.g. in the role user's vars)
+    name: "{{ rancher_rke2_node_name }}"
+    state: absent
+
 - ansible.builtin.shell:
     cmd: |
       set -e -x
