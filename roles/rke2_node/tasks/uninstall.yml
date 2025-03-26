@@ -22,13 +22,19 @@
       set -e -x
 
       if [ -f "/usr/local/bin/rancher-system-agent-uninstall.sh" ]; then
+        echo DOING_WORK
         systemctl stop rancher-system-agent
         /usr/local/bin/rancher-system-agent-uninstall.sh
       fi
 
       if [ -f "/usr/local/bin/rke2-killall.sh" ]; then
+        echo DOING_WORK
         /usr/local/bin/rke2-killall.sh
       fi
       if [ -f "/usr/local/bin/rke2-uninstall.sh" ]; then
+        echo DOING_WORK
         /usr/local/bin/rke2-uninstall.sh
       fi
+  register: _uninstall_script
+  changed_when: >-
+    "DOING_WORK" in _uninstall_script.stdout
