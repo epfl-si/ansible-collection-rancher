@@ -66,3 +66,22 @@ argument_specs:
         default: ansible-C(username)-C(hostname)
         description: The prefix of the short-lived bearer token that will be created as part
                      of the underlying call to M(epfl_si.rancher.rke2_registration)
+
+  uninstall:
+    short_description: Remove a node from an RKE2 cluster, then uninstall RKE2 from it.
+    description:
+
+      - When invoked with the C(uninstall) entry point (through the C(tasks_from) parameter
+        to C(include_role)), instead of enrolling a node into the cluster, the
+        C(epfl_si.rancher.rke2_node) role *removes* the target node.
+
+      - The C(uninstall) entry point first cordons, drains, and removes the target node from
+        Kubernetes. This requires that at least one of the control-plane nodes of the same
+        cluster (as determined by the C(ansible_rancher_cluster_name) variable being the same)
+        be present in the Ansible inventory. The Kubernetes-side name of the node to drain
+        is given by the C(rancher_rke2_node_name) variable, which defaults to
+        C(inventory_hostname).
+
+      - The C(uninstall) entry point then stops and uninstalls RKE2.
+
+    version_added: 0.7.0

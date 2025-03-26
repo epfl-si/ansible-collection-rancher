@@ -9,5 +9,6 @@ operations for some Rancher dashboard actions such as:
 
 - Creating RKE2 clusters
 - Registering nodes into them
+- Unregistering nodes, and uninstalling RKE2 from them
 - Logging into clusters (like the “Download Kubeconfig” operation in the Rancher dashboard)
 - Installing Helm packages (like with “Apps” → “Charts”)

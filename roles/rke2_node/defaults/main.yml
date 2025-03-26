@@ -17,3 +17,6 @@ rancher_rke2_insecure: true
 
 # ansible_rancher_url doesn't have a default value and must be set; e.g.
 #ansible_rancher_url: https://rancher-fsd.epfl.ch
+
+# These defaults are used in the `epfl_si.rancher.rke2_node` role's `uninstall.yml` entry point only.
+rancher_rke2_node_name: "{{ inventory_hostname }}"

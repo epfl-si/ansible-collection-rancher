@@ -1,0 +1,27 @@
+# This file is for calling with `include_tasks:` from `uninstall.yml` **only.**
+
+- ansible.builtin.pip:
+    break_system_packages: true
+    name: kubernetes
+
+# Note: rancher_rke2_node_name comes from ../defaults/main.yml
+# (unless overridden e.g. in the role user's vars)
+
+- environment:
+    K8S_AUTH_KUBECONFIG: /etc/rancher/rke2/rke2.yaml
+  kubernetes.core.k8s_drain:
+    name: "{{ rancher_rke2_node_name }}"
+    delete_options:
+      delete_emptydir_data: true
+      ignore_daemonsets: true
+      force: true
+
+- environment:
+    K8S_AUTH_KUBECONFIG: /etc/rancher/rke2/rke2.yaml
+  kubernetes.core.k8s:
+    state: absent
+    definition:
+      apiVersion: v1
+      kind: Node
+      metadata:
+        name: "{{ rancher_rke2_node_name }}"
