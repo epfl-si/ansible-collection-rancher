@@ -16,6 +16,7 @@
 - hosts: gitlab_rke2_vms
   gather_facts: yes   # epfl_si.rancher.rke2_node wants facts
   roles:
+    - role: gitlab-node
     - role: xaas-ipv6
     - role: epfl_si.rancher.rke2_node
       vars:

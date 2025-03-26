@@ -1,0 +1,12 @@
+- tags: always
+  include_vars: node-vars.yml
+
+- include_tasks:
+    file: storage.yml
+    apply:
+      tags:
+        - node
+        - node.storage
+  tags:
+    - node
+    - node.storage

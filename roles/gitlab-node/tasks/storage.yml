@@ -1,0 +1,30 @@
+- name: Install required packages
+  package:
+    name:
+      - lvm2
+      - parted
+
+- name: "Check if {{ node_storage_pvs[-1] }} already exists"
+  command: "lsblk -no NAME {{ node_storage_secondary_disk }}"
+  register: _lsblk_output
+  changed_when: false
+
+- name: Create {{ node_storage_pvs[-1] }} (primary partition)
+  command: >-
+    parted {{ node_storage_secondary_disk }} --script mklabel gpt mkpart primary 0% 100% set 1 lvm on
+  when: "(node_storage_pvs[-1] | basename) not in _lsblk_output.stdout"
+
+- name: Check if {{ node_storage_pvs[-1] }} is an LVM PV
+  command: pvs --noheadings -o pv_name
+  register: _pvs_output
+  changed_when: false
+
+- when: "node_storage_pvs[-1] not in _pvs_output.stdout"
+  name: "pvcreate {{ node_storage_pvs[-1] }}"
+  command: "pvcreate {{ node_storage_pvs[-1] }}"
+
+- name: "Configure {{ node_storage_vg }}"
+  lvg:
+    state: present
+    vg: "{{ node_storage_vg }}"
+    pvs: "{{ node_storage_pvs }}"

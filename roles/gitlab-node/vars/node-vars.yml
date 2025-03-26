@@ -1,0 +1,5 @@
+node_storage_secondary_disk: /dev/sdb
+node_storage_pvs:
+  - /dev/sda3
+  - /dev/sdb1
+node_storage_vg: ubuntu-vg
