@@ -21,7 +21,7 @@ description:
   modules or action plugins, for instance C(rancher_helm_chart).
   Consider using them instead, if applicable.
 
-- This module expects the (K8S_AUTH_KUBECONFIG) environment variable
+- This module expects the C(K8S_AUTH_KUBECONFIG) environment variable
   to be set, and to point to a suitable Kubeconfig file (e.g. one
   downloaded from the Rancher UI). This module will authenticate to
   Rancher using the credentials found within.
