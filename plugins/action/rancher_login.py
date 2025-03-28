@@ -6,7 +6,7 @@ from ansible_collections.epfl_si.actions.plugins.module_utils.subactions import 
 from ansible_collections.kubernetes.core.plugins.module_utils.k8s.client import get_api_client
 from ansible_collections.kubernetes.core.plugins.module_utils.k8s import exceptions as k8s_exceptions
 
-from ansible_collections.epfl_si.rancher.plugins.module_utils.rancher_api import RancherAPIClient, RancherManagerAPIClient
+from ansible_collections.epfl_si.rancher.plugins.module_utils.rancher_model import RancherManager
 from ansible_collections.epfl_si.rancher.plugins.module_utils.rancher_actions import RancherActionMixin
 
 class RancherLoginAction (ActionBase, RancherActionMixin):
@@ -24,18 +24,7 @@ class RancherLoginAction (ActionBase, RancherActionMixin):
         if explicit_cluster_name:
             self.rancher_cluster_name = explicit_cluster_name
 
-        token = self._obtain_token()
-        rancher_api_cluster_id = RancherManagerAPIClient(
-            self.rancher_base_url,
-            token).get_cluster_id(self.rancher_cluster_name)
-
-        client = RancherAPIClient(
-            api_key=token,
-            base_url=self.rancher_base_url,
-            rancher_api_cluster_id=rancher_api_cluster_id,
-            ca_cert=self._expand_var("ansible_rancher_ca_cert", None),
-            validate_certs=self._expand_var("ansible_rancher_validate_certs", True))
-        self.result["kubeconfig"] = client.download_kubeconfig()
+        self.result["kubeconfig"] = self.rancher_manager.get_cluster_by_name(self.rancher_cluster_name).download_kubeconfig()
         return self.result
 
 ActionModule = RancherLoginAction

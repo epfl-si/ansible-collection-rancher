@@ -51,6 +51,14 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
         return self.result
 
     def _do_install_helm_chart (self, helm_version, helm_values):
+        # This is a per-cluster Steve call, which doesn't work with
+        # the same credentials as
+        # ansible_collections.epfl_si.rancher.plugins.module_utils.rancher_model
+        # This the reason / excuse why we left this one API call stick
+        # out as a sore thumb as a “remote” Ansible module invocation,
+        # whereas pretty much everything else is called in-process
+        # from the Ansible manager through rancher_model. Oh well, if
+        # it works don't touch it 🤷
         self.change(
             "epfl_si.rancher.rancher_k8s_api_call",
             {

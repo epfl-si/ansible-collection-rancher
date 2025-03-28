@@ -26,28 +26,24 @@ class RancherRegistrationAction (ActionBase, RancherActionMixin):
             self.rancher_base_url = args["rancher_manager_url"]
 
         try:
+            # Apparently the UI always picks the first entry in the
+            # list (even if you deleted a few).
             return {
                 "changed": False,
-                "registration": self.get_first_registration()
+                "registration": self.registration_tokens.first()
             }
         except IndexError:
             # No more cluster tokens? Make new ones. (This is also
             # what the UI does if you delete everything.)
-            self.rancher.renew_cluster_registrations(self.cluster_id)
+            self.registration_tokens.make_more()
             return {
                 "changed": True,
-                "registration": self.get_first_registration()
+                "registration": self.registration_tokens.first()
             }
 
-    def get_first_registration (self):
-        registrations = self.rancher.get_cluster_registrations(self.cluster_id)
-        # Apparently the UI always picks the first entry in the
-        # list (even if you deleted a few).
-        return registrations[0]
-
-    @cached_property
-    def cluster_id (self):
-        return self.rancher.get_cluster_id(self.rancher_cluster_name)
+    @property
+    def registration_tokens (self):
+        return self.rancher_manager.get_cluster_by_name(self.rancher_cluster_name).registration_tokens
 
 
 ActionModule = RancherRegistrationAction

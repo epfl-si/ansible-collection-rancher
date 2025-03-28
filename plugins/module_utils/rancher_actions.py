@@ -10,7 +10,7 @@ from urllib.parse import urlparse
 from ansible_collections.epfl_si.actions.plugins.module_utils.subactions import Subaction
 from ansible_collections.epfl_si.actions.plugins.module_utils.ansible_api import AnsibleActions
 
-from ansible_collections.epfl_si.rancher.plugins.module_utils.rancher_api import RancherManagerAPIClient
+from ansible_collections.epfl_si.rancher.plugins.module_utils.rancher_model import RancherManager
 
 
 _not_set = object()
@@ -104,8 +104,8 @@ class RancherActionMixin(ABC):
         self._explicitly_set_rancher_cluster_name = cluster_name
 
     @cached_property
-    def rancher (self):
-        return RancherManagerAPIClient(
+    def rancher_manager (self):
+        return RancherManager(
             base_url=self.rancher_base_url,
             api_key=self._obtain_token())
 
