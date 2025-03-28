@@ -1,0 +1,3 @@
+gitlab_ops_runner_namespace: gitlab-ops
+
+gitlab_com_registration_token_secrets_path: /keybase/team/epfl_gitlab/gitlab.com-runner.yml

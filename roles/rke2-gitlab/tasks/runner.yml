@@ -1,0 +1,39 @@
+- tags: always
+  include_vars: ../../../vars/versions.yml
+
+- name: "`namespace/{{ gitlab_ops_runner_namespace }}`"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: '{{ gitlab_ops_runner_namespace }}'
+
+- name: "`secret/gitlab-registration-token`"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        namespace: '{{ gitlab_ops_runner_namespace }}'
+        name: gitlab-registration-token
+      stringData:
+        runner-registration-token: >-
+          {{ _secrets.registration_token }}
+  vars:
+    _secrets: >-
+      {{ lookup("pipe", "keybase fs read " + gitlab_com_registration_token_secrets_path)
+      | from_yaml }}
+
+- name: "`gitlab/gitlab-runner` Helm chart"
+  epfl_si.rancher.rancher_helm_chart:
+    repository: gitlab
+    chart: gitlab-runner
+    namespace: "{{ gitlab_ops_runner_namespace }}"
+    version: "{{ gitlab_runner_chart_version }}"
+    values:
+      gitlabUrl: https://gitlab.com
+      rbac:
+        create: true
+      secrets:
+        - name: gitlab-registration-token
