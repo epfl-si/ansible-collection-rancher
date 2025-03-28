@@ -8,44 +8,18 @@
       spec:
         url: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
 
-- name: "`namespace/{{ rke2_nfs_storage_namespace }}`"
-  epfl_si.k8s.k8s:
-    definition:
-      kind: Namespace
-      metadata:
-        name: "{{ rke2_nfs_storage_namespace }}"
-
-- name: "Check whether `App/nfs-subdir-external-provisioner` already exists"
-  epfl_si.k8s.k8s:
-     kind: App
-     name: nfs-subdir-external-provisioner
-     namespace: "{{ rke2_nfs_storage_namespace }}"
-     state: patched
-  register: _app_already_installed
-
-- when: >-
-    (_app_already_installed.result | string) == "{}"
-  name: "Install `nfs-subdir-external-provisioner`"
-  epfl_si.rancher.rancher_k8s_api_call:
-    kubeconfig: >-
-      {{ lookup("file", ansible_k8s_kubeconfig) | from_yaml }}
-    method: POST
-    uri: /v1/catalog.cattle.io.clusterrepos/nfs-subdir-external-provisioner?action=install
-    body:
-      namespace: "{{ rke2_nfs_storage_namespace }}"
-      charts:
-        - annotations:
-            catalog.cattle.io/ui-source-repo: nfs-subdir-external-provisioner
-            catalog.cattle.io/ui-source-repo-type: cluster
-          chartName: nfs-subdir-external-provisioner
-          releaseName: nfs-subdir-external-provisioner
-          resetValues: false
-          values:
-            nfs:
-              path: /svc1160_gitlab_test_app/nfs-storageclass
-              server: nas-app-ma-nfs2.epfl.ch
-            storageClass:
-              defaultClass: true
-          version: 4.0.18
-      wait: true
-      timeout: 600s
+- name: "nfs-subdir-external-provisioner Helm chart"
+  epfl_si.rancher.rancher_helm_chart:
+    repository: nfs-subdir-external-provisioner
+    chart: nfs-subdir-external-provisioner
+    namespace:
+      name: "{{ rke2_nfs_storage_namespace }}"
+      owned: true
+      system: true
+    version: 4.0.18
+    values:
+      nfs:
+        path: /svc1160_gitlab_test_app/nfs-storageclass
+        server: nas-app-ma-nfs2.epfl.ch
+      storageClass:
+        defaultClass: true
