@@ -21,11 +21,6 @@ description:
   modules or action plugins, for instance C(rancher_helm_chart).
   Consider using them instead, if applicable.
 
-- This module expects the C(K8S_AUTH_KUBECONFIG) environment variable
-  to be set, and to point to a suitable Kubeconfig file (e.g. one
-  downloaded from the Rancher UI). This module will authenticate to
-  Rancher using the credentials found within.
-
 - B(⚠ This module always returns a “changed“) (i.e. yellow) B(Ansible
   result.) It is up to you to short-circuit it (using a C(when:)
   clause) if its post-condition is already met.
@@ -49,6 +44,14 @@ options:
       - The HTTP request body, as a data structure I(before)
         serialization to JSON (done by the module)
     type: complex
+
+  kubeconfig:
+    type: complex
+    required: false
+    description:
+      - The deserialized `kubeconfig` YAML file to authenticate with.
+      - If not set, use the (remote) file pointed to by the
+        C(K8S_AUTH_KUBECONFIG) environment variable.
 
 version_added: 0.2.1
 '''
@@ -82,11 +85,15 @@ class RancherAPICall:
     module_args = dict(
         method=dict(type='str'),
         uri=dict(type='str'),
-        body=dict(type='dict'))
+        body=dict(type='dict'),
+        kubeconfig=dict(type='dict'))
 
     @cached_property
     def client (self):
-        return RancherAPIClient(module=self.module)
+        if self.module.params.get("kubeconfig") is not None:
+            return RancherAPIClient(kubeconfig=self.module.params["kubeconfig"])
+        else:
+            return RancherAPIClient(module=self.module)
 
     @cached_property
     def module (self):
