@@ -97,6 +97,9 @@
                           spec:
                             storageClassName: nfs-client
                             accessModes: [ ReadWriteOnce ]
+                            resources:
+                              requests:
+                                storage: 10Gi
                   '''
 
 - name: Check build automation (manual tasks)
