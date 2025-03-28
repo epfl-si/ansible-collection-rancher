@@ -1,5 +1,7 @@
 from functools import cached_property
 
+import yaml
+
 from ansible.plugins.action import ActionBase
 from ansible_collections.epfl_si.actions.plugins.module_utils.subactions import AnsibleActions
 from ansible_collections.epfl_si.rancher.plugins.module_utils.rancher_actions import RancherActionMixin
@@ -60,8 +62,9 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
         # from the Ansible manager through rancher_model. Oh well, if
         # it works don't touch it 🤷
         self.change(
-            "epfl_si.rancher.rancher_k8s_api_call",
+            "epfl_si.k8s.k8s_api_call",
             {
+                "kubeconfig": self.kubeconfig,
                 "method": "POST",
                 "uri": f"/v1/catalog.cattle.io.clusterrepos/{self.source_repository}?action=install",
                 "body": {
@@ -92,13 +95,19 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
 
     def _do_uninstall_helm_chart (self):
         self.change(
-            "epfl_si.rancher.rancher_k8s_api_call",
+            "epfl_si.k8s.k8s_api_call",
             {
+                "kubeconfig": self.kubeconfig,
                 "method": "POST",
                 "uri": f"/v1/catalog.cattle.io.apps/{self.install_namespace}/{self.chart_name}?action=uninstall",
                 "body": {}
             }
         )
+
+    @property
+    def kubeconfig (self):
+        with open(self.ansible_api.jinja.expand("{{ ansible_k8s_kubeconfig }}")) as f:
+            return yaml.safe_load(f)
 
     def _make_k8s_ns_definition (self, namespace_name):
         return {
@@ -118,18 +127,18 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
                 "management.cattle.io/system-namespace": "true"
             }
 
-        self.change("kubernetes.core.k8s",
+        self.change("epfl_si.k8s.k8s",
                     dict(definition=definition))
 
     def _do_delete_namespace (self):
-        self.change("kubernetes.core.k8s",
+        self.change("epfl_si.k8s.k8s",
                     dict(state="absent",
                          definition=self._make_k8s_ns_definition(self.install_namespace)))
 
     @property
     def _helm_chart_is_installed (self):
         return len(self.ansible_api.jinja.lookup(
-            'kubernetes.core.k8s',
+            'epfl_si.k8s.k8s',
             api_version='catalog.cattle.io/v1',
             kind='App',
             resource_name=self.chart_name,
@@ -138,7 +147,7 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
     @property
     def _namespace_exists (self):
         return len(self.ansible_api.jinja.lookup(
-            'kubernetes.core.k8s',
+            'epfl_si.k8s.k8s',
             api_version='v1',
             kind='namespace',
             resource_name=self.install_namespace)) > 0
