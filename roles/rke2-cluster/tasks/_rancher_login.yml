@@ -1,0 +1,43 @@
+# Log in to a Rancher cluster, and store the
+# kubeconfig into {{ ansible_k8s_kubeconfig }}.
+#
+# The following variables must be set by caller:
+#
+#   _login_delegated_to
+#                    The inventory name of the cluster to log in to (using an
+#                    `epfl_si.rancher.rancher_login` task with
+#                    `delegate_to: {{ _login_delegated_to }}`). Defaults
+#                    to `inventory_hostname`, i.e. don't delegate.
+
+
+- delegate_to: localhost
+  changed_when: false
+  name: Check existing Rancher credentials
+  register: _check_rancher_credentials
+  shell:
+    cmd: |
+      if KUBECONFIG="{{ ansible_k8s_kubeconfig }}" kubectl get pods; then
+        echo CREDENTIALS_ARE_STILL_VALID
+      fi
+
+- when: >-
+    "CREDENTIALS_ARE_STILL_VALID" not in _check_rancher_credentials.stdout
+  block:
+    - delegate_to: '{{ _login_delegated_to | default(inventory_hostname) }}'
+      epfl_si.rancher.rancher_login:
+      register: _rancher_login
+
+    - name: "{{ _kubeconfig_dir }}"
+      delegate_to: localhost
+      run_once: true
+      file:
+        state: directory
+        path: "{{ _kubeconfig_dir }}"
+      vars:
+        _kubeconfig_dir: "{{ ansible_k8s_kubeconfig | dirname }}"
+
+    - name: "{{ ansible_k8s_kubeconfig }}"
+      delegate_to: localhost
+      copy:
+        dest: "{{ ansible_k8s_kubeconfig }}"
+        content: "{{ _rancher_login.kubeconfig }}"

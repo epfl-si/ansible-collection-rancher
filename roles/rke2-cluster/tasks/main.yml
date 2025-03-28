@@ -2,7 +2,7 @@
   include_vars: rke2-vars.yml
 
 - include_tasks:
-    file: rke2-login.yml
+    file: _rancher_login.yml
     apply:
       tags:
       - rke2
