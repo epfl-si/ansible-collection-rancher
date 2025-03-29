@@ -4,6 +4,7 @@ import yaml
 
 from ansible.plugins.action import ActionBase
 from ansible_collections.epfl_si.actions.plugins.module_utils.subactions import AnsibleActions
+from ansible_collections.epfl_si.actions.plugins.module_utils.compare import is_substruct
 from ansible_collections.epfl_si.rancher.plugins.module_utils.rancher_actions import RancherActionMixin
 
 class RancherHelmChartAction (ActionBase, RancherActionMixin):
@@ -40,8 +41,7 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
         if desired_state == "present":
             if namespace_is_owned and not self._namespace_exists:
                 self._do_create_namespace(is_system=namespace.get("system", False))
-            if not self._helm_chart_is_installed:
-                self._do_install_helm_chart(args["version"], args.get("values", {}))
+            self._maybe_install_or_upgrade_helm_chart(args["version"], args.get("values", {}))
         elif desired_state == "absent":
             if self._helm_chart_is_installed:
                 self._do_uninstall_helm_chart()
@@ -52,7 +52,16 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
 
         return self.result
 
-    def _do_install_helm_chart (self, helm_version, helm_values):
+    def _maybe_install_or_upgrade_helm_chart (self, helm_version, helm_values):
+        desired_chart_name_and_version = f'{self.chart_name}-{helm_version}'
+
+        if not self._helm_chart_is_installed:
+            self._do_helm_chart(helm_version, helm_values, "install")
+        elif ( (desired_chart_name_and_version != self._current_chart_name_and_version)
+               or not is_substruct(helm_values, self._current_helm_values) ):
+            self._do_helm_chart(helm_version, helm_values, "upgrade")
+
+    def _do_helm_chart (self, helm_version, helm_values, action):
         # This is a per-cluster Steve call, which doesn't work with
         # the same credentials as
         # ansible_collections.epfl_si.rancher.plugins.module_utils.rancher_model
@@ -66,7 +75,7 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
             {
                 "kubeconfig": self.kubeconfig,
                 "method": "POST",
-                "uri": f"/v1/catalog.cattle.io.clusterrepos/{self.source_repository}?action=install",
+                "uri": f"/v1/catalog.cattle.io.clusterrepos/{self.source_repository}?action={action}",
                 "body": {
                     "namespace": self.install_namespace,
                     "charts": [
@@ -103,6 +112,23 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
                 "body": {}
             }
         )
+
+    @cached_property
+    def _helm_info (self):
+        return self.query(
+            "epfl_si.k8s.helm_info",
+            {
+                "name": self.chart_name,
+                "release_namespace": self.install_namespace
+            })
+
+    @property
+    def _current_helm_values (self):
+        return self._helm_info.get("status", {}).get("values")
+
+    @property
+    def _current_chart_name_and_version (self):
+        return self._helm_info.get("status", {}).get("chart")
 
     @property
     def kubeconfig (self):

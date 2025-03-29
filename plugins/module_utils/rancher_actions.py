@@ -109,6 +109,9 @@ class RancherActionMixin(ABC):
             base_url=self.rancher_base_url,
             api_key=self._obtain_token())
 
+    def query (self, task_name, task_args):
+        return self._subaction.query(task_name, task_args)
+
     def change (self, task_name, task_args):
         return self._subaction.change(task_name, task_args)
 
