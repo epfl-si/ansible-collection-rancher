@@ -102,7 +102,7 @@
                                 storage: 10Gi
                   '''
 
-- name: Check build automation (manual tasks)
+- name: Check build automation (manual task)
   ansible.builtin.pause:
     prompt: |
       🛑 Please ensure that your RKE2 cluster's GitLab runner is now
