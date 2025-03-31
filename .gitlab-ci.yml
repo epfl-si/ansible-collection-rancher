@@ -5,7 +5,6 @@ stages:
 
 prep:
   stage: prep
-  image: public.ecr.aws/docker/library/alpine:3.18
   script:
     - apk add jq curl
     - >-

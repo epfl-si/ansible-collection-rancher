@@ -1,5 +1,8 @@
 - tags: always
-  include_vars: ../../../vars/versions.yml
+  include_vars: "{{ item }}"
+  with_items:
+    - build-vars.yml
+    - ../../../vars/versions.yml
 
 - tags: always
   include_vars:
@@ -27,26 +30,54 @@
           {{ build_credentials.runner.token
           | eyaml(build_credentials.eyaml_keys) }}
 
-- name: "`secret/svc1160-builder-push`"
+- name: "`secret/svc1160-builder`"
   epfl_si.k8s.k8s:
     definition:
       apiVersion: v1
       kind: Secret
       metadata:
         namespace: '{{ gitlab_ops_runner_namespace }}'
-        name: svc1160-builder-push
+        name: svc1160-builder
       type: kubernetes.io/dockerconfigjson
       stringData:
         .dockerconfigjson: >-
           {{ _quay_robot_account | epfl_si.quay.format_docker_config_json | string }}
   vars:
     _quay_robot_account:
-      quay_hostname: quay-its.epfl.ch
+      quay_hostname: "{{ ansible_quay_hostname }}"
       name: >-
-        {{ build_credentials.quay_push_robot_account.name }}
+        {{ build_credentials.quay_builder_robot_account.name }}
       token: >-
-        {{ build_credentials.quay_push_robot_account.token
+        {{ build_credentials.quay_builder_robot_account.token
         | eyaml(build_credentials.eyaml_keys) }}
+
+- name: "Mirror {{ gitlab_build_alpine_image.original }} to Quay"
+  epfl_si.quay.quay_repository:
+    organization: "{{ gitlab_build_alpine_image_mirrored.organization }}"
+    name: "{{ gitlab_build_alpine_image_mirrored.shortname }}"
+    description: "Mirrored from {{ _mirrored_from_short }}"
+    visibility: public
+    mirror:
+      from: "{{ _mirrored_from_short }}"
+      robot_account: "{{ gitlab_build_mirrorist_quay_robot_account }}"
+      tags: ["{{ _mirrored_from_tag }}"]
+  vars:
+    _mirrored_from_short: >-
+      {{ gitlab_build_alpine_image.original | split(":") | first }}
+    _mirrored_from_tag: >-
+      {{ gitlab_build_alpine_image.original | split(":") | last }}
+
+- name: Make sure that the GitLab runner can pull the mirrored image
+  # Note: we don't want to use
+  # anonymous.apps.t-ocp-its-01.xaas.epfl.ch for that, both for
+  # future-proof-ness (as the `t-` part of the name implies, this
+  # service is fragile) and because it would cause additional
+  # firewalling headaches.
+  epfl_si.quay.robot_account_permission:
+    robot_account_name: "{{ build_credentials.quay_builder_robot_account.name }}"
+    organization: "{{ gitlab_build_quay_organization }}"
+    repository_name: "alpine"
+    permission: read
 
 - name: "`gitlab/gitlab-runner` Helm chart"
   epfl_si.rancher.rancher_helm_chart:
@@ -72,8 +103,11 @@
             # an environment variable for the gitlab-runner pod:
             FF_USE_ADVANCED_POD_SPEC_CONFIGURATION = true
             [runners.kubernetes]
+                image = "{{ gitlab_build_alpine_image.mirrored }}"
+                image_pull_secrets = ["svc1160-builder"]
+
                 [[runners.kubernetes.volumes.secret]]
-                name = "svc1160-builder-push"
+                name = "svc1160-builder"
                 mount_path = "/kaniko/.docker"
                 read_only = true
                 [runners.kubernetes.volumes.secret.items]

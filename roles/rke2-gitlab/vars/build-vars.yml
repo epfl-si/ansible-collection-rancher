@@ -1,0 +1,19 @@
+# Note: gitlab_build_alpine_version is from ../../../vars/versions.yml
+
+gitlab_build_quay_organization: svc1160
+
+gitlab_build_alpine_image:
+  original: public.ecr.aws/docker/library/alpine:{{ gitlab_build_alpine_version }}
+  mirrored: quay-its.epfl.ch/svc1160/alpine:{{ gitlab_build_alpine_version }}
+
+gitlab_build_alpine_image_mirrored: >-
+  {{ gitlab_build_alpine_image.mirrored | parse_docker_image_name }}
+
+# Created with #clickops at https://quay-its.epfl.ch/organization/svc1160?tab=robots
+gitlab_build_mirrorist_quay_robot_account: "{{ gitlab_build_quay_organization }}+mirrorist"
+
+# Used by the epfl_si.quay collection, as well as in our own tasks:
+ansible_quay_hostname: quay-its.epfl.ch
+# 💡 build_credentials comes (you guessed it) from ./build-credentials.yml
+ansible_quay_bearer_token: >-
+  {{ build_credentials.quay_api.bearer_token | eyaml(build_credentials.eyaml_keys) }}
