@@ -3,6 +3,7 @@ collections:
   - name: kubernetes.core
   - name: epfl_si.k8s
   - name: epfl_si.rancher
+    version: ">=0.7.1"
   - name: epfl_si.quay
     version: ">=0.5.0"
 roles:
