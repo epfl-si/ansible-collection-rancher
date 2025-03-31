@@ -1,4 +1,6 @@
-# Version 0.7.0: major bugfix and API change release
+# Version 0.7.1: major bugfix and API change release
+
+💡 Don't use 0.7.0 (botched release.)
 
 - Upgrade to latest version of `epfl_si.actions`, thereby gaining `delegate_to:` support in all tasks
 - Rewrite documentation using the `ansible-doc` standard

@@ -1,7 +1,7 @@
 namespace: epfl_si
 name: rancher
 
-version: 0.6.0
+version: 0.7.1
 
 readme: README.md
 
