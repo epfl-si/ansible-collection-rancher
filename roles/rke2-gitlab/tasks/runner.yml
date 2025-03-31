@@ -110,9 +110,10 @@
       repository on GitLab.com .
 
       Just browse
-      https://gitlab.com/epfl-isasfsd/gitlab-ops/-/pipelines/new and
-      click New pipeline without setting any variables. Click on red
-      things (if any) that pop up to figure out problems.
+      https://gitlab.com/epfl-isasfsd/gitlab-ops/-/pipelines , log in
+      if required (top right) and click New pipeline without setting
+      any variables. Click on red things (if any) that pop up to
+      figure out problems.
 
       💡 If you see
 
