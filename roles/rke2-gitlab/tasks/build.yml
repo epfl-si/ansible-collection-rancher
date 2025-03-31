@@ -1,6 +1,11 @@
 - tags: always
   include_vars: ../../../vars/versions.yml
 
+- tags: always
+  include_vars:
+    name: build_credentials
+    file: build-credentials.yml
+
 - name: "`namespace/{{ gitlab_ops_runner_namespace }}`"
   epfl_si.k8s.k8s:
     definition:
@@ -19,11 +24,8 @@
         name: gitlab-registration-token
       stringData:
         runner-registration-token: >-
-          {{ _secrets.registration_token }}
-  vars:
-    _secrets: >-
-      {{ lookup("pipe", "keybase fs read " + gitlab_com_registration_token_secrets_path)
-      | from_yaml }}
+          {{ build_credentials.runner.token
+          | eyaml(build_credentials.eyaml_keys) }}
 
 - name: "`secret/svc1160-builder-push`"
   epfl_si.k8s.k8s:
@@ -35,17 +37,16 @@
         name: svc1160-builder-push
       type: kubernetes.io/dockerconfigjson
       stringData:
-        .dockerconfigjson: "{{ _dockerconfigjson | to_json }}"
+        .dockerconfigjson: >-
+          {{ _quay_robot_account | epfl_si.quay.format_docker_config_json | string }}
   vars:
-    _secrets: >-
-       {{ lookup("pipe", "keybase fs read " + gitlab_runner_internal_secrets_path)
-       | from_yaml }}
-    _userpassword: "{{ _secrets.QUAY_PUSH_USERNAME }}:{{ _secrets.QUAY_PUSH_PASSWORD }}"
-    _dockerconfigjson:
-      auths:
-        quay-its.epfl.ch:
-          email: ""
-          auth: "{{ _userpassword | b64encode }}"
+    _quay_robot_account:
+      quay_hostname: quay-its.epfl.ch
+      name: >-
+        {{ build_credentials.quay_push_robot_account.name }}
+      token: >-
+        {{ build_credentials.quay_push_robot_account.token
+        | eyaml(build_credentials.eyaml_keys) }}
 
 - name: "`gitlab/gitlab-runner` Helm chart"
   epfl_si.rancher.rancher_helm_chart:
