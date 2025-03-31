@@ -11,11 +11,16 @@ prep:
       base_image=gitlab/gitlab-ce ;
       latest="$(curl -s "https://registry.hub.docker.com/v2/repositories/$base_image/tags"
       | jq -r '[.results[].name | select(contains("-ce"))] | sort | last')" ;
+      echo "GITLAB_CE_BASE_VERSION=$latest" > version.env
+
       sed -e 's|[$]GITLAB_CE_BASE_VERSION|'"$latest"'|' < gitlab-main/Dockerfile
       | grep -v 'ARG GITLAB_CE_BASE_VERSION' > Dockerfile.latest
   artifacts:
     paths:
       - Dockerfile.latest
+    reports:
+      dotenv:
+        - version.env
 
 build:
   stage: build
@@ -27,7 +32,8 @@ build:
     - /kaniko/executor
       --context "${CI_PROJECT_DIR}"
       --dockerfile "${CI_PROJECT_DIR}/Dockerfile.latest"
-      --destination quay-its.epfl.ch/svc1160/gitlab
+      --destination "quay-its.epfl.ch/svc1160/gitlab:${GITLAB_CE_BASE_VERSION}"
+
 deploy:
   stage: deploy
   environment: production
