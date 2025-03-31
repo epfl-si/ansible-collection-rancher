@@ -15,11 +15,13 @@
     - gitlab.helm-repo
 
 - include_tasks:
-    file: runner.yml
+    file: build.yml
     apply:
       tags:
         - gitlab
-        - gitlab.runner
+        - gitlab.build
+        - gitlab.runner   # Obsolescent tag
   tags:
     - gitlab
+    - gitlab.build
     - gitlab.runner
