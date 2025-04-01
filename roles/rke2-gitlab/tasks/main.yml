@@ -25,3 +25,13 @@
     - gitlab
     - gitlab.build
     - gitlab.runner
+
+- include_tasks:
+    file: routing.yml
+    apply:
+      tags:
+        - gitlab
+        - gitlab.routing
+  tags:
+    - gitlab
+    - gitlab.routing

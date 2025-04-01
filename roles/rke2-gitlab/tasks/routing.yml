@@ -1,0 +1,41 @@
+- name: "LoadBalancer Service for ingress"
+  with_items:
+    - name: gitlab-ingress-ipv4
+      ipFamily: "IPv4"
+      vip: >-
+        {{ lookup("community.general.dig", "gitlab-next.epfl.ch") }}
+      pool: gitlab-next
+    - name: gitlab-ingress-ipv6
+      ipFamily: "IPv6"
+      vip: >-
+        {{ lookup("community.general.dig", "gitlab-next.epfl.ch",
+        qtype="AAAA") }}
+      pool: gitlab-next
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ item.name }}"
+        namespace: kube-system
+        annotations:
+          metallb.universe.tf/address-pool: "{{ item.pool }}"
+      spec:
+        selector:
+          app.kubernetes.io/name: rke2-traefik
+        type: LoadBalancer
+        ipFamilies: ["{{ item.ipFamily }}"]
+        loadBalancerIP: "{{ item.vip }}"
+        ports:
+          - name: ssh
+            port: 22
+            targetPort: 22
+            protocol: TCP
+          - name: http
+            port: 80
+            targetPort: web
+            protocol: TCP
+          - name: https
+            port: 443
+            targetPort: websecure
+            protocol: TCP
