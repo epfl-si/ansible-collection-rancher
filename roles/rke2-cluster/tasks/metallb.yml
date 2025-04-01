@@ -40,3 +40,13 @@
       {% set ipv6 = lookup("community.general.dig", item, qtype='AAAA') %}
       - {{ ipv6 }}/128
   with_items: "{{ inventory_vips }}"
+
+- name: "L2 advertisement"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: metallb.io/v1beta1
+      kind: L2Advertisement
+      metadata:
+        name: l2
+        namespace: metallb-system
+      # No `spec`, means that it advertises everything.
