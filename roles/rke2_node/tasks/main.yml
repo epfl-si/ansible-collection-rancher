@@ -27,6 +27,17 @@
     state:
       present
 
+- name: RKE2 pre-configuration
+  tags:
+    - rke2-node
+    - rke2-node.config
+  include_tasks:
+    file: config.yml
+    apply:
+      tags:
+        - rke2-node
+        - rke2-node.config
+
 - name: Rancher cluster membership
   tags:
     - rke2-node

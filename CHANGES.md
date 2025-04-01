@@ -1,3 +1,7 @@
+# Version 0.8.0: major feature release
+
+- The `epfl_si.rancher.rke2_node` role now has a `rancher_rke2_ingress_controller` variable, which can be set to `traefik`
+
 # Version 0.7.1: major bugfix and API change release
 
 💡 Don't use 0.7.0 (botched release.)
