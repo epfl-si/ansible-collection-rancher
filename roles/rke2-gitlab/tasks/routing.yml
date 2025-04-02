@@ -1,3 +1,8 @@
+- tags: always
+  include_vars:
+    name: tls_credentials
+    file: tls-credentials.yml
+
 - name: "LoadBalancer Service for ingress"
   with_items:
     - name: gitlab-ingress-ipv4
@@ -40,22 +45,16 @@
             targetPort: websecure
             protocol: TCP
 
-- name: "TLS certificates"
-  with_items:
-    - secret_name: gitlab-next-tls
-      namespace: miaow-test  # Meh.
-      hostname: gitlab-next.epfl.ch
-      private_key: >-
-        {{ tls_credentials.gitlab_next.key
-        | eyaml(tls_credentials.eyaml_keys) }}
-      certificate: "{{ tls_credentials.gitlab_next.certificate }}"
+- name: "TLS certificate"
   epfl_si.k8s.k8s:
     definition:
       apiVersion: v1
       kind: Secret
       metadata:
-        name: "{{ item.secret_name }}"
-        namespace: miaow-test
+        name: gitlab-next-tls
+        namespace: miaow-test   # Meh.
       stringData:
-        tls.key: "{{ item.private_key }}"
-        tls.crt: "{{ item.certificate }}"
+        tls.key:  >-
+          {{ tls_credentials.gitlab_next.key
+          | eyaml(tls_credentials.eyaml_keys) }}
+        tls.crt: "{{ tls_credentials.gitlab_next.certificate }}"
