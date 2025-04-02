@@ -39,3 +39,23 @@
             port: 443
             targetPort: websecure
             protocol: TCP
+
+- name: "TLS certificates"
+  with_items:
+    - secret_name: gitlab-next-tls
+      namespace: miaow-test  # Meh.
+      hostname: gitlab-next.epfl.ch
+      private_key: >-
+        {{ tls_credentials.gitlab_next.key
+        | eyaml(tls_credentials.eyaml_keys) }}
+      certificate: "{{ tls_credentials.gitlab_next.certificate }}"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: "{{ item.secret_name }}"
+        namespace: miaow-test
+      stringData:
+        tls.key: "{{ item.private_key }}"
+        tls.crt: "{{ item.certificate }}"
