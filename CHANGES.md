@@ -1,3 +1,7 @@
+# Version 0.8.1: bugfix release
+
+- Create `etc/rancher/rke2/config.yaml.d/` before attempting to create a configuration file with it
+
 # Version 0.8.0: major feature release
 
 - The `epfl_si.rancher.rke2_node` role now has a `rancher_rke2_ingress_controller` variable, which can be set to `traefik`

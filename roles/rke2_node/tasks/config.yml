@@ -1,12 +1,19 @@
 # “Documentation” is at https://github.com/rancher/rke2/issues/5928#issuecomment-2759404098
-- name: Select ingress controller
-  when: >-
+- when: >-
     rancher_rke2_ingress_controller is defined
-  ansible.builtin.copy:
-    dest: /etc/rancher/rke2/config.yaml.d/70-ingress.yaml
-    content: |
-        ingress-controller: {{ rancher_rke2_ingress_controller }}
-  register: _rke2_config_ingress
+  block:
+
+  - name: /etc/rancher/rke2/config.yaml.d
+    ansible.builtin.file:
+      path: /etc/rancher/rke2/config.yaml.d
+      state: directory
+
+  - name: Select ingress controller
+    ansible.builtin.copy:
+      dest: /etc/rancher/rke2/config.yaml.d/70-ingress.yaml
+      content: |
+          ingress-controller: {{ rancher_rke2_ingress_controller }}
+    register: _rke2_config_ingress
 
 - name: Check whether RKE2 server is already installed
   changed_when: false
