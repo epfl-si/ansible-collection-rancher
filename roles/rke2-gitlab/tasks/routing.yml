@@ -52,7 +52,7 @@
       kind: Secret
       metadata:
         name: gitlab-next-tls
-        namespace: miaow-test   # Meh.
+        namespace: gitlab
       stringData:
         tls.key:  >-
           {{ tls_credentials.gitlab_next.key
