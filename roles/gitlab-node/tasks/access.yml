@@ -1,0 +1,9 @@
+- name: ssh access to nodes
+  ansible.posix.authorized_key:
+    user: root
+    state: present
+    key: "{{ item }}"
+
+  with_items:
+    - https://github.com/domq.keys
+    - https://gitlab.com/avidalqim.keys

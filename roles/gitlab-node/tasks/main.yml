@@ -13,6 +13,16 @@
         - rke2-node.uninstall
 
 - include_tasks:
+    file: access.yml
+    apply:
+      tags:
+        - node
+        - node.access
+  tags:
+    - node
+    - node.access
+
+- include_tasks:
     file: storage.yml
     apply:
       tags:
