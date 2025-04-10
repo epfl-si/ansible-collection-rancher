@@ -1,1 +1,5 @@
 gitlab_ops_runner_namespace: gitlab-ops
+gitlab_hostname: gitlab-next.epfl.ch
+gitlab_tls_private_key: >-
+  {{ tls_credentials.gitlab_next.key
+          | eyaml(tls_credentials.eyaml_keys) }}

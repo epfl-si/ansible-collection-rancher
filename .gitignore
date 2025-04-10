@@ -3,3 +3,4 @@ ansible-deps-cache
 __pycache__
 *.pyc
 rke2-credentials-cache
+gitlab-next.csr

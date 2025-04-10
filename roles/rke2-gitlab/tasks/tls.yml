@@ -14,3 +14,15 @@
       stringData:
         tls.key: "{{ gitlab_tls_private_key }}"
         tls.crt: "{{ tls_credentials.gitlab_next.certificate }}"
+
+- name: "TLS Certificate Signing Request (CSR)"
+  delegate_to: localhost
+  tags:
+    - never
+    - gitlab.tls.csr
+  run_once: true
+  community.crypto.openssl_csr:
+    path: "{{ playbook_dir }}/gitlab-next.csr"
+    privatekey_content: "{{ gitlab_tls_private_key }}"
+    common_name: "{{ gitlab_hostname }}"
+    subject_alt_name: 'DNS:{{ gitlab_hostname }}'
