@@ -26,3 +26,17 @@
     privatekey_content: "{{ gitlab_tls_private_key }}"
     common_name: "{{ gitlab_hostname }}"
     subject_alt_name: 'DNS:{{ gitlab_hostname }}'
+  register: _csr
+
+- tags: gitlab.tls.csr
+  when: (_csr | default({})) is changed
+  ansible.builtin.pause:
+    prompt: |
+      🛑 {{ playbook_dir }}/gitlab-next.csr generated; please create
+      the {{ gitlab_hostname }} certificate at your favorite CA.
+
+      Instructions for the EPFL CA are available at https://rauth.epfl.ch/
+
+      Once you're done, please put the certificate into
+      {{ playbook_dir }}/roles/rke2-gitlab/vars/tls-credentials.yml
+      and run `gitsible` again.
