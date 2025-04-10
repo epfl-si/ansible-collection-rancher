@@ -1,30 +1,28 @@
 - include_vars: gitlab-vars.yml
   tags: always
 
-- name: "`ClusterRepo/gitlab`"
-  epfl_si.k8s.k8s:
-    definition:
-      apiVersion: catalog.cattle.io/v1
-      kind: ClusterRepo
-      metadata:
-        name: gitlab
-      spec:
-        url: https://charts.gitlab.io
-  tags:
-    - gitlab
-    - gitlab.helm-repo
-
 - include_tasks:
-    file: build.yml
+    file: gitlab-wipe.yml
     apply:
       tags:
-        - gitlab
-        - gitlab.build
-        - gitlab.runner   # Obsolescent tag
+        - gitlab.wipe
+  tags:
+    - never
+    - gitlab.wipe
+
+- name: "`namespace/{{ gitlab_namespace }}`"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ gitlab_namespace }}"
   tags:
     - gitlab
-    - gitlab.build
-    - gitlab.runner
+    - gitlab.website
+    - gitlab.routing
+    - gitlab.tls
+    - gitlab.tls.csr
 
 - include_tasks:
     file: routing.yml
@@ -46,3 +44,23 @@
     - gitlab
     - gitlab.tls
     - gitlab.tls.csr
+
+- include_tasks:
+    file: k8s-gitlab.yml
+    apply:
+      tags:
+        - gitlab
+        - gitlab.website
+  tags:
+    - gitlab
+    - gitlab.website
+
+- include_tasks:
+    file: k8s-runner.yml
+    apply:
+      tags:
+        - gitlab
+        - gitlab.runner   # Obsolescent tag
+  tags:
+    - gitlab
+    - gitlab.runner   # Obsolescent tag

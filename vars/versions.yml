@@ -1,5 +1,5 @@
 gitlab_version: 17.9.2
-gitlab_build_alpine_version: 3.18
+gitlab_runner_alpine_version: 3.18
 gitlabstatisticsprometheusexporter_version: v1.0.6
 k8s_pgbouncer_version: 1.17.0
 postgresql_docker_image: postgres:14
@@ -12,4 +12,5 @@ clickhouse_chart_version: 24.1.14
 signoz_chart_version: 0.66.0
 k8s_infra_chart_version: 0.12.1
 gitlab_runner_chart_version: 0.75.1
+gitlab_chart_version: 8.10.4
 openproject_chart_version: 9.5.0

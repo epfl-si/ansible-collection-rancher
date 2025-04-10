@@ -1,0 +1,34 @@
+- tags: always
+  include_vars: "{{ item }}"
+  with_items:
+    - gitlab-vars.yml
+    - openid-secrets.yml
+    - ../../../vars/versions.yml
+
+- tags: always
+  include_vars:
+    name: gitlab_credentials
+    file: gitlab-credentials.yml
+
+- name: "gitlab-provider-openid Secret"
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: gitlab-provider-openid
+        namespace: "{{ gitlab_namespace }}"
+      type: Opaque
+      data:
+        provider:
+          '{{ openid_provider | to_nice_json | b64encode }}'
+
+- name: "Deploy gitlab chart inside `{{ gitlab_namespace }}` namespace"
+  epfl_si.rancher.rancher_helm_chart:
+      repository: gitlab
+      chart: gitlab
+      namespace: "{{ gitlab_namespace }}"
+      version: "{{ gitlab_chart_version }}"
+      values: "{{ gitlab_values }}"
+      

@@ -1,0 +1,62 @@
+# Delete everything (so as to start over)
+
+# - name: Uninstall gitlab-runner helm chart
+#   epfl_si.rancher.rancher_helm_chart:
+#     state: absent
+#     repository: gitlab
+#     chart: gitlab-runner
+#     namespace:
+#       name: "{{ gitlab_ops_runner_namespace }}"
+#       owned: true
+
+# - name: "Delete the {{ gitlab_ops_runner_namespace }} namespace"
+#   kubernetes.core.k8s:
+#     name: "{{ gitlab_ops_runner_namespace }}"
+#     api_version: v1
+#     kind: Namespace
+#     state: absent
+
+# - name: "Wait for the {{ gitlab_ops_runner_namespace }} namespace to go down"
+#   changed_when: false
+#   shell:
+#     cmd: |
+#       kubectl get namespace {{ gitlab_ops_runner_namespace }} || true
+#   register: _kubectl_get_namespace
+#   until: >
+#     ansible_check_mode or ("NotFound" in _kubectl_get_namespace.stderr)
+#   retries: 60
+#   delay: 10
+
+- name: Uninstall gitlab helm chart
+  epfl_si.rancher.rancher_helm_chart:
+    state: absent
+    repository: gitlab
+    chart: gitlab
+    namespace:
+      name: "{{ gitlab_namespace }}"
+      owned: true
+
+- name: "Delete the {{ gitlab_namespace }} namespace"
+  kubernetes.core.k8s:
+    name: "{{ gitlab_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: absent
+
+# More info : https://github.com/cert-manager/cert-manager/issues/1582
+- name: "Remove cert-manager finalizers"
+  changed_when: false
+  shell:
+    cmd: |
+      kubectl -n {{ gitlab_namespace }} patch crd challenges.acme.cert-manager.io -p '{"metadata":{"finalizers": []}}' --type=merge
+
+- name: "Wait for the {{ gitlab_namespace }} namespace to go down"
+  changed_when: false
+  shell:
+    cmd: |
+      kubectl get namespace {{ gitlab_namespace }} || true
+  register: _kubectl_get_namespace
+  until: >
+    ansible_check_mode or ("NotFound" in _kubectl_get_namespace.stderr)
+  retries: 60
+  delay: 10

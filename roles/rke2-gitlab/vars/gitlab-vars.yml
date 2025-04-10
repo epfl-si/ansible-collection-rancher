@@ -1,5 +1,43 @@
-gitlab_ops_runner_namespace: gitlab-ops
+gitlab_namespace: gitlab
 gitlab_hostname: gitlab-next.epfl.ch
 gitlab_tls_private_key: >-
   {{ tls_credentials.gitlab_next.key
           | eyaml(tls_credentials.eyaml_keys) }}
+gitlab_certmanager_issuer_email: gitlab-admins@groupes.epfl.ch
+
+gitlab_values:
+  # Documentation: https://docs.gitlab.com/charts/charts/globals/#configure-host-settings
+  global:
+    gitlabVersion: "{{ gitlab_version }}"
+    edition: ce
+    time_zone: "Europe/Zurich"
+    hosts:
+      domain: "{{ gitlab_hostname }}"
+      gitlab:
+        name: "{{ gitlab_hostname }}"
+    
+    # Reference to the existing traefik IngressClass
+    ingress:
+      class: traefik
+      tls:
+        secretName: gitlab-next-tls
+
+    extraEnv:
+      GITLAB_LOG_LEVEL: "error"
+
+    # Documentation: https://docs.gitlab.com/administration/auth/oidc/
+    appConfig:
+      omniauth:
+        enabled: true
+        allowSingleSignOn: true
+        autoLinkLdapUser: true
+        blockAutoCreatedUsers: false
+        providers:
+          - secret: gitlab-provider-openid
+
+  certmanager-issuer:
+    email: "{{ gitlab_certmanager_issuer_email }}"
+
+  # Do not create an IngressClass because traefik existing
+  nginx-ingress:
+    enabled: false

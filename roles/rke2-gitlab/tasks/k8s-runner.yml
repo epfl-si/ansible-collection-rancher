@@ -1,13 +1,13 @@
 - tags: always
   include_vars: "{{ item }}"
   with_items:
-    - build-vars.yml
+    - runner-vars.yml
     - ../../../vars/versions.yml
 
 - tags: always
   include_vars:
-    name: build_credentials
-    file: build-credentials.yml
+    name: runner_credentials
+    file: runner-credentials.yml
 
 - name: "`namespace/{{ gitlab_ops_runner_namespace }}`"
   epfl_si.k8s.k8s:
@@ -27,8 +27,8 @@
         name: gitlab-registration-token
       stringData:
         runner-registration-token: >-
-          {{ build_credentials.runner.token
-          | eyaml(build_credentials.eyaml_keys) }}
+          {{ runner_credentials.runner.token
+          | eyaml(runner_credentials.eyaml_keys) }}
 
 - name: "`secret/svc1160-builder`"
   epfl_si.k8s.k8s:
@@ -46,26 +46,26 @@
     _quay_robot_account:
       quay_hostname: "{{ ansible_quay_hostname }}"
       name: >-
-        {{ build_credentials.quay_builder_robot_account.name }}
+        {{ runner_credentials.quay_builder_robot_account.name }}
       token: >-
-        {{ build_credentials.quay_builder_robot_account.token
-        | eyaml(build_credentials.eyaml_keys) }}
+        {{ runner_credentials.quay_builder_robot_account.token
+        | eyaml(runner_credentials.eyaml_keys) }}
 
-- name: "Mirror {{ gitlab_build_alpine_image.original }} to Quay"
+- name: "Mirror {{ gitlab_runner_alpine_image.original }} to Quay"
   epfl_si.quay.quay_repository:
-    organization: "{{ gitlab_build_alpine_image_mirrored.organization }}"
-    name: "{{ gitlab_build_alpine_image_mirrored.shortname }}"
+    organization: "{{ gitlab_runner_alpine_image_mirrored.organization }}"
+    name: "{{ gitlab_runner_alpine_image_mirrored.shortname }}"
     description: "Mirrored from {{ _mirrored_from_short }}"
     visibility: public
     mirror:
       from: "{{ _mirrored_from_short }}"
-      robot_account: "{{ gitlab_build_mirrorist_quay_robot_account }}"
+      robot_account: "{{ gitlab_runner_mirrorist_quay_robot_account }}"
       tags: ["{{ _mirrored_from_tag }}"]
   vars:
     _mirrored_from_short: >-
-      {{ gitlab_build_alpine_image.original | split(":") | first }}
+      {{ gitlab_runner_alpine_image.original | split(":") | first }}
     _mirrored_from_tag: >-
-      {{ gitlab_build_alpine_image.original | split(":") | last }}
+      {{ gitlab_runner_alpine_image.original | split(":") | last }}
 
 - name: Make sure that the GitLab runner can pull the mirrored image
   # Note: we don't want to use
@@ -74,8 +74,8 @@
   # service is fragile) and because it would cause additional
   # firewalling headaches.
   epfl_si.quay.robot_account_permission:
-    robot_account_name: "{{ build_credentials.quay_builder_robot_account.name }}"
-    organization: "{{ gitlab_build_quay_organization }}"
+    robot_account_name: "{{ runner_credentials.quay_builder_robot_account.name }}"
+    organization: "{{ gitlab_runner_quay_organization }}"
     repository_name: "alpine"
     permission: read
 
@@ -103,7 +103,7 @@
             # an environment variable for the gitlab-runner pod:
             FF_USE_ADVANCED_POD_SPEC_CONFIGURATION = true
             [runners.kubernetes]
-                image = "{{ gitlab_build_alpine_image.mirrored }}"
+                image = "{{ gitlab_runner_alpine_image.mirrored }}"
                 image_pull_secrets = ["svc1160-builder"]
 
                 [[runners.kubernetes.volumes.secret]]
