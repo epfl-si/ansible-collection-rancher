@@ -1,15 +1,6 @@
 - include_vars: gitlab-vars.yml
   tags: always
 
-- include_tasks:
-    file: gitlab-wipe.yml
-    apply:
-      tags:
-        - gitlab.wipe
-  tags:
-    - never
-    - gitlab.wipe
-
 - name: "`namespace/{{ gitlab_namespace }}`"
   epfl_si.k8s.k8s:
     definition:
