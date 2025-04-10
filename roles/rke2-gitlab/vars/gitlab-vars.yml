@@ -3,7 +3,6 @@ gitlab_hostname: gitlab-next.epfl.ch
 gitlab_tls_private_key: >-
   {{ tls_credentials.gitlab_next.key
           | eyaml(tls_credentials.eyaml_keys) }}
-gitlab_certmanager_issuer_email: gitlab-admins@groupes.epfl.ch
 
 gitlab_values:
   # Documentation: https://docs.gitlab.com/charts/charts/globals/#configure-host-settings
@@ -18,6 +17,7 @@ gitlab_values:
     
     # Reference to the existing traefik IngressClass
     ingress:
+      configureCertmanager: false
       class: traefik
       tls:
         secretName: gitlab-next-tls
@@ -35,9 +35,14 @@ gitlab_values:
         providers:
           - secret: gitlab-provider-openid
 
-  certmanager-issuer:
-    email: "{{ gitlab_certmanager_issuer_email }}"
+  # Disable cert-manager because managing certificates ourselves
+  certmanager:
+    install: false
 
   # Do not create an IngressClass because traefik existing
   nginx-ingress:
     enabled: false
+
+  # gitlab-runner created separately
+  gitlab-runner:
+    install: false
