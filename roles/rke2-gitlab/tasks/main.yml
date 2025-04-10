@@ -35,3 +35,13 @@
   tags:
     - gitlab
     - gitlab.routing
+
+- include_tasks:
+    file: tls.yml
+    apply:
+      tags:
+        - gitlab
+        - gitlab.tls
+  tags:
+    - gitlab
+    - gitlab.tls

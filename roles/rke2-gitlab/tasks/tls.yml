@@ -1,0 +1,16 @@
+- tags: always
+  include_vars:
+    name: tls_credentials
+    file: tls-credentials.yml
+
+- name: "TLS certificate"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: gitlab-next-tls
+        namespace: gitlab
+      stringData:
+        tls.key: "{{ gitlab_tls_private_key }}"
+        tls.crt: "{{ tls_credentials.gitlab_next.certificate }}"
