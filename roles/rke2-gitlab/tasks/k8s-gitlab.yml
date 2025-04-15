@@ -31,4 +31,22 @@
       namespace: "{{ gitlab_namespace }}"
       version: "{{ gitlab_chart_version }}"
       values: "{{ gitlab_values }}"
-      
+
+- name: "Waiting {{ gitlab_hostname }} up"
+  changed_when: false
+  shell:
+    cmd: |
+      curl -s https://{{ gitlab_hostname }}
+  register: _kubectl_get_gitlab
+  until: >
+    ansible_check_mode or ("/users/sign_in" in _kubectl_get_gitlab.stdout)
+  retries: 60
+  delay: 10
+
+# Available settings : https://docs.gitlab.com/api/settings/#available-settings
+- name: "Disable gitlab signup and password login"
+  shell:
+    cmd: |
+      curl --request PUT \
+      --header "PRIVATE-TOKEN: {{ gitlab_credentials.api_token | eyaml(gitlab_credentials.eyaml_keys) }}" \
+      --url "https://{{ gitlab_hostname }}/api/v4/application/settings?signup_enabled=false&password_authentication_enabled_for_web=false"

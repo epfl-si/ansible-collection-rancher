@@ -25,13 +25,16 @@ gitlab_values:
     extraEnv:
       GITLAB_LOG_LEVEL: "error"
 
-    # Documentation: https://docs.gitlab.com/administration/auth/oidc/
+    # Documentation: https://docs.gitlab.com/integration/omniauth/
     appConfig:
       omniauth:
         enabled: true
-        allowSingleSignOn: true
-        autoLinkLdapUser: true
-        blockAutoCreatedUsers: false
+        allowSingleSignOn: ['openid_connect']
+        blockAutoCreatedUsers: true
+        autoSignInWithProvider: 'openid_connect'
+        autoLinkUser: ['openid_connect']
+        syncProfileFromProvider: ['openid_connect']
+        syncProfileAttributes: ['name', 'email']
         providers:
           - secret: gitlab-provider-openid
 
