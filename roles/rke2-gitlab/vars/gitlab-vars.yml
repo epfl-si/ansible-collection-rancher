@@ -15,28 +15,33 @@ gitlab_values:
       gitlab:
         name: "{{ gitlab_hostname }}"
     
-    # Reference to the existing traefik IngressClass
     ingress:
-      configureCertmanager: false
+      # Reference to the existing traefik IngressClass
       class: traefik
+      configureCertmanager: false
       tls:
         secretName: gitlab-next-tls
 
-    extraEnv:
-      GITLAB_LOG_LEVEL: "error"
-
-    # Documentation: https://docs.gitlab.com/integration/omniauth/
+    # Documentation: https://docs.gitlab.com/integration/omniauth/#configure-common-settings
     appConfig:
       omniauth:
         enabled: true
-        allowSingleSignOn: ['openid_connect']
+        allowSingleSignOn: ['openid_connect_epfl', 'openid_connect_guest']
         blockAutoCreatedUsers: true
-        autoSignInWithProvider: 'openid_connect'
-        autoLinkUser: ['openid_connect']
-        syncProfileFromProvider: ['openid_connect']
+        #autoSignInWithProvider: 'openid_connect'
+        autoLinkUser: ['openid_connect_epfl', 'openid_connect_guest']
+        syncProfileFromProvider: ['openid_connect_epfl', 'openid_connect_guest']
         syncProfileAttributes: ['name', 'email']
+        external_providers: ['openid_connect_guest']
         providers:
-          - secret: gitlab-provider-openid
+          - secret: gitlab-epfl-provider
+          - secret: gitlab-guest-provider
+    
+    extraEnv:
+      GITLAB_LOG_LEVEL: "error"
+      # Force redeploy on secret change. Chart currently does not support pod annotation
+      CHECKSUM_EPFL_PROVIDER: "{{ epfl_provider | checksum }}"
+      CHECKSUM_GUEST_PROVIDER: "{{ guest_provider | checksum }}"
 
   # Disable cert-manager because managing certificates ourselves
   certmanager:

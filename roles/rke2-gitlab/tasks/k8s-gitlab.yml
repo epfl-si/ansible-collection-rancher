@@ -1,7 +1,6 @@
 - tags: always
   include_vars: "{{ item }}"
   with_items:
-    - gitlab-vars.yml
     - openid-secrets.yml
     - ../../../vars/versions.yml
 
@@ -10,19 +9,33 @@
     name: gitlab_credentials
     file: gitlab-credentials.yml
 
-- name: "gitlab-provider-openid Secret"
+- name: "gitlab-epfl-provider Secret"
   kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: v1
       kind: Secret
       metadata:
-        name: gitlab-provider-openid
+        name: gitlab-epfl-provider
         namespace: "{{ gitlab_namespace }}"
       type: Opaque
       data:
         provider:
-          '{{ openid_provider | to_nice_json | b64encode }}'
+          '{{ epfl_provider | to_nice_json | b64encode }}'
+
+- name: "gitlab-guest-provider Secret"
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: gitlab-guest-provider
+        namespace: "{{ gitlab_namespace }}"
+      type: Opaque
+      data:
+        provider:
+          '{{ guest_provider | to_nice_json | b64encode }}'
 
 - name: "Deploy gitlab chart inside `{{ gitlab_namespace }}` namespace"
   epfl_si.rancher.rancher_helm_chart:
@@ -40,13 +53,16 @@
   register: _kubectl_get_gitlab
   until: >
     ansible_check_mode or ("/users/sign_in" in _kubectl_get_gitlab.stdout)
-  retries: 60
+  retries: 30
   delay: 10
 
 # Available settings : https://docs.gitlab.com/api/settings/#available-settings
 - name: "Disable gitlab signup and password login"
   shell:
     cmd: |
-      curl --request PUT \
+      curl -s --request PUT \
       --header "PRIVATE-TOKEN: {{ gitlab_credentials.api_token | eyaml(gitlab_credentials.eyaml_keys) }}" \
-      --url "https://{{ gitlab_hostname }}/api/v4/application/settings?signup_enabled=false&password_authentication_enabled_for_web=false"
+      --url "https://{{ gitlab_hostname }}/api/v4/application/settings\
+      ?signup_enabled=false\
+      &password_authentication_enabled_for_web=false\
+      &password_authentication_enabled_for_git=false"

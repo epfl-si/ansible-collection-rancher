@@ -3,12 +3,12 @@
     - name: gitlab-ingress-ipv4
       ipFamily: "IPv4"
       vip: >-
-        {{ lookup("community.general.dig", "gitlab-next.epfl.ch") }}
+        {{ lookup("community.general.dig", gitlab_hostname) }}
       pool: gitlab-next
     - name: gitlab-ingress-ipv6
       ipFamily: "IPv6"
       vip: >-
-        {{ lookup("community.general.dig", "gitlab-next.epfl.ch",
+        {{ lookup("community.general.dig", gitlab_hostname,
         qtype="AAAA") }}
       pool: gitlab-next
   epfl_si.k8s.k8s:
