@@ -27,12 +27,11 @@ gitlab_values:
       omniauth:
         enabled: true
         allowSingleSignOn: ['openid_connect_epfl', 'openid_connect_guest']
-        blockAutoCreatedUsers: true
-        #autoSignInWithProvider: 'openid_connect'
+        blockAutoCreatedUsers: false
         autoLinkUser: ['openid_connect_epfl', 'openid_connect_guest']
         syncProfileFromProvider: ['openid_connect_epfl', 'openid_connect_guest']
         syncProfileAttributes: ['name', 'email']
-        external_providers: ['openid_connect_guest']
+        externalProviders: ['openid_connect_guest']
         providers:
           - secret: gitlab-epfl-provider
           - secret: gitlab-guest-provider
@@ -50,7 +49,3 @@ gitlab_values:
   # Do not create an IngressClass because traefik existing
   nginx-ingress:
     enabled: false
-
-  # gitlab-runner created separately
-  gitlab-runner:
-    install: false
