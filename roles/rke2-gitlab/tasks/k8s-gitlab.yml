@@ -2,6 +2,7 @@
   include_vars: "{{ item }}"
   with_items:
     - openid-secrets.yml
+    - gitlab-credentials.yml
     - ../../../vars/versions.yml
 
 - tags: always
@@ -37,6 +38,30 @@
         provider:
           '{{ guest_provider | to_nice_json | b64encode }}'
 
+- name: "repo-data-gitlab-gitaly-pv PersistentVolume"
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        name: "repo-data-gitlab-gitaly-pv"
+        labels:
+          name: repo-data
+      spec:
+        capacity:
+          storage: 1Ti
+        storageClassName: nfs-client
+        accessModes:
+          - ReadOnlyMany
+        mountOptions:
+          - nfsvers=3
+        nfs:
+          server: nas-app-ma-nfs1.epfl.ch
+          path: "/si_gitlab_app/data/repositories"
+        # Do the Right Thing when deleting/recreating the namespace:
+        persistentVolumeReclaimPolicy: "Recycle"
+
 - name: "Deploy gitlab chart inside `{{ gitlab_namespace }}` namespace"
   epfl_si.rancher.rancher_helm_chart:
       repository: gitlab
@@ -44,6 +69,16 @@
       namespace: "{{ gitlab_namespace }}"
       version: "{{ gitlab_chart_version }}"
       values: "{{ gitlab_values }}"
+
+# This is called after the gitlab helm chart deployment because gitaly needs gitlab-registry-notification secret to be already generated
+- name: "Deploy gitaly chart inside `{{ gitlab_namespace }}` namespace"
+  epfl_si.rancher.rancher_helm_chart:
+      repository: gitlab
+      chart: gitlab
+      release: gitaly
+      namespace: "{{ gitlab_namespace }}"
+      version: "{{ gitlab_chart_version }}"
+      values: "{{ gitaly_values }}"
 
 - name: "Waiting {{ gitlab_hostname }} up"
   changed_when: false
