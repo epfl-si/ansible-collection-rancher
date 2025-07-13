@@ -46,7 +46,7 @@ all:
         gitlab_rke2_clusters:
           "hosts":
             gitlab-rke2:
-              inventory_deployment_stage: test
+              inventory_deployment_stage: prod
               ansible_rancher_cluster_name: gitlab
               inventory_vips:
                 # This VIP was created (and assigned to a nearby VM)
