@@ -54,11 +54,3 @@ all:
                 # you wanted DNS with that, you had to order it
                 # separately; see https://go.epfl.ch/INC0661613
                 - gitlab-next.epfl.ch
-                # 💡 These days VIPs are created by consuming a
-                # “floating IP” from the portal-xaas catalog; and DNS
-                # is a “day-2” action on that object (and it creates a
-                # ServiceNow ticket anyway; in this case, it was
-                # https://go.epfl.ch/INC0689312).
-                - fsd-openproject.epfl.ch
-                # Reference for the above two comment blocks:
-                # https://inside.epfl.ch/portal-xaas/xaas-portal/xaas/floating-ip-as-a-service/
