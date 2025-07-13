@@ -145,7 +145,7 @@
           enabled: false
           external:
             - name: default
-              hostname: gitaly-gitaly
+              hostname: gitaly-epfl-public-gitaly
           authToken:
             secret: gitlab-gitaly-secret
             key: token
@@ -164,11 +164,11 @@
 
 
 # This is called after the gitlab helm chart deployment because gitaly needs gitlab-registry-notification secret to be already generated
-- name: "Deploy gitaly chart inside `{{ gitlab_namespace }}` namespace"
+- name: 'Deploy "public" gitaly chart inside `{{ gitlab_namespace }}` namespace'
   epfl_si.rancher.rancher_helm_chart:
       repository: gitlab
       chart: gitlab
-      release: gitaly
+      release: gitaly-epfl-public
       namespace: "{{ gitlab_namespace }}"
       version: "{{ gitlab_chart_version }}"
       values: "{{ _values_yaml | from_yaml }}"
