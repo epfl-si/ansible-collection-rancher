@@ -2,6 +2,7 @@ storage_nfs_share: "{{ _storage_nfs_shares_by_inventory_deployment_stage[invento
 
 _storage_nfs_shares_by_inventory_deployment_stage:
    prod:
+     # As seen in https://portal-xaas-its.epfl.ch/automation/#/service/catalog/consume/deployment/9128e1e8-099f-458a-854a-22f2c1881af2
      server: nas-app-ma-nfs2.epfl.ch
-     path: /svc1160_gitlab_test_app/nfs-storageclass
-     xaas_name: svc1160_gitlab_test_app
+     path: "/svc1160_gitlab_subdir_provisioner_app"
+     xaas_name: gitlab_subdir_provisioner
