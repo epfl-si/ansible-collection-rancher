@@ -12,5 +12,5 @@ clickhouse_chart_version: 24.1.14
 signoz_chart_version: 0.66.0
 k8s_infra_chart_version: 0.12.1
 gitlab_runner_chart_version: 0.75.1
-gitlab_chart_version: 8.10.4
+gitlab_chart_version: 9.1.2
 openproject_chart_version: 9.5.0
