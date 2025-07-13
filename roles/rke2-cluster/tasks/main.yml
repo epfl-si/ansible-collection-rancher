@@ -49,3 +49,13 @@
   tags:
     - rke2
     - rke2.monitoring
+
+- include_tasks:
+    file: upgrades.yml
+    apply:
+      tags:
+        - rke2
+        - rke2.upgrades
+  tags:
+    - rke2
+    - rke2.upgrades
