@@ -163,7 +163,8 @@
         certsSecretName: gitlab-next-tls
 
 
-# This is called after the gitlab helm chart deployment because gitaly needs gitlab-registry-notification secret to be already generated
+# This comes after the gitlab helm chart deployment, because gitaly
+# consumes the gitlab-registry-notification secret:
 - name: 'Deploy "public" gitaly chart inside `{{ gitlab_namespace }}` namespace'
   epfl_si.rancher.rancher_helm_chart:
       repository: gitlab
@@ -265,7 +266,7 @@
             enabled: true
             storageClass: "-"   # Meaning, no auto-provisioning
 
-- name: "Waiting {{ gitlab_hostname }} up"
+- name: "Wait for {{ gitlab_hostname }} to come up"
   changed_when: false
   shell:
     cmd: |
