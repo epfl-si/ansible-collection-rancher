@@ -179,6 +179,14 @@
             secret: gitlab-gitaly-secret
             key: token
 
+        # Disable services we don't want
+        minio:
+          enabled: false
+        kas:
+          enabled: false
+        registry:
+          enabled: false
+
       gitlab:
         toolbox:
           backups:
