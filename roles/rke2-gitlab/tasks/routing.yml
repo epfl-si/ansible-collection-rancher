@@ -39,3 +39,30 @@
             port: 443
             targetPort: websecure
             protocol: TCP
+
+- name: "Additional configuration for `rke2-traefik` Helm chart"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: helm.cattle.io/v1
+      kind: HelmChartConfig
+      metadata:
+        name: rke2-traefik
+        namespace: kube-system
+      spec:
+        valuesContent: |
+          entryPoints:
+            web:
+              address: ":80"
+            websecure:
+              address: ":443"
+            gitlab-shell:
+              address: ":22"
+          additionalArguments:
+            # Accept connections on port 22:
+            - --entryPoints.gitlab-shell.address=:22
+            # Make dashboard visible to people who port-forward 8080:
+            - --api.insecure
+            # Not shown here: all `Ingress` objects (and `Ingress`-ish
+            # objects, such as the `IngressRouteTCP` object for port
+            # 22) must have an `kubernetes.io/ingress.class: traefik`
+            # annotation set.
