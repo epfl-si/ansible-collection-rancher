@@ -1,5 +1,6 @@
 from functools import cached_property
 
+import time
 import yaml
 
 from ansible.plugins.action import ActionBase
@@ -70,7 +71,7 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
         # whereas pretty much everything else is called in-process
         # from the Ansible manager through rancher_model. Oh well, if
         # it works don't touch it 🤷
-        self.change(
+        self._await_cattle_operation(self.change(
             "epfl_si.k8s.k8s_api_call",
             {
                 "kubeconfig": self.kubeconfig,
@@ -100,10 +101,37 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
                     "timeout": self.timeout
                 }
             }
-        )
+        ))
+
+    def _await_cattle_operation (self, api_call_result):
+        def ansible_fail (message):
+            self.result["failed"] = True
+            self.result["msg"] = message
+
+        api_response = api_call_result["api_response"]
+        api_response_type = api_response["type"]
+        if not (api_response_type == "chartActionOutput"):
+            return ansible_fail(f"Unexpected API response type: {api_response_type}")
+
+        op_name = api_response["operationName"]
+        op_ns = api_response["operationNamespace"]
+
+        operation_done = False
+        while not operation_done:
+            operation = self.ansible_api.jinja.lookup(
+                "epfl_si.k8s.k8s", api_version="catalog.cattle.io/v1", kind="Operation",
+                resource_name=op_name, namespace=op_ns)
+
+            for condition in operation["status"]["conditions"]:
+                if condition["status"] == "False" and condition["type"] == "Reconciling":
+                    operation_done = True
+                if condition["status"] == "True" and condition["type"] == "Stalled":
+                    message = condition["message"]
+                    last_update_time = condition["lastUpdateTime"]
+                    return ansible_fail(f"Operation {op_name} in namespace {op_ns} stalled: {message} (at {last_update_time})")
 
     def _do_uninstall_helm_chart (self):
-        self.change(
+        self._await_cattle_oeration(self.change(
             "epfl_si.k8s.k8s_api_call",
             {
                 "kubeconfig": self.kubeconfig,
@@ -111,7 +139,7 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
                 "uri": f"/v1/catalog.cattle.io.apps/{self.install_namespace}/{self.chart_name}?action=uninstall",
                 "body": {}
             }
-        )
+        ))
 
     @cached_property
     def _helm_info (self):
