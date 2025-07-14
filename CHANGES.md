@@ -1,3 +1,7 @@
+# Version 0.8.2: bugfix release
+
+- `epfl_si.rancher.rancher_helm_chart`: wait for (un)installs to actually complete; detect and report failures
+
 # Version 0.8.1: bugfix release
 
 - Create `etc/rancher/rke2/config.yaml.d/` before attempting to create a configuration file with it
