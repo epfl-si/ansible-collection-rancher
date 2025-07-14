@@ -53,4 +53,7 @@ all:
                 # using the old-school “day-2” action on the VM. If
                 # you wanted DNS with that, you had to order it
                 # separately; see https://go.epfl.ch/INC0661613
-                - gitlab.epfl.ch
+                - name: gitlab.epfl.ch
+                  ## Uncomment if necessary (e.g. in the middle of a DNS rollover):
+                  #ipv4: 128.178.219.3
+                  #ipv6: 2001:620:618:1da:7:80b2:db03:1
