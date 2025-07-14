@@ -131,7 +131,7 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
                     return ansible_fail(f"Operation {op_name} in namespace {op_ns} stalled: {message} (at {last_update_time})")
 
     def _do_uninstall_helm_chart (self):
-        self._await_cattle_oeration(self.change(
+        self.change(
             "epfl_si.k8s.k8s_api_call",
             {
                 "kubeconfig": self.kubeconfig,
@@ -139,7 +139,7 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
                 "uri": f"/v1/catalog.cattle.io.apps/{self.install_namespace}/{self.chart_name}?action=uninstall",
                 "body": {}
             }
-        ))
+        )
 
     @cached_property
     def _helm_info (self):
