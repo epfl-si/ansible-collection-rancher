@@ -93,6 +93,29 @@
           namespace: "{{ gitlab_namespace }}"
           name: repo-data-gitaly-epfl-public-gitaly-0
 
+- name: "Secret/gitlab-backups"
+  epfl_si.k8s.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: gitlab-backups
+        namespace: "{{ gitlab_namespace }}"
+      type: Opaque
+      stringData:
+        # Documentation: https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/objectstorage/rails.s3.yaml
+        config: |
+          provider: AWS
+          # Specify the region
+          region: us-east-1
+          # Specify access/secret keys
+          aws_access_key_id: {{ gitlab_credentials.s3_backups.access_key_id
+                                | eyaml(gitlab_credentials.eyaml_keys) }}
+          aws_secret_access_key: {{ gitlab_credentials.s3_backups.secret_access_key
+                                | eyaml(gitlab_credentials.eyaml_keys) }}
+          endpoint: {{ gitlab_credentials.s3_backups.url }}
+
 - name: "Deploy gitlab chart inside `{{ gitlab_namespace }}` namespace"
   epfl_si.rancher.rancher_helm_chart:
       repository: gitlab
@@ -136,6 +159,9 @@
           {{ storage_modality }}:
             enabled: false
       {% endfor %}
+          backups:
+            bucket: {{ gitlab_credentials.s3_backups.bucket_name }}
+            # See also gitlab.toolbox.backups.objectStorage, below
 
         extraEnv:
           GITLAB_LOG_LEVEL: "error"
@@ -152,6 +178,15 @@
           authToken:
             secret: gitlab-gitaly-secret
             key: token
+
+      gitlab:
+        toolbox:
+          backups:
+            objectStorage:
+              backend: s3
+              config:
+                secret: gitlab-backups
+                key: config
 
       # Disable cert-manager because managing certificates ourselves
       certmanager:
