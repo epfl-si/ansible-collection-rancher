@@ -2,7 +2,6 @@
   include_vars: "{{ item }}"
   with_items:
     - openid-secrets.yml
-    - gitlab-credentials.yml
     - ../../../vars/versions.yml
 
 - tags: always
