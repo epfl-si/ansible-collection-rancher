@@ -307,6 +307,8 @@
           enabled: false
         gitlab-shell:
           enabled: false
+        gitlab-exporter:
+          enabled: false
         praefect:
           enabled: false
         exporter:
