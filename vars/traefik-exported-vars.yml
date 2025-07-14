@@ -1,3 +1,0 @@
-# Rendezvous points for Traefik
-
-traefik_dynamic_config_dir: /srv/gitlab/config/traefik/dynamic

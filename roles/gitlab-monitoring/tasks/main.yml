@@ -1,2 +1,0 @@
-- import_tasks: gitlab-monitoring-tasks.yml
-  tags: monitoring
