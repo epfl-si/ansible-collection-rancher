@@ -132,6 +132,10 @@
             providers:
               - secret: gitlab-epfl-provider
               - secret: gitlab-guest-provider
+      {% for storage_modality in ["artifacts", "lfs", "uploads", "packages"] %}
+          {{ storage_modality }}:
+            enabled: false
+      {% endfor %}
 
         extraEnv:
           GITLAB_LOG_LEVEL: "error"
