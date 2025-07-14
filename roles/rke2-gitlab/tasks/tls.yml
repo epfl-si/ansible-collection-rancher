@@ -9,11 +9,11 @@
       apiVersion: v1
       kind: Secret
       metadata:
-        name: gitlab-next-tls
+        name: gitlab-tls
         namespace: gitlab
       stringData:
         tls.key: "{{ gitlab_tls_private_key }}"
-        tls.crt: "{{ tls_credentials.gitlab_next.certificate }}"
+        tls.crt: "{{ tls_credentials.gitlab.certificate }}"
 
 - name: "TLS Certificate Signing Request (CSR)"
   delegate_to: localhost
@@ -22,7 +22,7 @@
     - gitlab.tls.csr
   run_once: true
   community.crypto.openssl_csr:
-    path: "{{ playbook_dir }}/gitlab-next.csr"
+    path: "{{ playbook_dir }}/gitlab.csr"
     privatekey_content: "{{ gitlab_tls_private_key }}"
     common_name: "{{ gitlab_hostname }}"
     subject_alt_name: 'DNS:{{ gitlab_hostname }}'
@@ -32,7 +32,7 @@
   when: (_csr | default({})) is changed
   ansible.builtin.pause:
     prompt: |
-      🛑 {{ playbook_dir }}/gitlab-next.csr generated; please create
+      🛑 {{ playbook_dir }}/gitlab.csr generated; please create
       the {{ gitlab_hostname }} certificate at your favorite CA.
 
       Instructions for the EPFL CA are available at https://rauth.epfl.ch/

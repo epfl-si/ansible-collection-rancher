@@ -4,13 +4,13 @@
       ipFamily: "IPv4"
       vip: >-
         {{ lookup("community.general.dig", gitlab_hostname) }}
-      pool: gitlab-next
+      pool: gitlab
     - name: gitlab-ingress-ipv6
       ipFamily: "IPv6"
       vip: >-
         {{ lookup("community.general.dig", gitlab_hostname,
         qtype="AAAA") }}
-      pool: gitlab-next
+      pool: gitlab
   epfl_si.k8s.k8s:
     definition:
       apiVersion: v1

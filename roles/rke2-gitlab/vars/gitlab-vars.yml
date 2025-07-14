@@ -1,7 +1,7 @@
 gitlab_namespace: gitlab
-gitlab_hostname: gitlab-next.epfl.ch
+gitlab_hostname: gitlab.epfl.ch
 gitlab_tls_private_key: >-
-  {{ tls_credentials.gitlab_next.key
+  {{ tls_credentials.gitlab.key
           | eyaml(tls_credentials.eyaml_keys) }}
 
 # This is actually only a guess, as the actual allocation takes place in portal-XaaS:

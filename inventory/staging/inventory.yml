@@ -53,4 +53,4 @@ all:
                 # using the old-school “day-2” action on the VM. If
                 # you wanted DNS with that, you had to order it
                 # separately; see https://go.epfl.ch/INC0661613
-                - gitlab-next.epfl.ch
+                - gitlab.epfl.ch

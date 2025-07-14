@@ -142,7 +142,7 @@
           class: traefik
           configureCertmanager: false
           tls:
-            secretName: gitlab-next-tls
+            secretName: gitlab-tls
 
         # Documentation: https://docs.gitlab.com/integration/omniauth/#configure-common-settings
         appConfig:
@@ -212,7 +212,7 @@
 
       gitlab-runner:
         install: false
-        certsSecretName: gitlab-next-tls
+        certsSecretName: gitlab-tls
 
 
 # This comes after the gitlab helm chart deployment, because gitaly
@@ -249,7 +249,7 @@
         certificates:
           enabled: true
           customCAs:
-            - secret: gitlab-next-tls
+            - secret: gitlab-tls
 
         appConfig:
           object_store:
