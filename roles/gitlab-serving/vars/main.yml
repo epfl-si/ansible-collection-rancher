@@ -1,8 +1,0 @@
-gitlab_image_name: "epflisasfsd/gitlab-docker:{{ gitlab_version }}"
-environment_name: >-
-  {{ "prod" if inventory_hostname == "gitlabprod"
-     else "staging" }}
-
-serving_config_dir: "/srv/gitlab/config/{{ inventory_hostname }}"
-
-socket_suffix: "-{{ environment_name }}"

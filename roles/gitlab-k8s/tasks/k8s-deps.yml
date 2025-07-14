@@ -1,9 +1,0 @@
-# Install the far-side Python stuff that community.kubernetes wants.
-
-- apt:
-    name: python3-pip
-
-- pip:
-    name:
-    - PyYAML
-    - kubernetes >= 12.0.0

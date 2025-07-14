@@ -1,8 +1,0 @@
-serving_hostname: >-
-  {{ gitlab_docker_prod_hostname if inventory_hostname == "gitlabprod"
-     else inventory_hostname }}
-
-serving_gitlab_rb_config_path: "{{ serving_config_dir }}/gitlab/gitlab.rb"
-serving_gitlab_secrets_dir: /srv/gitlab/secrets/{{ inventory_hostname }}
-serving_gitlab_ssh_secrets_dir: "{{ serving_gitlab_secrets_dir }}/ssh"
-serving_gitlab_json_secrets_file: "{{ serving_gitlab_secrets_dir }}/gitlab-secrets.json"

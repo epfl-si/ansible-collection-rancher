@@ -1,6 +1,0 @@
-- include_vars: k8s-vars.yml
-  tags: always
-
-- include_tasks:
-    file: k8s-tasks.yml
-  tags: always  # Tag micromanagement is done inside k8s-tasks.yml
