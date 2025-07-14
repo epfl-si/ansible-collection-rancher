@@ -272,8 +272,11 @@
             enabled: true
             existingClaim: gitlab-postgresql-pvc
 
+        # Loop back to the services in the other chart
         redis:
           host: gitlab-redis-master
+        workhorse:
+          host: gitlab-webservice-default
 
         # Disable non gitaly-related services
         minio:
