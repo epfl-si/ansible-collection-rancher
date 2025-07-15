@@ -7,8 +7,9 @@ DOCUMENTATION = r'''
 module: rancher_login
 short_description: Log in to Rancher
 description:
-- This module is implemented entirely as an B(action plugin), that
-  runs on the Ansible controller.
+- This module is implemented as an B(action plugin), meaning that it
+  runs on the Ansible controller (*not* over any remote shell,
+  regardless of `ansible_connection` etc. settings)
 
 - This action plugin retrieves Kubernetes-style credentials (i.e.
   C(kubeconfig) files) from the Rancher back-end. It B(does not)

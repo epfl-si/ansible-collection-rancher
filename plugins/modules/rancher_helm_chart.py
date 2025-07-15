@@ -7,8 +7,9 @@ DOCUMENTATION = r'''
 module: rancher_helm_chart
 short_description: Install a Helm package through the Rancher manager
 description:
-- This module is implemented entirely as an B(action plugin), that
-  runs on the Ansible controller.
+- This module is implemented as an B(action plugin), meaning that it
+  runs on the Ansible controller (*not* over any remote shell,
+  regardless of `ansible_connection` etc. settings)
 
 - This action plugin exercises Rancher's Helm-as-a-service feature
   like a human operator would, when clicking their way through Charts
