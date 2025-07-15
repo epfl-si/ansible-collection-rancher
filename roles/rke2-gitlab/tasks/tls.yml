@@ -10,7 +10,7 @@
       kind: Secret
       metadata:
         name: gitlab-tls
-        namespace: gitlab
+        namespace: "{{ gitlab_namespace }}"
       stringData:
         tls.key: "{{ gitlab_tls_private_key }}"
         tls.crt: |
