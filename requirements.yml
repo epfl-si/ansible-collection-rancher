@@ -1,6 +1,5 @@
 collections:
   - name: community.general
-  - name: kubernetes.core
   - name: epfl_si.k8s
   - name: epfl_si.rancher
     version: ">=0.8.0"
