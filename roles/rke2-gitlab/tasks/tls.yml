@@ -1,4 +1,7 @@
 - tags: always
+  include_vars: gitlab-vars.yml
+
+- tags: always
   include_vars:
     name: tls_credentials
     file: tls-credentials.yml
@@ -42,3 +45,42 @@
       Once you're done, please put the certificate into
       {{ playbook_dir }}/roles/rke2-gitlab/vars/tls-credentials.yml
       and run `gitsible` again.
+
+- name: "Redirect HTTP to HTTP/S: Træfik middleware"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: traefik.io/v1alpha1
+      kind: Middleware
+      metadata:
+        name: redirect-to-https
+        namespace: "{{ gitlab_namespace }}"
+        annotations:
+          kubernetes.io/ingress.class: traefik
+      spec:
+        redirectScheme:
+          scheme: https
+          permanent: true
+
+- name: "Redirect HTTP to HTTP/S: Træfik route"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: traefik.io/v1alpha1
+      kind: IngressRoute
+      metadata:
+        name: redirect-to-https
+        namespace: "{{ gitlab_namespace }}"
+        annotations:
+          kubernetes.io/ingress.class: traefik
+      spec:
+        entryPoints:
+          - web
+        routes:
+          - kind: Rule
+            priority: 50   # The one of the route created by the Ingress object is 42
+            match: "Host(`{{ gitlab_hostname }}`)"
+            services:
+              # This is not actually used, but Træfik whines if it's not there.
+              - name: gitlab-webservice-default
+                port: 8080
+            middlewares:
+              - name: redirect-to-https
