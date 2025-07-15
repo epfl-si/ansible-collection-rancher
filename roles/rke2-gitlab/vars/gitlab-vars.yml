@@ -21,7 +21,7 @@ gitlab_charts_common_values:
         extraEnv:
           GITLAB_LOG_LEVEL: error
 
-        # Services we don't want:
+        # Things we don't want:
         minio:
           enabled: false
         kas:
@@ -43,3 +43,7 @@ gitlab_charts_common_values:
         gitaly:
           authToken:
             secret: gitlab-gitaly-secret
+
+      # More things we don't want:
+      registry:
+        enabled: false
