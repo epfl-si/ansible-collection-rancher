@@ -99,7 +99,6 @@
           provider: traefik
           # Reference to the existing traefik IngressClass
           class: traefik
-          configureCertmanager: false
           tls:
             secretName: gitlab-tls
 

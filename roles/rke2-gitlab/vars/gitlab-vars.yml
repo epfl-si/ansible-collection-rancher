@@ -33,6 +33,8 @@ gitlab_charts_common_values:
           lfs:       { enabled: false }
           uploads:   { enabled: false }
           packages:  { enabled: false }
+        ingress:
+          configureCertmanager: false
 
         # These are the default values within the `gitlab` chart, but
         # both charts rendezvous through them so we want them set
@@ -45,5 +47,9 @@ gitlab_charts_common_values:
             secret: gitlab-gitaly-secret
 
       # More things we don't want:
+      certmanager:
+        install: false
+      certmanager-issuer:
+        install: false
       registry:
         enabled: false

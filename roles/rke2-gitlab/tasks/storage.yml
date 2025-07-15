@@ -79,6 +79,13 @@
           customCAs:
             - secret: gitlab-tls
 
+        # Just to prevent Gitaly from attempting to trust (= mount the
+        # certificates of) a nonexistent CA. 💡 `true` is not really
+        # a permitted value here in the general case, but hey — It
+        # works!
+        ingress:
+          tls: true
+
         appConfig:
           object_store:
             enabled: true
@@ -121,11 +128,6 @@
           enabled: false
 
       # Disable non gitaly-related services
-      certmanager:
-        install: false
-      certmanager-issuer:
-        install: false
-        email: "none@epfl.none"
       shared-secrets:
         enabled: false
       nginx-ingress:
