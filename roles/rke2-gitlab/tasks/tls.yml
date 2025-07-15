@@ -13,7 +13,9 @@
         namespace: gitlab
       stringData:
         tls.key: "{{ gitlab_tls_private_key }}"
-        tls.crt: "{{ tls_credentials.gitlab.certificate }}"
+        tls.crt: |
+          {{ tls_credentials.gitlab.certificate }}
+          {{ tls_credentials.digicert.operational_ca_certificate }}
 
 - name: "TLS Certificate Signing Request (CSR)"
   delegate_to: localhost
