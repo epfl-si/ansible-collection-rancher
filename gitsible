@@ -15,7 +15,7 @@
 # - https://www.ansible.com/overview/how-ansible-works
 # - https://github.com/jdauphant/awesome-ansible
 
-cd "$(dirname "$0")"; cd "$(/bin/pwd)"
+cd "$(cd "$(dirname "$0")" && /bin/pwd)"
 
 ansible_suitcase_dir () {
     echo $PWD/ansible-deps-cache
