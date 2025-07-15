@@ -37,14 +37,33 @@
     - gitlab.tls.csr
 
 - include_tasks:
-    file: k8s-gitlab.yml
+    file: serving.yml
     apply:
       tags:
         - gitlab
+        - gitlab.serving
         - gitlab.website
   tags:
     - gitlab
+    - gitlab.serving
+    - gitlab.serving.debug
     - gitlab.website
+
+# `storage` comes after `serving`, because the Gitaly Helm chart
+# consumes objects (such as `Secret/gitlab-registry-notification`)
+# managed by the GitLab one:
+- include_tasks:
+    file: storage.yml
+    apply:
+      tags:
+        - gitlab
+        - gitlab.storage
+        - gitlab.gitaly
+  tags:
+    - gitlab
+    - gitlab.storage
+    - gitlab.storage.debug
+    - gitlab.gitaly
 
 - include_tasks:
     file: k8s-runner.yml

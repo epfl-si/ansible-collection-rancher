@@ -6,3 +6,40 @@ gitlab_tls_private_key: >-
 
 # This is actually only a guess, as the actual allocation takes place in portal-XaaS:
 gitlab_repo_volume_size: 1Ti
+
+gitlab_charts_common_values:
+      # Documentation: https://docs.gitlab.com/charts/charts/globals/#configure-host-settings
+      global:
+        gitlabVersion: "{{ gitlab_version }}"
+        edition: ce
+        time_zone: "Europe/Zurich"
+        hosts:
+          domain: "{{ gitlab_hostname }}"
+          gitlab:
+            name: "{{ gitlab_hostname }}"
+
+        extraEnv:
+          GITLAB_LOG_LEVEL: error
+
+        # Services we don't want:
+        minio:
+          enabled: false
+        kas:
+          enabled: false
+        registry:
+          enabled: false
+        appConfig:
+          artifacts: { enabled: false }
+          lfs:       { enabled: false }
+          uploads:   { enabled: false }
+          packages:  { enabled: false }
+
+        # These are the default values within the `gitlab` chart, but
+        # both charts rendezvous through them so we want them set
+        # the same way on the Gitaly side:
+        shell:
+          authToken:
+            secret: gitlab-gitlab-shell-secret
+        gitaly:
+          authToken:
+            secret: gitlab-gitaly-secret

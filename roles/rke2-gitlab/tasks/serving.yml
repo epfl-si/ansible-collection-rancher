@@ -1,0 +1,229 @@
+# GitLab-the-Web-(and-ssh-)app (storage configured separately)
+
+- tags: always
+  include_vars: "{{ item }}"
+  with_items:
+    - gitlab-vars.yml
+    - openid-secrets.yml
+    - ../../../vars/versions.yml
+    - ../../vars/ssh-secrets.yml
+
+- tags: always
+  include_vars:
+    name: gitlab_credentials
+    file: gitlab-credentials.yml
+
+- name: "Secret/gitlab-epfl-provider (Entra)"
+  epfl_si.k8s.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: gitlab-epfl-provider
+        namespace: "{{ gitlab_namespace }}"
+      type: Opaque
+      data:
+        provider:
+          '{{ epfl_provider | to_nice_json | b64encode }}'
+
+- name: "Secret/gitlab-guest-provider (SWITCH EduID)"
+  epfl_si.k8s.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: gitlab-guest-provider
+        namespace: "{{ gitlab_namespace }}"
+      type: Opaque
+      data:
+        provider:
+          '{{ guest_provider | to_nice_json | b64encode }}'
+
+- name: "Secret/gitlab-gitlab-shell-host-keys"
+  epfl_si.k8s.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: gitlab-gitlab-shell-host-keys
+        namespace: "{{ gitlab_namespace }}"
+      type: Opaque
+      stringData:
+        ssh_host_rsa_key: >-
+          {{ ssh_secrets.ssh_host_rsa_key }}
+        ssh_host_dsa_key: >-
+          {{ ssh_secrets.ssh_host_dsa_key }}
+        ssh_host_ecdsa_key: >-
+          {{ ssh_secrets.ssh_host_ecdsa_key }}
+        ssh_host_ed25519_key: >-
+          {{ ssh_secrets.ssh_host_ed25519_key }}
+
+- name: "Secret/gitlab-backups"
+  epfl_si.k8s.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: gitlab-backups
+        namespace: "{{ gitlab_namespace }}"
+      type: Opaque
+      stringData:
+        # Documentation: https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/objectstorage/rails.s3.yaml
+        config: |
+          provider: AWS
+          # Specify the region
+          region: us-east-1
+          # Specify access/secret keys
+          aws_access_key_id:     {{ gitlab_credentials.s3_backups.access_key_id
+                                 | eyaml(gitlab_credentials.eyaml_keys) }}
+          aws_secret_access_key: {{ gitlab_credentials.s3_backups.secret_access_key
+                                 | eyaml(gitlab_credentials.eyaml_keys) }}
+          endpoint: {{ gitlab_credentials.s3_backups.url }}
+
+- tags: always
+  set_fact:
+    _gitlab_helm_values: >-
+      {{ _values_yaml | from_yaml
+      | combine(gitlab_charts_common_values, recursive=True)  }}
+  vars:
+    _values_yaml: |
+      # Documentation: https://docs.gitlab.com/charts/charts/globals/#configure-host-settings
+      global:
+        ingress:
+          # This takes care of port 22, as per https://docs.gitlab.com/charts/charts/traefik/
+          # except for that missing annotation (see Ansible task two tasks down below):
+          provider: traefik
+          # Reference to the existing traefik IngressClass
+          class: traefik
+          configureCertmanager: false
+          tls:
+            secretName: gitlab-tls
+
+        # Documentation: https://docs.gitlab.com/integration/omniauth/#configure-common-settings
+        appConfig:
+          omniauth:
+            enabled: true
+            allowSingleSignOn: ['oidc_entra_epfl', 'oidc_switch_edu_id_guest']
+            blockAutoCreatedUsers: false
+            autoLinkUser: ['oidc_entra_epfl', 'oidc_switch_edu_id_guest']
+            syncProfileFromProvider: ['oidc_entra_epfl', 'oidc_switch_edu_id_guest']
+            syncProfileAttributes: ['name', 'email']
+            externalProviders: ['oidc_switch_edu_id_guest']
+            providers:
+              - secret: gitlab-epfl-provider
+              - secret: gitlab-guest-provider
+          backups:
+            bucket: {{ gitlab_credentials.s3_backups.bucket_name }}
+            # See also gitlab.toolbox.backups.objectStorage, below
+
+          shell:
+            authToken:
+              secret: gitlab-gitlab-shell-secret
+              key: secret
+            hostKeys:
+              secret: gitlab-gitlab-shell-host-keys
+
+        extraEnv:
+          # Force redeploy on secret change. Chart currently does not support pod annotation
+          CHECKSUM_EPFL_PROVIDER: "{{ epfl_provider | checksum }}"
+          CHECKSUM_GUEST_PROVIDER: "{{ guest_provider | checksum }}"
+
+        # Use external gitaly
+        gitaly:
+          enabled: false
+          external:
+            - name: default
+              hostname: gitaly-epfl-public-gitaly
+          authToken:
+            secret: gitlab-gitaly-secret
+            key: token
+
+      gitlab:
+        toolbox:
+          backups:
+            objectStorage:
+              backend: s3
+              config:
+                secret: gitlab-backups
+                key: config
+
+      # Disable cert-manager because we manage certificates ourselves
+      certmanager:
+        install: false
+
+      postgresql:
+        image:
+          tag: "17"
+
+      # Do not create / manage an IngressClass
+      nginx-ingress:
+        enabled: false
+
+      gitlab-runner:
+        install: false
+        certsSecretName: gitlab-tls
+
+# Pass `-t gitlab.serving.debug` to perform dry-run testing with e.g.
+#
+#   ```
+#   helm diff upgrade --values gitlab-values.yaml \
+#       -n gitlab gitlab gitlab/gitlab
+#   ```
+- tags: gitlab.serving.debug
+  when: >-
+    "gitlab.serving.debug" in ansible_run_tags
+  delegate_to: localhost
+  copy:
+    dest: gitlab-values.yaml
+    content: "{{ _gitlab_helm_values | to_nice_yaml }}"
+
+- name: "GitLab Helm chart in `{{ gitlab_namespace }}` namespace"
+  epfl_si.rancher.rancher_helm_chart:
+      repository: gitlab
+      chart: gitlab
+      namespace: "{{ gitlab_namespace }}"
+      version: "{{ gitlab_chart_version }}"
+      values: "{{ _gitlab_helm_values }}"
+
+# TODO: is Helm's `patchesStrategicMerge` business available through
+# Rancher's Steve API? If so, we should merge this task with the one
+# above.
+- name: "Annotate (Helm-managed) `IngressRouteTCP` object, so that rke2-traefik sees it"
+  # ... because the Helm chart unfortunately cannot do that on its own.
+  epfl_si.k8s.k8s:
+    api_version: traefik.io/v1alpha1
+    kind: IngressRouteTCP
+    namespace: "{{ gitlab_namespace }}"
+    name:  gitlab-gitlab-shell
+    state: patched
+    merge_type: merge
+    definition:
+      metadata:
+        annotations:
+          kubernetes.io/ingress.class: traefik
+
+- name: "Wait for {{ gitlab_hostname }} to come up"
+  changed_when: false
+  shell:
+    cmd: |
+      curl -s https://{{ gitlab_hostname }}
+  register: _curl_gitlab
+  until: >
+    ansible_check_mode or ("/users/sign_in" in _curl_gitlab.stdout)
+  retries: 30
+  delay: 10
+
+# Available settings : https://docs.gitlab.com/api/settings/#available-settings
+- name: "Disable gitlab signup and password login"
+  shell:
+    cmd: |
+      curl -s --request PUT \
+      --header "PRIVATE-TOKEN: {{ gitlab_credentials.api_token | eyaml(gitlab_credentials.eyaml_keys) }}" \
+      --url "https://{{ gitlab_hostname }}/api/v4/application/settings\
+      ?signup_enabled=false\
+      &password_authentication_enabled_for_web=false\
+      &password_authentication_enabled_for_git=false"
