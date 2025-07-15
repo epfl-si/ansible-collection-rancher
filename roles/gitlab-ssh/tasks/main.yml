@@ -1,3 +1,0 @@
-- import_tasks: gitlab-ssh-tasks.yml
-  tags:
-    - gitlab-ssh

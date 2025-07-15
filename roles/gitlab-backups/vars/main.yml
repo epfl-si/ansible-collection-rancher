@@ -1,2 +1,0 @@
-backup_crontab: /etc/cron.daily/gitlab
-backup_logrotate_conf: /etc/logrotate.d/gitlab
