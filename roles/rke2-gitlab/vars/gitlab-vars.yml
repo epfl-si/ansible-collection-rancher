@@ -31,7 +31,6 @@ gitlab_charts_common_values:
         appConfig:
           artifacts: { enabled: false }
           lfs:       { enabled: false }
-          uploads:   { enabled: false }
           packages:  { enabled: false }
         ingress:
           configureCertmanager: false

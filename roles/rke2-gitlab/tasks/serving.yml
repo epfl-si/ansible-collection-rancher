@@ -84,6 +84,33 @@
                                  | eyaml(gitlab_credentials.eyaml_keys) }}
           endpoint: {{ gitlab_credentials.s3_backups.url }}
 
+- name: "Secret/gitlab-s3-assets"
+  epfl_si.k8s.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: gitlab-s3-assets
+        namespace: "{{ gitlab_namespace }}"
+      type: Opaque
+      stringData:
+        # Documentation: https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/objectstorage/rails.s3.yaml
+        uploads: |
+          {{ _scality_blah }}
+          aws_access_key_id:     "{{ _s3.uploads.read_write_access_key_id
+                                  | eyaml(_keys) }}"
+          aws_secret_access_key: "{{ _s3.uploads.read_write_secret_access_key
+                                  | eyaml(_keys) }}"
+  vars:
+    _scality_blah: |
+      provider: AWS
+      region: us-east-1
+      endpoint: "{{ gitlab_credentials.s3_backups.url }}"
+      path_style: true
+    _s3: "{{ gitlab_credentials.s3_storage }}"
+    _keys: "{{ gitlab_credentials.eyaml_keys }}"
+
 - tags: always
   set_fact:
     _gitlab_helm_values: >-
@@ -118,6 +145,12 @@
           backups:
             bucket: {{ gitlab_credentials.s3_backups.bucket_name }}
             # See also gitlab.toolbox.backups.objectStorage, below
+
+          uploads:
+            bucket: "{{ _s3.uploads.bucket }}"
+            connection:
+              secret: gitlab-s3-assets
+              key: uploads
 
           shell:
             authToken:
@@ -165,6 +198,7 @@
       gitlab-runner:
         install: false
         certsSecretName: gitlab-tls
+    _s3: "{{ gitlab_credentials.s3_storage }}"
 
 # Pass `-t gitlab.serving.debug` to perform dry-run testing with e.g.
 #
