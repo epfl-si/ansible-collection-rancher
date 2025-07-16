@@ -102,6 +102,12 @@
                                   | eyaml(_keys) }}"
           aws_secret_access_key: "{{ _s3.uploads.read_write_secret_access_key
                                   | eyaml(_keys) }}"
+        artifacts: |
+          {{ _scality_blah }}
+          aws_access_key_id:     "{{ _s3.artifacts.read_write_access_key_id
+                                  | eyaml(_keys) }}"
+          aws_secret_access_key: "{{ _s3.artifacts.read_write_secret_access_key
+                                  | eyaml(_keys) }}"
   vars:
     _scality_blah: |
       provider: AWS
@@ -145,6 +151,12 @@
           backups:
             bucket: {{ gitlab_credentials.s3_backups.bucket_name }}
             # See also gitlab.toolbox.backups.objectStorage, below
+
+          artifacts:
+            bucket: "{{ _s3.artifacts.bucket }}"
+            connection:
+              secret: gitlab-s3-assets
+              key: artifacts
 
           uploads:
             bucket: "{{ _s3.uploads.bucket }}"

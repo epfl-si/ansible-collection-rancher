@@ -29,7 +29,6 @@ gitlab_charts_common_values:
         registry:
           enabled: false
         appConfig:
-          artifacts: { enabled: false }
           lfs:       { enabled: false }
           packages:  { enabled: false }
         ingress:
