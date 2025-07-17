@@ -14,6 +14,7 @@
     file: gitlab-credentials.yml
 
 - name: "Secret/gitlab-epfl-provider (Entra)"
+  register: _secret_entra_provider
   epfl_si.k8s.k8s:
     state: present
     definition:
@@ -28,6 +29,7 @@
           '{{ epfl_provider | to_nice_json | b64encode }}'
 
 - name: "Secret/gitlab-guest-provider (SWITCH EduID)"
+  register: _secret_eduid_provider
   epfl_si.k8s.k8s:
     state: present
     definition:
@@ -42,6 +44,7 @@
           '{{ guest_provider | to_nice_json | b64encode }}'
 
 - name: "Secret/gitlab-gitlab-shell-host-keys"
+  register: _secret_shell_host_keys
   epfl_si.k8s.k8s:
     state: present
     definition:
@@ -62,6 +65,7 @@
           {{ ssh_secrets.ssh_host_ed25519_key }}
 
 - name: "Secret/gitlab-backups"
+  register: _secret_backups
   epfl_si.k8s.k8s:
     state: present
     definition:
@@ -85,6 +89,7 @@
           endpoint: {{ gitlab_credentials.s3_backups.url }}
 
 - name: "Secret/gitlab-s3-assets"
+  register: _secret_s3_assets
   epfl_si.k8s.k8s:
     state: present
     definition:
@@ -178,9 +183,13 @@
               secret: gitlab-gitlab-shell-host-keys
 
         extraEnv:
-          # Force redeploy on secret change. Chart currently does not support pod annotation
-          CHECKSUM_EPFL_PROVIDER: "{{ epfl_provider | checksum }}"
-          CHECKSUM_GUEST_PROVIDER: "{{ guest_provider | checksum }}"
+          {% if ( _secret_entra_provider  | default({}) )  is changed
+             or ( _secret_eduid_provider  | default({}) )  is changed
+             or ( _secret_backups  | default({}) )         is changed
+             or ( _secret_shell_host_keys  | default({}) ) is changed
+             or ( _secret_s3_assets  | default({}) )       is changed %}
+          MC_HAMMER: "U can touch this {{ now() }}"
+          {% endif %}
 
         # Use external gitaly
         gitaly:
