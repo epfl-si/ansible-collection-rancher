@@ -58,6 +58,11 @@ options:
                      in the "System" C(Project.management.cattle.io),
                      which makes it appear as a system namespace in the
                      Rancher UI. Has no effect if O(namespace.owned) is false.
+  force_redeploy:
+    type: bool
+     default: false
+     description: If true, tell Rancher to redeploy the Helm chart even if it
+                  looks like its values are not being changed.
 
   version:
     required: true

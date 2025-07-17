@@ -31,6 +31,7 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
         self.release_name = args.get("release", self.chart_name)
         self.source_repository = args.get("repository", self.chart_name)
         self.timeout = args.get("timeout", "600s")
+        self.force_redeploy = args.get("force_redeploy", False)
 
         namespace = args["namespace"]
         if isinstance(namespace, str):
@@ -59,7 +60,8 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
         if not self._helm_chart_is_installed:
             self._do_helm_chart(helm_version, helm_values, "install")
         elif ( (desired_chart_name_and_version != self._current_chart_name_and_version)
-               or not is_substruct(helm_values, self._current_helm_values) ):
+               or (not is_substruct(helm_values, self._current_helm_values))
+               or self.force_redeploy ):
             self._do_helm_chart(helm_version, helm_values, "upgrade")
 
     def _do_helm_chart (self, helm_version, helm_values, action):
@@ -98,7 +100,8 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
                         }
                     ],
                     "wait": True,
-                    "timeout": self.timeout
+                    "timeout": self.timeout,
+                    "force": self.force_redeploy and action == "upgrade"
                 }
             }
         ))

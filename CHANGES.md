@@ -1,3 +1,7 @@
+# Version 0.8.3: feature release
+
+- New `force_redeploy` argument to `epfl_si.rancher.rancher_helm_chart` action plugin
+
 # Version 0.8.2: bugfix release
 
 - `epfl_si.rancher.rancher_helm_chart`: wait for (un)installs to actually complete; detect and report failures
