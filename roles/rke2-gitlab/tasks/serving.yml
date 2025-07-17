@@ -108,6 +108,12 @@
                                   | eyaml(_keys) }}"
           aws_secret_access_key: "{{ _s3.artifacts.read_write_secret_access_key
                                   | eyaml(_keys) }}"
+        packages: |
+          {{ _scality_blah }}
+          aws_access_key_id:     "{{ _s3.packages.read_write_access_key_id
+                                  | eyaml(_keys) }}"
+          aws_secret_access_key: "{{ _s3.packages.read_write_secret_access_key
+                                  | eyaml(_keys) }}"
   vars:
     _scality_blah: |
       provider: AWS
