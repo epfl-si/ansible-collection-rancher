@@ -146,9 +146,6 @@
       # Documentation: https://docs.gitlab.com/charts/charts/globals/#configure-host-settings
       global:
         ingress:
-          # This takes care of port 22, as per https://docs.gitlab.com/charts/charts/traefik/
-          # except for that missing annotation (see Ansible task two tasks down below):
-          provider: traefik
           # Reference to the existing traefik IngressClass
           class: traefik
           tls:
@@ -256,23 +253,6 @@
       namespace: "{{ gitlab_namespace }}"
       version: "{{ gitlab_chart_version }}"
       values: "{{ _gitlab_helm_values }}"
-
-# TODO: is Helm's `patchesStrategicMerge` business available through
-# Rancher's Steve API? If so, we should merge this task with the one
-# above.
-- name: "Annotate (Helm-managed) `IngressRouteTCP` object, so that rke2-traefik sees it"
-  # ... because the Helm chart unfortunately cannot do that on its own.
-  epfl_si.k8s.k8s:
-    api_version: traefik.io/v1alpha1
-    kind: IngressRouteTCP
-    namespace: "{{ gitlab_namespace }}"
-    name:  gitlab-gitlab-shell
-    state: patched
-    merge_type: merge
-    definition:
-      metadata:
-        annotations:
-          kubernetes.io/ingress.class: traefik
 
 - name: "Wait for {{ gitlab_hostname }} to come up"
   changed_when: false
