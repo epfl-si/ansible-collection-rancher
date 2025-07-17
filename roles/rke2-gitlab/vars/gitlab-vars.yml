@@ -7,6 +7,8 @@ gitlab_tls_private_key: >-
 # This is actually only a guess, as the actual allocation takes place in portal-XaaS:
 gitlab_repo_volume_size: 1Ti
 
+gitlab_email_sender_address: gitlab-noreply@epfl.ch
+
 gitlab_charts_common_values:
       # Documentation: https://docs.gitlab.com/charts/charts/globals/#configure-host-settings
       global:
@@ -17,6 +19,15 @@ gitlab_charts_common_values:
           domain: "{{ gitlab_hostname }}"
           gitlab:
             name: "{{ gitlab_hostname }}"
+
+        email:
+          from: "{{ gitlab_email_sender_address }}"
+          reply_to: "{{ gitlab_email_sender_address }}"
+        smtp:
+          enabled: true
+          address: mail.epfl.ch
+          port: 25
+          authentication: ""
 
         extraEnv:
           GITLAB_LOG_LEVEL: error
