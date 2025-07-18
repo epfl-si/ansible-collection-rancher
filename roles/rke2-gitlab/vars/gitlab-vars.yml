@@ -30,7 +30,6 @@ gitlab_charts_common_values:
           enabled: false
         appConfig:
           lfs:       { enabled: false }
-          packages:  { enabled: false }
         ingress:
           configureCertmanager: false
 
