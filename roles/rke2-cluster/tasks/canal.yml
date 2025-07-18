@@ -1,0 +1,28 @@
+- name: "Patch Canal Helm chart to prevent IPv6-related CrashLoopBackoff's"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: helm.cattle.io/v1
+      kind: HelmChartConfig
+      metadata:
+        name: rke2-canal
+        namespace: kube-system
+      spec:
+        valuesContent: |
+          {{ _rke2_canal_existing_helm_values
+          | combine(_patch, recursive=True)
+          | to_yaml }}
+  vars:
+    _patch:
+     # Help the `kube-flannel` container to figure out which network
+     # interface is the main (external-facing) one. The golang gizmo
+     # within figures it out on its own for IPv4, but not for IPv6 🤷‍♂️
+     # and then it crashloops.
+      flannel:
+        regexIface: "{{ rke2_main_interface_name_regex }}"
+    _rke2_canal_existing_helm_chart_config: >-
+      {{ lookup("epfl_si.k8s.k8s", kind="HelmChartConfig",
+                namespace="kube-system",
+                resource_name="rke2-canal") }}
+    _rke2_canal_existing_helm_values: >-
+      {{ _rke2_canal_existing_helm_chart_config["spec"]["valuesContent"]
+        | from_yaml }}{# Or JSON. Whatever #}
