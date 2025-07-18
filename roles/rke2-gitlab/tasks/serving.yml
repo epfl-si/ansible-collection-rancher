@@ -215,6 +215,9 @@
       gitlab:
         toolbox:
           backups:
+            cron:
+              enabled: true
+              schedule: 38 */3 * * *
             objectStorage:
               backend: s3
               config:
