@@ -1,6 +1,6 @@
 # Note: gitlab_runner_alpine_version is from ../../../vars/versions.yml
 
-gitlab_ops_runner_namespace: gitlab-ops
+gitlab_build_namespace: gitlab-ops
 
 gitlab_runner_quay_organization: svc1160
 

@@ -1,7 +1,7 @@
 - tags: always
   include_vars: "{{ item }}"
   with_items:
-    - runner-vars.yml
+    - build-vars.yml
     - ../../../vars/versions.yml
 
 - tags: always
@@ -9,13 +9,13 @@
     name: runner_credentials
     file: runner-credentials.yml
 
-- name: "`namespace/{{ gitlab_ops_runner_namespace }}`"
+- name: "`namespace/{{ gitlab_build_namespace }}`"
   epfl_si.k8s.k8s:
     definition:
       apiVersion: v1
       kind: Namespace
       metadata:
-        name: '{{ gitlab_ops_runner_namespace }}'
+        name: '{{ gitlab_build_namespace }}'
 
 - name: "`secret/gitlab-registration-token`"
   epfl_si.k8s.k8s:
@@ -23,7 +23,7 @@
       apiVersion: v1
       kind: Secret
       metadata:
-        namespace: '{{ gitlab_ops_runner_namespace }}'
+        namespace: '{{ gitlab_build_namespace }}'
         name: gitlab-registration-token
       stringData:
         runner-registration-token: >-
@@ -36,7 +36,7 @@
       apiVersion: v1
       kind: Secret
       metadata:
-        namespace: '{{ gitlab_ops_runner_namespace }}'
+        namespace: '{{ gitlab_build_namespace }}'
         name: svc1160-builder
       type: kubernetes.io/dockerconfigjson
       stringData:
@@ -83,7 +83,7 @@
   epfl_si.rancher.rancher_helm_chart:
     repository: gitlab
     chart: gitlab-runner
-    namespace: "{{ gitlab_ops_runner_namespace }}"
+    namespace: "{{ gitlab_build_namespace }}"
     version: "{{ gitlab_runner_chart_version }}"
     values:
       gitlabUrl: https://gitlab.com

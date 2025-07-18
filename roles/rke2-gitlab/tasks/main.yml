@@ -1,6 +1,16 @@
 - include_vars: gitlab-vars.yml
   tags: always
 
+- include_tasks:
+    file: build.yml
+    apply:
+      tags:
+        - gitlab
+        - gitlab.build
+  tags:
+    - gitlab
+    - gitlab.build
+
 - name: "`namespace/{{ gitlab_namespace }}`"
   epfl_si.k8s.k8s:
     definition:
@@ -64,13 +74,3 @@
     - gitlab.storage
     - gitlab.storage.debug
     - gitlab.gitaly
-
-- include_tasks:
-    file: k8s-runner.yml
-    apply:
-      tags:
-        - gitlab
-        - gitlab.runner   # Obsolescent tag
-  tags:
-    - gitlab
-    - gitlab.runner   # Obsolescent tag
