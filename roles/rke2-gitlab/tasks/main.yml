@@ -59,11 +59,11 @@
     - gitlab.serving.debug
     - gitlab.website
 
-# `storage` comes after `serving`, because the Gitaly Helm chart
+# `gitaly` comes after `serving`, because the Gitaly Helm chart
 # consumes objects (such as `Secret/gitlab-registry-notification`)
 # managed by the GitLab one:
 - include_tasks:
-    file: storage.yml
+    file: gitaly.yml
     apply:
       tags:
         - gitlab
