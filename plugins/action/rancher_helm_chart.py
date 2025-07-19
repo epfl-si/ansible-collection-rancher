@@ -43,7 +43,9 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
         if desired_state == "present":
             if namespace_is_owned and not self._namespace_exists:
                 self._do_create_namespace(is_system=namespace.get("system", False))
-            self._maybe_install_or_upgrade_helm_chart(args["version"], args.get("values", {}))
+            self._maybe_install_or_upgrade_helm_chart(
+                args.get("version"),
+                args.get("values", {}))
         elif desired_state == "absent":
             if self._helm_chart_is_installed:
                 self._do_uninstall_helm_chart()
@@ -54,17 +56,15 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
 
         return self.result
 
-    def _maybe_install_or_upgrade_helm_chart (self, helm_version, helm_values):
-        desired_chart_name_and_version = f'{self.chart_name}-{helm_version}'
-
+    def _maybe_install_or_upgrade_helm_chart (self, helm_version=None, helm_values={}):
         if not self._helm_chart_is_installed:
-            self._do_helm_chart(helm_version, helm_values, "install")
-        elif ( (desired_chart_name_and_version != self._current_chart_name_and_version)
+            self._do_helm_chart("install", helm_version, helm_values)
+        elif ( (not self._is_already_installed(helm_version))
                or (not is_substruct(helm_values, self._current_helm_values))
                or self.force_redeploy ):
-            self._do_helm_chart(helm_version, helm_values, "upgrade")
+            self._do_helm_chart("upgrade", helm_version, helm_values)
 
-    def _do_helm_chart (self, helm_version, helm_values, action):
+    def _do_helm_chart (self, action, helm_version=None, helm_values={}):
         # This is a per-cluster Steve call, which doesn't work with
         # the same credentials as
         # ansible_collections.epfl_si.rancher.plugins.module_utils.rancher_model
@@ -157,9 +157,13 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
     def _current_helm_values (self):
         return self._helm_info.get("status", {}).get("values")
 
-    @property
-    def _current_chart_name_and_version (self):
-        return self._helm_info.get("status", {}).get("chart")
+    def _is_already_installed(self, required_version=None):
+        current_chart_name_and_version = self._helm_info.get("status", {}).get("chart")
+
+        if required_version is None:
+            return current_chart_name_and_version is not None
+        else:
+            return current_chart_name_and_version == f'{self.chart_name}-{required_version}'
 
     @property
     def kubeconfig (self):

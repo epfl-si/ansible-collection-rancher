@@ -1,6 +1,7 @@
-# Version 0.8.3: feature release
+# Version 0.9.0: feature release
 
 - New `force_redeploy` argument to `epfl_si.rancher.rancher_helm_chart` action plugin
+- `epfl_si.rancher.rancher_helm_chart`: make `version:` optional
 
 # Version 0.8.2: bugfix release
 
