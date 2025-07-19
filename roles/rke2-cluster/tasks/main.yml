@@ -36,9 +36,23 @@
       tags:
         - rke2
         - rke2.storage
+        - rke2.storage.nfs
   tags:
     - rke2
     - rke2.storage
+    - rke2.storage.nfs
+
+- include_tasks:
+    file: cloud-native-postgres.yml
+    apply:
+      tags:
+        - rke2
+        - rke2.storage
+        - rke2.storage.postgres
+  tags:
+    - rke2
+    - rke2.storage
+    - rke2.storage.postgres
 
 - include_tasks:
     file: monitoring.yml
