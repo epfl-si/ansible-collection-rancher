@@ -1,3 +1,10 @@
+# General-purpose (cross-namespace) cookie-cutter NFS directories for
+# your storage
+#
+# *not* for hosting things you don't want deleted ever, like
+# the big chest o' GitLab repositories! Putting *that* in
+# the nfs-client StorageClass caused OUT0011449!!
+
 - tags: always
   include_vars: ../../../vars/storage-vars.yml
 
