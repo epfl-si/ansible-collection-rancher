@@ -11,6 +11,7 @@
           tags:
             - rke2.cluster.create
   vars:
+    ansible_rancher_cluster_name: local
     ansible_k8s_kubeconfig: "rke2-credentials-cache/local.yml"
 
 - hosts: gitlab_rke2_vms
