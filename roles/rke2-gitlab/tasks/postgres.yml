@@ -1,0 +1,81 @@
+# CloudNativePG for GitLab
+
+- tags: always
+  include_vars: "{{ item }}"
+  with_items:
+  - postgres-vars.yml
+  - ../../../vars/versions.yml
+
+
+- when: inventory_deployment_stage == "test"
+  block:
+  - name: "Read `secret/gitlab-postgresql-password` from production namespace"
+    epfl_si.k8s.k8s:
+      definition:
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: postgres-prod-passwords
+          namespace: "{{ inventory_namespace }}"
+        data: >-
+          {{ _secret_orig.data }}
+
+  - name: "`Secret/gitlab-pg`"
+    epfl_si.k8s.k8s:
+      definition:
+        apiVersion: v1
+        kind: Secret
+        metadata:
+          name: gitlab-cloudpg-gitlab
+          namespace: "{{ inventory_namespace }}"
+        type: kubernetes.io/basic-auth
+        stringData:
+          username: gitlab
+          password: "{{ _gitlab_pg_password }}"
+  vars:
+    _secret_orig: >-
+      {{ lookup("epfl_si.k8s.k8s",
+         kind="Secret",
+         resource_name="gitlab-postgresql-password",
+         namespace="gitlab") }}
+    _gitlab_pg_password: >-
+      {{ _secret_orig.data["postgresql-password"] | b64decode }}
+
+- name: "`Cluster.postgres/gitlab`"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      metadata:
+        name: gitlab-cloudpg
+        namespace: "{{ inventory_namespace }}"
+      spec: >-
+        {{ _spec_yaml | from_yaml }}
+  vars:
+    _spec_yaml: |
+      instances: 2
+      storage:
+        size: 8Gi
+      affinity:
+        topologyKey: kubernetes.io/hostname
+      {% if (inventory_deployment_stage == "test")
+         or (cloud_pg_already_in_production | default(False)) %}
+      bootstrap:
+        initdb:
+          import:
+            type: monolith
+            databases: ["{{ pg_main_rails_database_name }}"]
+            roles: [gitlab]
+            source:
+              externalCluster: gitlab-prod-legacy
+          secret:
+              name: gitlab-cloudpg-gitlab
+      externalClusters:
+        - name: gitlab-prod-legacy
+          connectionParameters:
+            host: gitlab-postgresql.gitlab.svc.cluster.local.
+            user: postgres
+          password:
+            name: {{ pg_password_secret_key_ref.name }}
+            key:  {{ pg_password_secret_key_ref.key }}
+      {% endif %}

@@ -94,3 +94,16 @@
   tags:
   - gitlab
   - gitlab.stats
+
+- include_tasks:
+    file: postgres.yml
+    apply:
+      tags:
+        - gitlab
+        - gitlab.storage
+        - gitlab.postgres
+  tags:
+    - gitlab
+    - gitlab.storage
+    - gitlab.storage.debug
+    - gitlab.postgres
