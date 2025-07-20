@@ -29,6 +29,12 @@
   gather_facts: no
   roles:
     - role: rke2-cluster
+  vars:
+    ansible_k8s_kubeconfig: "rke2-credentials-cache/{{ inventory_hostname }}.yml"
+
+- hosts: gitlab_rke2_namespaces
+  gather_facts: no
+  roles:
     - role: rke2-gitlab
   vars:
     ansible_k8s_kubeconfig: "rke2-credentials-cache/{{ inventory_hostname }}.yml"

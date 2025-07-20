@@ -1,5 +1,15 @@
-- include_vars: gitlab-vars.yml
-  tags: always
+- tags: always
+  include_tasks:
+    file: ../../../tasks/_rancher_login.yml
+    apply:
+      tags: always
+      vars:
+        ansible_rancher_url: https://rancher-fsd.epfl.ch
+        ansible_rancher_credentials_dir: "rke2-credentials-cache"
+        ansible_rancher_cluster_name: gitlab
+
+- tags: always
+  include_vars: gitlab-vars.yml
 
 - include_tasks:
     file: build.yml

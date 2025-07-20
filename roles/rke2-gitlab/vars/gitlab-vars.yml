@@ -1,4 +1,3 @@
-gitlab_namespace: gitlab
 gitlab_hostname: gitlab.epfl.ch
 gitlab_tls_private_key: >-
   {{ tls_credentials.gitlab.key

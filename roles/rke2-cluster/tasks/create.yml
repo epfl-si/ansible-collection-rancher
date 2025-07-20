@@ -8,7 +8,7 @@
 # nodes are ready and inserted into the cluster.
 
 - include_tasks:
-    file: ../_rancher_login.yml
+    file: ../../../tasks/_rancher_login.yml
 
 - name: Create GitLab cluster in Rancher
   delegate_to: rancher
