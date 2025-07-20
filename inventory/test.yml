@@ -1,0 +1,18 @@
+all:
+  children:
+    gitlab_rke2_namespaces:
+      children:
+        gitlab_rke2_test_namespaces:
+          "hosts":  # Scarequotes intended — These are Kubernetes
+                    # namespaces, but Ansible doesn't know any better
+            gitlab-test:
+              inventory_namespace: gitlab-test
+              inventory_deployment_stage: test
+      vars:
+        # Vars common to all RKE2 namespaces (including the production ones):
+        ansible_connection: local
+        ansible_python_interpreter: "{{ ansible_playbook_python }}"
+        # ... Except for `rancher_login` tasks, which do their own thing and
+        # use ssh; in which case we have
+        ansible_ssh_user: root
+        ansible_rancher_url: https://rancher-fsd.epfl.ch

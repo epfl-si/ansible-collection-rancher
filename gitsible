@@ -39,11 +39,11 @@ ensure_suitcase () {
 
 ensure_suitcase
 
-inventory_mode="staging"
+inventory_mode="test"
 inventories () {
+    echo -n "-i inventory/test.yml"
     case "$inventory_mode" in
-        staging) echo "-i inventory/staging" ;;
-        prod)    echo "-i inventory/staging -i inventory/prod" ;;
+        test-and-prod) echo -n " -i inventory/prod.yml -i inventory/cluster.yml" ;;
     esac
 }
 
@@ -54,7 +54,7 @@ mode=ansible-playbook
 while [ "$#" -gt 0 ]; do
   case "$1" in
         --prod)
-            inventory_mode="prod"
+            inventory_mode="test-and-prod"
             shift ;;
         -m) mode=ansible
             ansible_args+=("-m")

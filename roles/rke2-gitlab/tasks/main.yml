@@ -11,7 +11,8 @@
 - tags: always
   include_vars: gitlab-vars.yml
 
-- include_tasks:
+- when: inventory_deployment_stage == "test"
+  include_tasks:
     file: build.yml
     apply:
       tags:
@@ -35,7 +36,8 @@
     - gitlab.tls
     - gitlab.tls.csr
 
-- include_tasks:
+- when: inventory_deployment_stage == "prod"
+  include_tasks:
     file: routing.yml
     apply:
       tags:
@@ -45,7 +47,8 @@
     - gitlab
     - gitlab.routing
 
-- include_tasks:
+- when: inventory_deployment_stage == "prod"
+  include_tasks:
     file: tls.yml
     apply:
       tags:
@@ -72,7 +75,8 @@
 # `gitaly` comes after `serving`, because the Gitaly Helm chart
 # consumes objects (such as `Secret/gitlab-registry-notification`)
 # managed by the GitLab one:
-- include_tasks:
+- when: inventory_deployment_stage == "prod"
+  include_tasks:
     file: gitaly.yml
     apply:
       tags:

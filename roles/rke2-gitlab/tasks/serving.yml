@@ -244,18 +244,18 @@
 # Pass `-t gitlab.serving.debug` to perform dry-run testing with e.g.
 #
 #   ```
-#   helm diff upgrade --values gitlab-values.yaml \
-#       -n gitlab gitlab gitlab/gitlab
+#   helm diff upgrade --values gitlab-values-test.yaml \
+#       -n gitlab-test gitlab gitlab/gitlab
 #   ```
 - tags: gitlab.serving.debug
   when: >-
     "gitlab.serving.debug" in ansible_run_tags
   delegate_to: localhost
   copy:
-    dest: gitlab-values.yaml
+    dest: "gitlab-values-{{ inventory_deployment_stage }}.yaml"
     content: "{{ _gitlab_helm_values | to_nice_yaml }}"
 
-- name: "GitLab Helm chart in `{{ inventory_namespace }}` namespace"
+- name: "GitLab Helm chart"
   epfl_si.rancher.rancher_helm_chart:
       repository: gitlab
       chart: gitlab

@@ -1,0 +1,10 @@
+all:
+  children:
+    gitlab_rke2_namespaces:
+      children:
+        gitlab_rke2_prod_namespaces:
+          "hosts":  # Scarequotes intended — These are Kubernetes
+                    # namespaces, but Ansible doesn't know any better
+            gitlab:
+              inventory_namespace: gitlab
+              inventory_deployment_stage: prod

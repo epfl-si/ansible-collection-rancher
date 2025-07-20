@@ -1,5 +1,3 @@
-# -*- mode: yaml; -*-
-
 all:
   children:
     gitlab_rke2_vms:

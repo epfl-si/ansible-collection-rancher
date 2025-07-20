@@ -142,7 +142,7 @@
 # Pass `-t gitlab.storage.debug` to perform dry-run testing with e.g.
 #
 #   ```
-#   helm diff upgrade --values gitaly-values.yaml \
+#   helm diff upgrade --values gitaly-values-prod.yaml \
 #       -n gitlab gitaly-epfl-public gitlab/gitlab
 #   ```
 - tags: gitlab.storage.debug
@@ -150,10 +150,10 @@
     "gitlab.storage.debug" in ansible_run_tags
   delegate_to: localhost
   copy:
-    dest: gitaly-values.yaml
+    dest: "gitaly-values-{{ inventory_deployment_stage }}.yaml"
     content: "{{ _gitaly_helm_values | to_nice_yaml }}"
 
-- name: '“Public” Gitaly Helm chart in `{{ inventory_namespace }}` namespace'
+- name: '“Public” Gitaly Helm chart'
   epfl_si.rancher.rancher_helm_chart:
       repository: gitlab
       chart: gitlab
