@@ -23,7 +23,7 @@
           ui.rancher/badge-color: transparent
           ui.rancher/badge-icon-text: GTL
       spec:
-        kubernetesVersion: v1.30.4+rke2r1
+        kubernetesVersion: v1.33.2+rke2r1
         rkeConfig:
           etcd:
             snapshotRetention: 20
