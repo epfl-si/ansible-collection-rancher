@@ -60,3 +60,12 @@ gitlab_charts_common_values:
         install: false
       registry:
         enabled: false
+
+      # These are not multi-tenant (e.g. they have clashing
+      # `ClusterRole`-level RBAC) and thus need to be disabled
+      # in the test namespace:
+      prometheus:
+        server:
+          useExistingClusterRoleName: >-
+            {{ "" if inventory_deployment_stage == "prod"
+            else "gitlab-prometheus-server" }}

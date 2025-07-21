@@ -224,6 +224,12 @@
                 secret: gitlab-backups
                 key: config
 
+      {% if (inventory_deployment_stage == "test") %}
+        webservice:
+          ingress:
+            enabled: false
+      {% endif %}
+
       # Disable cert-manager because we manage certificates ourselves
       certmanager:
         install: false
