@@ -1,3 +1,4 @@
+rke2_kubernetes_version: v1.33.2+rke2r1
 gitlab_version: 17.11.3
 gitlab_runner_alpine_version: 3.18
 postgresql_major_version: 17

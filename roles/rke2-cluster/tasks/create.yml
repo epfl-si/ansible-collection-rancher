@@ -10,6 +10,9 @@
 - include_tasks:
     file: ../../../tasks/_rancher_login.yml
 
+- tags: always
+  include_vars: ../../../vars/versions.yml
+
 - name: Create GitLab cluster in Rancher
   delegate_to: rancher
   epfl_si.k8s.k8s:
@@ -23,7 +26,7 @@
           ui.rancher/badge-color: transparent
           ui.rancher/badge-icon-text: GTL
       spec:
-        kubernetesVersion: v1.33.2+rke2r1
+        kubernetesVersion: "{{ rke2_kubernetes_version }}"
         rkeConfig:
           etcd:
             snapshotRetention: 20
