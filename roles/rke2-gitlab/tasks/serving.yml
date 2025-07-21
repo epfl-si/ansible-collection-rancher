@@ -236,7 +236,7 @@
 
       postgresql:
         image:
-          tag: "17"
+          tag: "{{ postgresql_major_version }}"
 
       # Do not create / manage an IngressClass
       nginx-ingress:
