@@ -224,11 +224,21 @@
                 secret: gitlab-backups
                 key: config
 
+        sidekiq:
+          metrics:
+            podMonitor:
+              enabled: true
+
       {% if (inventory_deployment_stage == "test") %}
         webservice:
           ingress:
             enabled: false
       {% endif %}
+
+      redis:
+        metrics:
+          podMonitor:
+            enabled: true
 
       # Disable cert-manager because we manage certificates ourselves
       certmanager:
