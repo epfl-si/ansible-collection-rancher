@@ -1,0 +1,30 @@
+# Prometheus-(and-more-)as-a-service for your RKE2 cluster
+
+- name: "`ClusterRepo/prometheus-community`"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: catalog.cattle.io/v1
+      kind: ClusterRepo
+      metadata:
+        name: prometheus-community
+      spec:
+        url:  https://prometheus-community.github.io/helm-charts
+
+- name: "`rancher-monitoring-crd` Helm chart"
+  epfl_si.rancher.rancher_helm_chart:
+    repository: rancher-charts
+    chart: rancher-monitoring-crd
+    namespace: kube-system
+
+- name: "`rancher-monitoring` Helm chart"
+  epfl_si.rancher.rancher_helm_chart:
+    repository: rancher-charts
+    chart: rancher-monitoring
+    namespace:
+      name: "cattle-monitoring-system"   # The chart won't let you choose another
+      owned: true
+      system: true
+    values:
+      # https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml
+      grafana:
+        enabled: false
