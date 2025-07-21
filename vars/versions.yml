@@ -4,8 +4,5 @@ gitlab_runner_alpine_version: 3.18
 postgresql_major_version: 17
 
 metallb_chart_version: 0.14.5
-clickhouse_chart_version: 24.1.14
-signoz_chart_version: 0.66.0
-k8s_infra_chart_version: 0.12.1
 gitlab_runner_chart_version: 0.75.1
 gitlab_chart_version: 9.1.2

@@ -51,16 +51,6 @@
     - rke2.storage
 
 - include_tasks:
-    file: monitoring.yml
-    apply:
-      tags:
-        - rke2
-        - rke2.monitoring
-  tags:
-    - rke2
-    - rke2.monitoring
-
-- include_tasks:
     file: upgrades.yml
     apply:
       tags:
