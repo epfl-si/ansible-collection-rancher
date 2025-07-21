@@ -76,7 +76,7 @@
         annotations:
           kubernetes.io/ingress.class: traefik
         name: gitlab-ssh
-        namespace: "{{ gitlab_namespace }}"
+        namespace: "{{ inventory_namespace }}"
       spec:
         entryPoints:
         - gitlab-shell

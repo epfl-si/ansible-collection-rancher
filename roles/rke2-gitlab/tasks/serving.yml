@@ -22,7 +22,7 @@
       kind: Secret
       metadata:
         name: gitlab-epfl-provider
-        namespace: "{{ gitlab_namespace }}"
+        namespace: "{{ inventory_namespace }}"
       type: Opaque
       data:
         provider:
@@ -37,7 +37,7 @@
       kind: Secret
       metadata:
         name: gitlab-guest-provider
-        namespace: "{{ gitlab_namespace }}"
+        namespace: "{{ inventory_namespace }}"
       type: Opaque
       data:
         provider:
@@ -52,7 +52,7 @@
       kind: Secret
       metadata:
         name: gitlab-gitlab-shell-host-keys
-        namespace: "{{ gitlab_namespace }}"
+        namespace: "{{ inventory_namespace }}"
       type: Opaque
       stringData:
         ssh_host_rsa_key: >-
@@ -81,7 +81,7 @@
       kind: Secret
       metadata:
         name: gitlab-backups
-        namespace: "{{ gitlab_namespace }}"
+        namespace: "{{ inventory_namespace }}"
       type: Opaque
       stringData:
         # Documentation: https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/objectstorage/rails.s3.yaml
@@ -105,7 +105,7 @@
       kind: Secret
       metadata:
         name: gitlab-s3-assets
-        namespace: "{{ gitlab_namespace }}"
+        namespace: "{{ inventory_namespace }}"
       type: Opaque
       stringData:
         # Documentation: https://gitlab.com/gitlab-org/charts/gitlab/-/blob/master/examples/objectstorage/rails.s3.yaml
@@ -255,11 +255,11 @@
     dest: gitlab-values.yaml
     content: "{{ _gitlab_helm_values | to_nice_yaml }}"
 
-- name: "GitLab Helm chart in `{{ gitlab_namespace }}` namespace"
+- name: "GitLab Helm chart in `{{ inventory_namespace }}` namespace"
   epfl_si.rancher.rancher_helm_chart:
       repository: gitlab
       chart: gitlab
-      namespace: "{{ gitlab_namespace }}"
+      namespace: "{{ inventory_namespace }}"
       version: "{{ gitlab_chart_version }}"
       values: "{{ _gitlab_helm_values }}"
 

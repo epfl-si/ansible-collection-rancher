@@ -21,13 +21,13 @@
     - gitlab
     - gitlab.build
 
-- name: "`namespace/{{ gitlab_namespace }}`"
+- name: "`namespace/{{ inventory_namespace }}`"
   epfl_si.k8s.k8s:
     definition:
       apiVersion: v1
       kind: Namespace
       metadata:
-        name: "{{ gitlab_namespace }}"
+        name: "{{ inventory_namespace }}"
   tags:
     - gitlab
     - gitlab.website

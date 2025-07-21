@@ -22,7 +22,7 @@
       kind: PersistentVolumeClaim
       metadata:
         name: repo-data-gitaly-epfl-public-gitaly-0
-        namespace: "{{ gitlab_namespace }}"
+        namespace: "{{ inventory_namespace }}"
         labels:
           gitaly-repo-data-owner: epfl
       spec:
@@ -56,7 +56,7 @@
           server: nas-app-ma-nfs1.epfl.ch
           path: "/si_gitlab_app/repositories"
         claimRef:                     # Pre-binding to the specific PVC defined above
-          namespace: "{{ gitlab_namespace }}"
+          namespace: "{{ inventory_namespace }}"
           name: repo-data-gitaly-epfl-public-gitaly-0
 
 - tags: always
@@ -153,12 +153,12 @@
     dest: gitaly-values.yaml
     content: "{{ _gitaly_helm_values | to_nice_yaml }}"
 
-- name: '“Public” Gitaly Helm chart in `{{ gitlab_namespace }}` namespace'
+- name: '“Public” Gitaly Helm chart in `{{ inventory_namespace }}` namespace'
   epfl_si.rancher.rancher_helm_chart:
       repository: gitlab
       chart: gitlab
       release: gitaly-epfl-public
-      namespace: "{{ gitlab_namespace }}"
+      namespace: "{{ inventory_namespace }}"
       version: "{{ gitlab_chart_version }}"
       values: "{{ _gitaly_helm_values }}"
 

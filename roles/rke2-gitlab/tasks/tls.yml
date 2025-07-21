@@ -13,7 +13,7 @@
       kind: Secret
       metadata:
         name: gitlab-tls
-        namespace: "{{ gitlab_namespace }}"
+        namespace: "{{ inventory_namespace }}"
       stringData:
         tls.key: "{{ gitlab_tls_private_key }}"
         tls.crt: |
@@ -53,7 +53,7 @@
       kind: Middleware
       metadata:
         name: redirect-to-https
-        namespace: "{{ gitlab_namespace }}"
+        namespace: "{{ inventory_namespace }}"
         annotations:
           kubernetes.io/ingress.class: traefik
       spec:
@@ -68,7 +68,7 @@
       kind: IngressRoute
       metadata:
         name: redirect-to-https
-        namespace: "{{ gitlab_namespace }}"
+        namespace: "{{ inventory_namespace }}"
         annotations:
           kubernetes.io/ingress.class: traefik
       spec:
