@@ -47,7 +47,7 @@
     fstype: "{{ node_storage_rancher_lv.fs }}"
     dev: "{{ node_storage_rancher_lv_devname }}"
   when: >-
-    'TYPE="{{ node_storage_rancher_lv.fs }}"' not in _blkid_output.stdout
+    ("TYPE=" + node_storage_rancher_lv.fs) not in _blkid_output.stdout
 
 - name: "Put up {{ node_storage_rancher_lv_devname }} in fstab and mount it"
   ansible.posix.mount:
