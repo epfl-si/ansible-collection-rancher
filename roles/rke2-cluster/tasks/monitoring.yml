@@ -25,6 +25,19 @@
       owned: true
       system: true
     values:
-      # https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml
       grafana:
         enabled: false
+      prometheus:
+        prometheusSpec:
+          # This is the “small T-shirt” configuration, whereby only one
+          # Prometheus instance in the cluster monitors everything.
+          serviceMonitorSelectorNilUsesHelmValues: false
+          serviceMonitorSelector: {}
+          podMonitorSelectorNilUsesHelmValues: false
+          podMonitorSelector: {}
+          ruleSelectorNilUsesHelmValues: false
+          ruleSelector: {}
+          # Optional: pick up alerts from other namespaces too
+          ruleNamespaceSelector: {}
+          serviceMonitorNamespaceSelector: {}
+          podMonitorNamespaceSelector: {}
