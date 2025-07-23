@@ -11,7 +11,6 @@ gitlab_email_sender_address: gitlab-noreply@epfl.ch
 gitlab_charts_common_values:
       # Documentation: https://docs.gitlab.com/charts/charts/globals/#configure-host-settings
       global:
-        gitlabVersion: "{{ gitlab_version }}"
         edition: ce
         time_zone: "Europe/Zurich"
         hosts:
