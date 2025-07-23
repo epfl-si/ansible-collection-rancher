@@ -227,7 +227,13 @@
             cron:
               enabled: true
               schedule: 38 */3 * * *
+              # Back up only the PostgreSQL state (`db`); skip
+              # everything else.
               extraArgs: >-
+                --skip repositories --skip registry --skip lfs --skip pages
+                --skip artifacts --skip packages --skip uploads
+                --skip external_diffs --skip terraform_state
+                --skip ci_secure_files
                 -t $(date +%Y%m%d)
             # https://docs.gitlab.com/charts/backup-restore/#backups-to-s3
             # See also global.appConfig.backups.*, above
