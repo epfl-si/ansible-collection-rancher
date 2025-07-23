@@ -198,7 +198,8 @@
              or ( _secret_eduid_provider  | default({}) )  is changed
              or ( _secret_backups  | default({}) )         is changed
              or ( _secret_shell_host_keys  | default({}) ) is changed
-             or ( _secret_s3_assets  | default({}) )       is changed %}
+             or ( _secret_s3_assets  | default({}) )       is changed
+             or "gitlab.serving.redeploy" in ansible_run_tags %}
           MC_HAMMER: "U can touch this {{ now() }}"
           {% endif %}
 

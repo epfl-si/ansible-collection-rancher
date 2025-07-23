@@ -70,6 +70,7 @@
     - gitlab
     - gitlab.serving
     - gitlab.serving.debug
+    - gitlab.serving.redeploy
     - gitlab.website
 
 # `gitaly` comes after `serving`, because the Gitaly Helm chart
