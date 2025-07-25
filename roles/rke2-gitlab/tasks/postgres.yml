@@ -6,6 +6,10 @@
   - postgres-vars.yml
   - ../../../vars/versions.yml
 
+- tags: always
+  include_vars:
+    name: gitlab_credentials
+    file: gitlab-credentials.yml
 
 - when: inventory_deployment_stage == "test"
   block:
@@ -40,6 +44,22 @@
          namespace="gitlab") }}
     _gitlab_pg_password: >-
       {{ _secret_orig.data["postgresql-password"] | b64decode }}
+
+- name: "`Secret/barman-s3-backups`"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: barman-s3-backups
+        namespace: "{{ inventory_namespace }}"
+      stringData:
+        ACCESS_KEY_ID: >-
+          {{ gitlab_credentials.s3_backups.read_write_access_key_id
+          | eyaml(gitlab_credentials.eyaml_keys) }}
+        ACCESS_SECRET_KEY: >-
+          {{ gitlab_credentials.s3_backups.read_write_secret_access_key
+          | eyaml(gitlab_credentials.eyaml_keys) }}
 
 - name: "`Cluster.postgres/gitlab`"
   epfl_si.k8s.k8s:
@@ -79,3 +99,17 @@
             name: {{ pg_password_secret_key_ref.name }}
             key:  {{ pg_password_secret_key_ref.key }}
       {% endif %}
+      backup:
+        barmanObjectStore:
+          destinationPath: 's3://{{ _s3.bucket_name }}/barman-{{ inventory_namespace }}'
+          endpointURL: '{{ _s3.url }}'
+          s3Credentials:
+            accessKeyId:
+              key: ACCESS_KEY_ID
+              name: barman-s3-backups
+            secretAccessKey:
+              key: ACCESS_SECRET_KEY
+              name: barman-s3-backups
+        target: prefer-standby
+    _s3: >-
+      {{ gitlab_credentials.s3_backups }}
