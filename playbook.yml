@@ -2,14 +2,16 @@
   gather_facts: no
   tags:
     - rke2.cluster.create
+    - rke2.cluster.upgrade
   tasks:
     - name: "Create cluster in Rancher"
       include_role:
         name: rke2-cluster
-        tasks_from: create.yml
+        tasks_from: create-or-upgrade.yml
         apply:
           tags:
             - rke2.cluster.create
+            - rke2.cluster.upgrade
   vars:
     ansible_rancher_cluster_name: local
     ansible_k8s_kubeconfig: "rke2-credentials-cache/local.yml"

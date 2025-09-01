@@ -13,3 +13,5 @@ rke2_any_worker_node_of_this_cluster: >-
 
 # flanneld seems to have trouble figuring this out on our distro:
 rke2_main_interface_name_regex: '^ens.*'
+
+rke2_enable_automatic_upgrades: false

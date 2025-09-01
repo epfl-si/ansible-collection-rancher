@@ -60,7 +60,8 @@
     - rke2
     - rke2.monitoring
 
-- include_tasks:
+- when: rke2_enable_automatic_upgrades
+  include_tasks:
     file: upgrades.yml
     apply:
       tags:

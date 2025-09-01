@@ -13,7 +13,23 @@
 - tags: always
   include_vars: ../../../vars/versions.yml
 
-- name: Create GitLab cluster in Rancher
+- when: >-
+    "rke2.cluster.upgrade" not in ansible_run_tags
+  changed_when: false
+  name: Does GitLab cluster already exist?
+  delegate_to: rancher
+  set_fact:
+    _gitlab_cluster_already_exists: >-
+      {{ lookup("epfl_si.k8s.k8s", kind="Cluster",
+         api_version="provisioning.cattle.io/v1",
+         namespace="fleet-default",
+         resource_name="gitlab") | length > 0 }}
+
+- when: >-
+    ( not (_gitlab_cluster_already_exists | default(False)) )
+    or
+    ( "rke2.cluster.upgrade" in ansible_run_tags )
+  name: GitLab cluster in Rancher
   delegate_to: rancher
   epfl_si.k8s.k8s:
     definition:
@@ -26,7 +42,10 @@
           ui.rancher/badge-color: transparent
           ui.rancher/badge-icon-text: GTL
       spec:
-        kubernetesVersion: "{{ rke2_kubernetes_version }}"
+        kubernetesVersion: >-
+          {{ rke2_version
+          | default(rke2_updates_channel
+                       | get_rke2_current_version) }}
         rkeConfig:
           etcd:
             snapshotRetention: 20
