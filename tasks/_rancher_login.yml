@@ -14,7 +14,8 @@
       fi
 
 - when: >-
-    "CREDENTIALS_ARE_STILL_VALID" not in _check_rancher_credentials.stdout
+    ( "CREDENTIALS_ARE_STILL_VALID" not in _check_rancher_credentials.stdout )
+    and not ansible_check_mode
   block:
     - epfl_si.rancher.rancher_login:
       register: _rancher_login
