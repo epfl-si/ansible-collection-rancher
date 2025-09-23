@@ -41,3 +41,11 @@
           ruleNamespaceSelector: {}
           serviceMonitorNamespaceSelector: {}
           podMonitorNamespaceSelector: {}
+          storageSpec:
+            volumeClaimTemplate:
+              spec:
+                storageClassName: nfs-client
+                accessModes: ["ReadWriteMany"]
+                resources:
+                  requests:
+                    storage: 50Gi   # Required, even though Kubernetes doesn't actually allocate anything
