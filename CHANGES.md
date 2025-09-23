@@ -2,6 +2,8 @@
 
 - New `force_redeploy` argument to `epfl_si.rancher.rancher_helm_chart` action plugin
 - `epfl_si.rancher.rancher_helm_chart`: make `version:` optional
+- Document the fact that the whole collection requires direct access to Rancher from the operator's workstation
+- Fix a bug when uninstalling Helm charts (caused by an incorrect assumption on what happens Rancher-side)
 
 # Version 0.8.2: bugfix release
 
