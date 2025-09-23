@@ -1,15 +1,5 @@
 # Prometheus-(and-more-)as-a-service for your RKE2 cluster
 
-- name: "`ClusterRepo/prometheus-community`"
-  epfl_si.k8s.k8s:
-    definition:
-      apiVersion: catalog.cattle.io/v1
-      kind: ClusterRepo
-      metadata:
-        name: prometheus-community
-      spec:
-        url:  https://prometheus-community.github.io/helm-charts
-
 - name: "`rancher-monitoring-crd` Helm chart"
   epfl_si.rancher.rancher_helm_chart:
     repository: rancher-charts
