@@ -62,9 +62,9 @@
             - --entryPoints.gitlab-shell.address=:22
             # Make dashboard visible to people who port-forward 8080:
             - --api.insecure
-            # Not shown here: all `Ingress` objects (and `Ingress`-ish
-            # objects, such as the `IngressRouteTCP` object for port
-            # 22) must have an `kubernetes.io/ingress.class: traefik`
+            # Note: all `Ingress` objects (and `Ingress`-ish objects,
+            # such as the `IngressRouteTCP` object for port 22, below)
+            # must have an `kubernetes.io/ingress.class: traefik`
             # annotation set.
 
 - name: "IngressRouteTCP/gitlab-ssh"
