@@ -164,5 +164,5 @@
       execution by a human operator of as many ServiceNow tickets as
       there are nodes in the RKE2 clusters).
 
-      Once that is done (or before if you are feeling lazy), press C
-      and Enter to continue:
+      Once that is done (or before if you are feeling lazy), press
+      Enter to continue:
