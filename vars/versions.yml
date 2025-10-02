@@ -1,5 +1,4 @@
 rke2_updates_channel: https://update.rke2.io/v1-release/channels/stable
-gitlab_version: 17.11.3
 gitlab_runner_alpine_version: 3.18
 postgresql_major_version: 17
 
