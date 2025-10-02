@@ -16,10 +16,9 @@
     file: build.yml
     apply:
       tags:
-        - gitlab
         - gitlab.build
   tags:
-    - gitlab
+    # Not part of `-t gitlab` (for the time being), as we use stock images
     - gitlab.build
 
 - name: "`namespace/{{ inventory_namespace }}`"
