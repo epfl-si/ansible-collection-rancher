@@ -259,10 +259,6 @@
           podMonitor:
             enabled: true
 
-      # Disable cert-manager because we manage certificates ourselves
-      certmanager:
-        install: false
-
       postgresql:
         image:
           tag: "{{ postgresql_major_version }}"

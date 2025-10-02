@@ -53,8 +53,7 @@ gitlab_charts_common_values:
             secret: gitlab-gitaly-secret
 
       # More things we don't want:
-      certmanager:
-        install: false
+      installCertmanager: false
       certmanager-issuer:
         install: false
       registry:
