@@ -1,5 +1,28 @@
 # Prometheus-(and-more-)as-a-service for your RKE2 cluster
 
+- tags: always
+  include_vars:
+    name: monitoring_secrets
+    file: monitoring-secrets.yml
+
+- name: "`Secret/external-alertmanager-configs`"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: external-alertmanager-configs
+        namespace: cattle-monitoring-system
+      stringData:
+        alertmanager-configs.yaml: |
+          - scheme: https
+            static_configs: ["targets": ["am.noc.fsd.team"]]
+            basic_auth:
+              username: "{{ monitoring_secrets.alertmanager.username }}"
+              password: >-
+                {{ monitoring_secrets.alertmanager.password
+                | eyaml(monitoring_secrets.eyaml_keys) }}
+
 - name: "`rancher-monitoring-crd` Helm chart"
   epfl_si.rancher.rancher_helm_chart:
     repository: rancher-charts
@@ -50,3 +73,8 @@
                 resources:
                   requests:
                     storage: 50Gi   # Required, even though Kubernetes doesn't actually allocate anything
+          # Connect to the team's external NOC.
+          # https://github.com/rancher/charts/blob/main/charts/rancher-monitoring/values.yaml#L2361
+          additionalAlertManagerConfigsSecret:
+            name: external-alertmanager-configs
+            key: alertmanager-configs.yaml
