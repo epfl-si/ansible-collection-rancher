@@ -41,6 +41,7 @@
           ruleNamespaceSelector: {}
           serviceMonitorNamespaceSelector: {}
           podMonitorNamespaceSelector: {}
+          # We want storage with that:
           storageSpec:
             volumeClaimTemplate:
               spec:
