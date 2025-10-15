@@ -25,6 +25,8 @@
         enabled: true
       grafana:
         enabled: false
+      alertmanager:
+        enabled: false
       prometheus:
         prometheusSpec:
           # This is the “small T-shirt” configuration, whereby only one
