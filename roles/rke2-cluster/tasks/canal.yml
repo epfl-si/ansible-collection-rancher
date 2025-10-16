@@ -1,28 +1,51 @@
-- name: "Patch Canal Helm chart to prevent IPv6-related CrashLoopBackoff's"
+# Patch the Rancher-side Canal (Calico + Flannel) config, even before we enroll the first node
+#
+# This is called by a special form in the playbook (an `include_role`
+# task with the `tasks_from` argument; see
+# https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_reuse_roles.html)
+# so that these tasks happen *before* the cluster nodes are set up.
+# This is unlike the role's `main.yml` flow, which runs *after* the
+# nodes are ready and inserted into the cluster.
+
+- tags: always
+  include_vars: rke2-vars.yml
+
+- name: "Wait for `RKEControlPlane` object to appear"
+  retries: 5
+  delay: 1
+  epfl_si.k8s.k8s_info:
+    api_version: rke.cattle.io/v1
+    kind: RKEControlPlane
+    name: gitlab
+    namespace: fleet-default
+  register: _rke_control_plane
+  until: _rke_control_plane.resources | length > 0
+
+- name: "Patch Rancher-side Helm values for Canal to prevent IPv6-related CrashLoopBackoff's"
   epfl_si.k8s.k8s:
     definition:
-      apiVersion: helm.cattle.io/v1
-      kind: HelmChartConfig
+      apiVersion: rke.cattle.io/v1
+      kind: RKEControlPlane
       metadata:
-        name: rke2-canal
-        namespace: kube-system
+        name: gitlab
+        namespace: fleet-default
       spec:
-        valuesContent: |
-          {{ _rke2_canal_existing_helm_values
-          | combine(_patch, recursive=True)
-          | to_yaml }}
+        chartValues: >-
+          {{ _rke2_canal_existing_chart_values
+          | combine(_patch, recursive=True) }}
   vars:
     _patch:
-     # Help the `kube-flannel` container to figure out which network
-     # interface is the main (external-facing) one. The golang gizmo
-     # within figures it out on its own for IPv4, but not for IPv6 🤷‍♂️
-     # and then it crashloops.
-      flannel:
-        regexIface: "{{ rke2_main_interface_name_regex }}"
-    _rke2_canal_existing_helm_chart_config: >-
-      {{ lookup("epfl_si.k8s.k8s", kind="HelmChartConfig",
-                namespace="kube-system",
-                resource_name="rke2-canal") }}
-    _rke2_canal_existing_helm_values: >-
-      {{ _rke2_canal_existing_helm_chart_config["spec"]["valuesContent"]
+      rke2-canal:
+        # Help the `kube-flannel` container to figure out which network
+        # interface is the main (external-facing) one. The golang gizmo
+        # within figures it out on its own for IPv4, but not for IPv6 🤷‍♂️
+        # and then it crashloops.
+        flannel:
+          regexIface: "{{ rke2_main_interface_name_regex }}"
+    _rke2_canal_existing_rke_control_plane: >-
+      {{ lookup("epfl_si.k8s.k8s", kind="RKEControlPlane",
+                namespace="fleet-default",
+                resource_name="gitlab") }}
+    _rke2_canal_existing_chart_values: >-
+      {{ _rke2_canal_existing_rke_control_plane["spec"]["chartValues"]
         | from_yaml }}{# Or JSON. Whatever #}

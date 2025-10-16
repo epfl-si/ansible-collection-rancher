@@ -3,6 +3,8 @@
   tags:
     - rke2.cluster.create
     - rke2.cluster.upgrade
+    - rke2.canal   # For historical reasons
+    - rke2.cluster.canal
   tasks:
     - name: "Create cluster in Rancher"
       include_role:
@@ -12,6 +14,14 @@
           tags:
             - rke2.cluster.create
             - rke2.cluster.upgrade
+    - name: "Tweak Canal for Ubuntu 24.04 nodes"
+      include_role:
+        name: rke2-cluster
+        tasks_from: canal.yml
+        apply:
+          tags:
+            - rke2.canal  # For historical reasons
+            - rke2.cluster.canal
   vars:
     ansible_rancher_cluster_name: local
     ansible_k8s_kubeconfig: "rke2-credentials-cache/local.yml"

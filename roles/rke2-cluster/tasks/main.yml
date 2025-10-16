@@ -22,16 +22,6 @@
     - rke2.ingress
 
 - include_tasks:
-    file: canal.yml
-    apply:
-      tags:
-        - rke2
-        - rke2.canal
-  tags:
-    - rke2
-    - rke2.canal
-
-- include_tasks:
     file: nfs-storage-class-uninstall.yml
     apply:
       tags:
