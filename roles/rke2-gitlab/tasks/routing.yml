@@ -51,21 +51,20 @@
       spec:
         valuesContent: |
           entryPoints:
-            web:
-              address: ":80"
-            websecure:
-              address: ":443"
             gitlab-shell:
               address: ":22"
+          ports:
+            gitlab-shell:
+              port: 22
           additionalArguments:
-            # Accept connections on port 22:
-            - --entryPoints.gitlab-shell.address=:22
             # Make dashboard visible to people who port-forward 8080:
             - --api.insecure
-            # Note: all `Ingress` objects (and `Ingress`-ish objects,
+          ingressClass:
+            # All `Ingress` objects (and `Ingress`-ish objects,
             # such as the `IngressRouteTCP` object for port 22, below)
-            # must have an `kubernetes.io/ingress.class: traefik`
-            # annotation set.
+            # must have a `kubernetes.io/ingress.class: traefik`
+            # annotation set:
+            name: "traefik"
           metrics:
             prometheus:
               serviceMonitor:
