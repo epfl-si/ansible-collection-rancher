@@ -56,6 +56,12 @@
           ports:
             gitlab-shell:
               port: 22
+            web:
+              redirections:
+                entryPoint:
+                  permanent: true
+                  to: websecure
+                  scheme: https
           additionalArguments:
             # Make dashboard visible to people who port-forward 8080:
             - --api.insecure
