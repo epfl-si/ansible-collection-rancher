@@ -46,18 +46,6 @@
     - gitlab
     - gitlab.routing
 
-- when: inventory_deployment_stage == "prod"
-  include_tasks:
-    file: tls.yml
-    apply:
-      tags:
-        - gitlab
-        - gitlab.tls
-  tags:
-    - gitlab
-    - gitlab.tls
-    - gitlab.tls.csr
-
 - include_tasks:
     file: serving.yml
     apply:

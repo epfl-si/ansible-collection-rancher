@@ -1,0 +1,3 @@
+tls_private_key: >-
+  {{ tls_credentials.gitlab.key
+  | eyaml(tls_credentials.eyaml_keys) }}
