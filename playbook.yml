@@ -44,9 +44,14 @@
       vars:
         tls_certify_hostnames:
         - gitlab.epfl.ch
+        - gitlab-test.epfl.ch
+        - gitlab-next.epfl.ch
+        - gitlab-prometheus.epfl.ch
         tls_target_namespaces:
         - gitlab
     - role: rke2-cluster
+      vars:
+        rke2_cluster_expose_prometheus_as_hostname: "gitlab-prometheus.epfl.ch"
   vars:
     ansible_k8s_kubeconfig: "rke2-credentials-cache/{{ inventory_hostname }}.yml"
 
