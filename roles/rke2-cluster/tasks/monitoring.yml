@@ -23,11 +23,40 @@
                 {{ monitoring_secrets.alertmanager.password
                 | eyaml(monitoring_secrets.eyaml_keys) }}
 
-- name: "`rancher-monitoring-crd` Helm chart"
-  epfl_si.rancher.rancher_helm_chart:
-    repository: rancher-charts
-    chart: rancher-monitoring-crd
-    namespace: kube-system
+- name: "`Middleware/prometheus-basicauth`"
+  # https://doc.traefik.io/traefik/reference/routing-configuration/http/middlewares/basicauth/#configuration-examples
+  # under “Kubernetes” tab
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: traefik.io/v1alpha1
+      kind: Middleware
+      metadata:
+        name: prometheus-basicauth
+        namespace: cattle-monitoring-system
+      spec:
+        basicAuth:
+          secret: prometheus-basicauth
+
+- name: "`Secret/prometheus-basicauth`"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: prometheus-basicauth
+        namespace: cattle-monitoring-system
+      stringData:
+        # The sybilline phrase “The option users supports Kubernetes secrets.” at
+        # https://doc.traefik.io/traefik/reference/routing-configuration/http/middlewares/basicauth/#kubernetes-secrets
+        # is apparently supposed to mean this:
+        users: |
+          {% for a in monitoring_secrets.prometheus.basicauth %}
+          {{ a.user }}:{{ a.password
+                          | eyaml(monitoring_secrets.eyaml_keys)
+                          | ansible.builtin.password_hash(
+                                hashtype="bcrypt",
+                                salt=monitoring_secrets.prometheus.basicauth_salt) }}
+          {% endfor %}
 
 - name: "`rancher-monitoring` Helm chart"
   epfl_si.rancher.rancher_helm_chart:
@@ -78,3 +107,21 @@
           additionalAlertManagerConfigsSecret:
             name: external-alertmanager-configs
             key: alertmanager-configs.yaml
+        ingress: >-
+          {{ _ingress_expose_prometheus
+          | default({ "enabled": False }) }}
+  vars:
+    _ingress_expose_prometheus:
+      # Will be `is not defined` (in the Ansible sense) if any consumed vars is missing,
+      # which is fine (see `ingress: >-` stanza, above).
+      enabled: true
+      ingressClassName: traefik
+      hosts: >-
+        {{ [rke2_cluster_expose_prometheus_as_hostname] }}
+      annotations:
+        # https://doc.traefik.io/traefik/v2.2/routing/providers/kubernetes-ingress/
+        traefik.ingress.kubernetes.io/router.middlewares: >-
+          cattle-monitoring-system-prometheus-basicauth@kubernetescrd
+      tls:
+        - secretName: gitlab-tls   # Courtesy ../../gitlab-tls/tasks/tls.yml
+          hosts: ["{{ rke2_cluster_expose_prometheus_as_hostname }}"]

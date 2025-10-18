@@ -48,6 +48,7 @@
         - gitlab-next.epfl.ch
         - gitlab-prometheus.epfl.ch
         tls_target_namespaces:
+        - cattle-monitoring-system   # for gitlab-prometheus
         - gitlab
     - role: rke2-cluster
       vars:
