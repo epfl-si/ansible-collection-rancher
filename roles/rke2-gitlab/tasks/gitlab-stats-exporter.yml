@@ -1,0 +1,73 @@
+- tags: always
+  include_vars: gitlab-stats-exporter-vars.yml
+
+- tags: always
+  include_vars:
+    file: gitlab-stats-exporter-secrets.yml
+    name: gitlab_stats_exporter_secrets
+
+- name: "`Secret/gitlab-stats-exporter`"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: gitlab-stats-exporter
+        namespace: "{{ gitlab_stats_exporter_namespace }}"
+      type: Opaque
+      stringData:
+        gitlab_api_token: >-
+          {{ gitlab_stats_exporter_secrets.private_token
+          | eyaml(gitlab_stats_exporter_secrets.eyaml_keys) }}
+
+- name: "`Deployment/gitlab-stats-exporter`"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        labels:
+          app: gitlab-stats-exporter
+        name: gitlab-stats-exporter
+        namespace: "{{ gitlab_stats_exporter_namespace }}"
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: gitlab-stats-exporter
+        template:
+          metadata:
+            labels:
+              app: gitlab-stats-exporter
+          spec:
+            containers:
+            - name: gitlab-stats-exporter
+              image: "{{ gitlab_stats_exporter_image }}"
+              imagePullPolicy: Always
+              env:
+              - name: GITLAB_URL
+                value: https://{{ gitlab_hostname }}/
+              - name: PRIVATE_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: gitlab-stats-exporter
+                    key: gitlab_api_token
+              ports:
+              - containerPort: 3000
+                name: metrics
+
+- name: "`PodMonitor/gitlab-stats-exporter`"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: monitoring.coreos.com/v1
+      kind: PodMonitor
+      metadata:
+        name: gitlab-stats-exporter
+        namespace: "{{ gitlab_stats_exporter_namespace }}"
+      spec:
+        selector:
+          matchLabels:
+            app: gitlab-stats-exporter
+        podMetricsEndpoints:
+        - port: metrics
+          interval: 30s

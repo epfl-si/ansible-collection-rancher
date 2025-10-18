@@ -1,0 +1,2 @@
+gitlab_stats_exporter_namespace: gitlab-ops
+gitlab_stats_exporter_image: docker.io/epfldojo/gitlabstatisticsprometheusexporter

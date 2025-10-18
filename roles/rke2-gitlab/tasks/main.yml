@@ -76,3 +76,14 @@
     - gitlab.storage
     - gitlab.storage.debug
     - gitlab.gitaly
+
+- when: inventory_deployment_stage == "prod"
+  include_tasks:
+    file: gitlab-stats-exporter.yml
+    apply:
+      tags:
+      - gitlab
+      - gitlab.stats
+  tags:
+  - gitlab
+  - gitlab.stats
