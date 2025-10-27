@@ -113,6 +113,10 @@
         ingress: >-
           {{ _ingress_expose_prometheus
           | default({ "enabled": False }) }}
+      defaultRules:
+        disabled:
+          Watchdog: true
+
   vars:
     _ingress_expose_prometheus:
       # Will be `is not defined` (in the Ansible sense) if any consumed vars is missing,
