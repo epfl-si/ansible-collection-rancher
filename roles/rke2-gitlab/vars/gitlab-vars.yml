@@ -1,4 +1,4 @@
-gitlab_hostname: gitlab.epfl.ch
+gitlab_hostname: "{{ inventory_hostname }}.epfl.ch"
 
 # This is actually only a guess, as the actual allocation takes place in portal-XaaS:
 gitlab_repo_volume_size: 1Ti

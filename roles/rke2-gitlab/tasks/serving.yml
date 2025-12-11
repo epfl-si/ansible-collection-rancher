@@ -248,12 +248,6 @@
             podMonitor:
               enabled: true
 
-      {% if (inventory_deployment_stage == "test") %}
-        webservice:
-          ingress:
-            enabled: false
-      {% endif %}
-
       redis:
         metrics:
           podMonitor:
