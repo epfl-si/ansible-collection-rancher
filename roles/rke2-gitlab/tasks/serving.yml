@@ -248,6 +248,19 @@
             podMonitor:
               enabled: true
 
+      {% if (inventory_deployment_stage == "test") %}
+          minReplicas: 1
+          maxReplicas: 1
+
+        gitlab-shell:
+          minReplicas: 1
+          maxReplicas: 1
+
+        webservice:
+          minReplicas: 1
+          maxReplicas: 1
+      {% endif %}
+
       redis:
         metrics:
           podMonitor:
