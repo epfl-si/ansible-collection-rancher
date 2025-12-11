@@ -305,7 +305,7 @@
   changed_when: false
   shell:
     cmd: |
-      curl -s https://{{ gitlab_hostname }}
+      curl -k -s https://{{ gitlab_hostname }}
   register: _curl_gitlab
   until: >
     ansible_check_mode or ("/users/sign_in" in _curl_gitlab.stdout)
