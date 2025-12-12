@@ -1,10 +1,12 @@
 collections:
   - name: community.general
   - name: epfl_si.k8s
-    version: ">=0.3.0"
+    version: ">=0.4.0"
   - name: epfl_si.rancher
     version: ">=0.8.0"
   - name: epfl_si.quay
     version: ">=0.5.0"
+  - name: epfl_si.actions
+    version: ">=2.4.0"
 roles:
 - src: epfl_si.ansible-module-eyaml
