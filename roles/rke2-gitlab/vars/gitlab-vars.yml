@@ -5,12 +5,6 @@ gitlab_repo_volume_size: 1Ti
 
 gitlab_email_sender_address: gitlab-noreply@epfl.ch
 
-gitlab_api_application_settings_url: >-
-  https://{{ gitlab_hostname }}/api/v4/application/settings
-gitlab_api_auth_header:
-  Private-Token: >-
-    {{ gitlab_credentials.api_token | eyaml(gitlab_credentials.eyaml_keys) }}
-
 gitlab_charts_common_values:
       # Documentation: https://docs.gitlab.com/charts/charts/globals/#configure-host-settings
       global:

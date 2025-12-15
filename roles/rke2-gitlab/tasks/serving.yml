@@ -312,31 +312,22 @@
   retries: 30
   delay: 10
 
-# If this task fails with a 401 error, chances are you need to renew the token
-# in ../vars/gitlab-credentials.yml
-- name: "Get current API configuration"
-  changed_when: false
-  register: _api_GET
-  ansible.builtin.uri:
-    method: GET
-    headers: "{{ gitlab_api_auth_header }}"
-    url: "{{ gitlab_api_application_settings_url }}"
+- name: "Disable signup and password authentication"
+  tags: gitlab.serving.config
+  gitlab_rails:
+    namespace: "{{ inventory_namespace }}"
+    ruby_postconditions_class: |
+      class ConfigureLoginPage < Postconditions
+        postcondition "signup disabled" do
+          settings.signup_enabled = false
+        end
+        postcondition "password authentication disabled" do
+          s = settings
+          s.password_authentication_enabled_for_web = false
+          s.password_authentication_enabled_for_git = false
+        end
 
-- with_items:
-    # Available settings: https://docs.gitlab.com/api/settings/#available-settings
-    - key: signup_enabled
-      value: false
-    - key: password_authentication_enabled_for_web
-      value: false
-    - key: password_authentication_enabled_for_git
-      value: false
-  name: "Set global configuration through API"
-  when: >-
-    _api_GET.json[item.key] != item.value
-  changed_when: true
-  ansible.builtin.uri:
-    method: PUT
-    headers: "{{ gitlab_api_auth_header }}"
-    url: >-
-      {{ gitlab_api_application_settings_url
-      }}?{{ item.key }}={{ item.value | to_json }}
+        def settings
+          ApplicationSetting.first
+        end
+      end
