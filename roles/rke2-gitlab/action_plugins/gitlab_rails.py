@@ -3,20 +3,18 @@ import json
 import yaml
 import shlex
 
-from kubernetes.client.apis import core_v1_api
-from kubernetes.stream import stream
-
 from ansible.plugins.action import ActionBase
 from ansible_collections.epfl_si.actions.plugins.module_utils.ansible_api import AnsibleActions, AnsibleResults
 
 from ansible_collections.epfl_si.k8s.plugins.module_utils.kubeconfig import Kubeconfig
+from ansible_collections.epfl_si.k8s.plugins.module_utils.exec import kube_exec
 
 class GitlabRailsAction (ActionBase):
     """Action class for postconditions expressed as Ruby code, to be run in the Rails console.
 
     Given that running the Rails console is expensive, we want to
     amortize any number of Rails postcondition classes into one
-    `epfl_si.k8s.k8s_exec` task. This also means that inheriting from
+    `kubectl exec`(-like) call. This also means that inheriting from
     Postcondition is not a good fit (we don't want two round-trips for
     `holds` and `enforce`); which in turn, forces this class to
     implement `--check` on its own.
@@ -24,19 +22,37 @@ class GitlabRailsAction (ActionBase):
     @AnsibleActions.run_method
     def run (self, args, ansible_api):
         self.ansible_api = ansible_api
-        self.client = Kubeconfig(
+
+        self.namespace = args["namespace"]
+        self.ruby_postconditions_class_text = args["ruby_postconditions_class"]
+
+        client = Kubeconfig(
             args=args,
             vars=ansible_api.jinja.vars,
             expand_vars_fn=ansible_api.jinja.expand).get_api_client()
+        k = kube_exec(
+            client,
+            self.namespace,
+            self._pod_name,
+            "webservice",
+            ["/srv/gitlab/bin/rails", "runner", "-"],
+            stdin=self._aggregated_ruby_code())
 
-        self.ruby_postconditions_class_text = args["ruby_postconditions_class"]
-        self.namespace = args["namespace"]
+        pessimistic_result = dict(
+            changed=True,
+            failed=True,
+            stdout=k.stdout,
+            stderr=k.stderr,
+            rc=k.rc,
+            return_code=k.rc)
 
-        return self._execute_in_rails_console(self._aggregated_ruby_code())
+        if k.rc == 0:
+            try:
+                return json.loads(k.stdout)
+            except Exception as e:
+                pessimistic_result["message"] = str(e)
 
-    @property
-    def _is_check_mode (self):
-        return self.ansible_api.check_mode.is_active
+        return pessimistic_result
 
     def _aggregated_ruby_code (self):
         # Debugging tip: put prologue, snippet and epilogue in a
@@ -150,60 +166,9 @@ puts JSON.pretty_generate(p.run_postconditions!(check: %s))
 
 """ % ("true" if self._is_check_mode else "false")
 
-    def _execute_in_rails_console (self, ruby_text):
-        api = core_v1_api.CoreV1Api(self.client.client)
-
-        # SIGHH. https://github.com/kubernetes-client/python/issues/2371
-        end_of_ruby_code = "##### END OF RUBY CODE #####"
-
-        resp = stream(
-            api.connect_get_namespaced_pod_exec,
-            self._pod_name,
-            self.namespace,
-            container="webservice",
-            stdin=True,
-            stdout=True,
-            stderr=True,
-            tty=False,
-            _preload_content=False,
-            command=[
-                "/bin/bash", "-c",
-                "sed '/%s/q' | /srv/gitlab/bin/rails runner -" %
-                end_of_ruby_code])
-
-        resp.write_stdin("%s\n\n%s\n" %(ruby_text, end_of_ruby_code))
-        stdout, stderr = [], []
-        while resp.is_open():
-            resp.update(timeout=1)
-            if resp.peek_stdout():
-                stdout.append(resp.read_stdout())
-            if resp.peek_stderr():
-                stderr.append(resp.read_stderr())
-
-        stdout="".join(stdout)
-        stderr="".join(stderr)
-
-        status = yaml.safe_load(resp.read_channel(3))
-        if status["status"] == "Success":
-            rc = 0
-        else:
-            rc = int(status["details"]["causes"][0]["message"])
-
-        error_result = dict(
-            changed=True,
-            failed=True,
-            stdout=stdout,
-            stderr=stderr,
-            rc=rc,
-            return_code=rc)
-
-        if rc == 0:
-            try:
-                return json.loads(stdout)
-            except Exception as e:
-                error_result["message"] = str(e)
-
-        return error_result
+    @property
+    def _is_check_mode (self):
+        return self.ansible_api.check_mode.is_active
 
     @cached_property
     def _pod_name (self):
