@@ -49,14 +49,3 @@
   tags:
     - rke2
     - rke2.monitoring
-
-- when: rke2_enable_automatic_upgrades
-  include_tasks:
-    file: upgrades.yml
-    apply:
-      tags:
-        - rke2
-        - rke2.upgrades
-  tags:
-    - rke2
-    - rke2.upgrades
