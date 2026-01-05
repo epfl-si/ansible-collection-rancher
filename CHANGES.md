@@ -1,3 +1,7 @@
+# Version 0.9.1: bugfix release
+
+- `rancher_rke2_insecure` now defaults to `false`
+
 # Version 0.9.0: feature release
 
 - New `force_redeploy` argument to `epfl_si.rancher.rancher_helm_chart` action plugin
