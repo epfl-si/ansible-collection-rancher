@@ -6,6 +6,11 @@
     - gitlab-vars.yml
     - ../../../vars/versions.yml
 
+- name: "`gitlab` Helm repository"
+  kubernetes.core.helm_repository:
+    name: gitlab
+    repo_url: https://charts.gitlab.io
+
 # We have to create the PVC if we want statically allocated storage;
 # that much is documented in the box below
 # https://docs.gitlab.com/charts/charts/gitlab/gitaly/#git-repository-persistence .
@@ -154,11 +159,9 @@
     content: "{{ _gitaly_helm_values | to_nice_yaml }}"
 
 - name: '“Public” Gitaly Helm chart'
-  epfl_si.rancher.rancher_helm_chart:
-      repository: gitlab
-      chart: gitlab
-      release: gitaly-epfl-public
-      namespace: "{{ inventory_namespace }}"
-      version: "{{ gitlab_chart_version }}"
-      values: "{{ _gitaly_helm_values }}"
-
+  epfl_si.k8s.helm:
+    name: gitaly-epfl-public
+    namespace: "{{ inventory_namespace }}"
+    chart_ref: gitlab/gitlab
+    chart_version: "{{ gitlab_chart_version }}"
+    values: "{{ _gitaly_helm_values }}"
