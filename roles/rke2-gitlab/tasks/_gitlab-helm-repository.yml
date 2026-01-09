@@ -3,3 +3,9 @@
     name: gitlab
     repo_url: https://charts.gitlab.io
   register: _gitlab_helm_repository
+
+- when: _gitlab_helm_repository is not changed
+  changed_when: false
+  name: "`helm repo update`"
+  shell:
+    cmd: helm repo update
