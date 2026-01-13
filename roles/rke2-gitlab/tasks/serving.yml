@@ -162,7 +162,8 @@
           omniauth:
             enabled: true
             allowSingleSignOn: ['oidc_entra_epfl', 'oidc_switch_edu_id_guest']
-            blockAutoCreatedUsers: false
+            blockAutoCreatedUsers: {{ "false" if inventory_deployment_stage == "prod"
+                                      else "true" }}
             autoLinkUser: ['oidc_entra_epfl', 'oidc_switch_edu_id_guest']
             syncProfileFromProvider: ['oidc_entra_epfl', 'oidc_switch_edu_id_guest']
             syncProfileAttributes: ['name', 'email']
