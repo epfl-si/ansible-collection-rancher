@@ -41,16 +41,17 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
 
         desired_state = args.get("state", "present")
         if desired_state == "present":
-            if namespace_is_owned and not self._namespace_exists:
-                self._do_create_namespace(is_system=namespace.get("system", False))
+            if namespace_is_owned:
+                self._ensure_namespace("present",
+                                       is_system=namespace.get("system", False))
             self._maybe_install_or_upgrade_helm_chart(
                 args.get("version"),
                 args.get("values", {}))
         elif desired_state == "absent":
             if self._helm_chart_is_installed:
                 self._do_uninstall_helm_chart()
-            if namespace_is_owned and self._namespace_exists:
-                self._do_delete_namespace()
+            if namespace_is_owned:
+                self._ensure_namespace("absent")
         else:
             raise ValueError(f"Unsupported value for state: {desired_state}")
 
@@ -179,22 +180,12 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
             }
         }
 
-    def _do_create_namespace (self, is_system):
-        definition = self._make_k8s_ns_definition(self.install_namespace)
-
-        if is_system:
-            # https://github.com/rancher/dashboard/commit/28b9165b3446a41a85f382df68953e209888573a
-            definition["metadata"]["annotations"] = {
-                "management.cattle.io/system-namespace": "true"
-            }
-
-        self.change("epfl_si.k8s.k8s",
-                    dict(definition=definition))
-
-    def _do_delete_namespace (self):
-        self.change("epfl_si.k8s.k8s",
-                    dict(state="absent",
-                         definition=self._make_k8s_ns_definition(self.install_namespace)))
+    def _ensure_namespace (self, state, is_system=None):
+        args = dict(name=self.install_namespace,
+                    state=state)
+        if is_system is not None:
+            args["is_system"] = is_system
+        self.change("epfl_si.rancher.namespace", args)
 
     @property
     def _helm_chart_is_installed (self):
@@ -204,13 +195,5 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
             kind='App',
             resource_name=self.chart_name,
             namespace=self.install_namespace)) > 0
-
-    @property
-    def _namespace_exists (self):
-        return len(self.ansible_api.jinja.lookup(
-            'epfl_si.k8s.k8s',
-            api_version='v1',
-            kind='namespace',
-            resource_name=self.install_namespace)) > 0
 
 ActionModule = RancherHelmChartAction
