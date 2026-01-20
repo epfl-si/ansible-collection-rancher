@@ -157,8 +157,8 @@
           tls:
             secretName: gitlab-tls
 
-        # Documentation: https://docs.gitlab.com/integration/omniauth/#configure-common-settings
         appConfig:
+          # Documentation: https://docs.gitlab.com/integration/omniauth/#configure-common-settings
           omniauth:
             enabled: true
             allowSingleSignOn: ['oidc_entra_epfl', 'oidc_switch_edu_id_guest']
