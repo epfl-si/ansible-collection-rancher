@@ -28,10 +28,7 @@ EXAMPLES = '''
 '''
 
 from ansible.plugins.lookup import LookupBase
-from ansible.utils.display import Display
 from ansible_collections.kubernetes.core.plugins.module_utils.k8s.client import get_api_client
-
-display = Display()
 
 class LookupModule(LookupBase):
     def _get_custom_resource (self, client, kind, api_version):
