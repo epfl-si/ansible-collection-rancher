@@ -27,37 +27,14 @@ EXAMPLES = '''
                 display_name="System") }}
 '''
 
-from ansible.plugins.lookup import LookupBase
-from ansible_collections.epfl_si.k8s.plugins.lookup.k8s import LookupModule as K8sLookup
+from ansible_collections.epfl_si.rancher.plugins.lookup._rancher_lookup_base import RancherLookupBase
 
-class LookupModule (LookupBase):
-    def _get_custom_resource (self, kind, api_version):
-        return K8sLookup(self._loader, self._templar).run(
-            [],
-            variables=self._variables,
-            api_version=api_version, kind=kind,
-            **self._kwargs)
-
-    @property
-    def _all_clusters (self):
-        return self._get_custom_resource('cluster', 'provisioning.cattle.io/v1')
-
-    @property
-    def _all_projects (self):
-        return self._get_custom_resource('project', 'management.cattle.io/v3')
-
+class LookupModule (RancherLookupBase):
     def run (self, terms, variables=None, display_name=None, **kwargs):
-        self._variables = variables
-        self._kwargs = kwargs
-
-        this_cluster_name = variables["ansible_rancher_cluster_name"]
-        [this_cluster_id] = (
-            c["status"]["clusterName"] for c in self._all_clusters
-            if c["metadata"]["name"] == this_cluster_name)
-        assert this_cluster_id is not None
+        self._init_rancher(variables, kwargs)
 
         projects = [p for p in self._all_projects
-                    if p["spec"]["clusterName"] == this_cluster_id]
+                    if p["spec"]["clusterName"] == self._rancher_cluster_id]
 
         if display_name is not None:
             projects = [p for p in projects
