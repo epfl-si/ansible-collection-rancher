@@ -1,0 +1,24 @@
+- run_once: true
+  name: "`Project/gitlab`"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: management.cattle.io/v3
+      kind: Project
+      metadata:
+        name: gitlab
+        namespace: "{{ _cluster_name }}"
+      spec:
+        clusterName: "{{ _cluster_name }}"
+        displayName: gitlab
+  register: _project_in_rancher
+  vars:
+    ansible_k8s_kubeconfig: "rke2-credentials-cache/local.yml"
+    _cluster_name: >-
+      {{ lookup("epfl_si.rancher.rancher_cluster",
+                display_name="gitlab",
+                kubeconfig=ansible_k8s_kubeconfig).metadata.name }}
+
+- name: "`namespace/{{ inventory_namespace }}`"
+  epfl_si.rancher.namespace:
+    name: "{{ inventory_namespace }}"
+    project: "{{ _project_in_rancher.result.metadata }}"
