@@ -39,6 +39,22 @@ options:
     default: false
     description: Whether the namespace should be identified as a system namespace
       in the Rancher UI
+  project:
+    required: false
+    type: complex
+    description: points to The Kubernetes `Project` object in the upstream Rancher,
+      that this namespace should belong to.
+    suboptions:
+      namespace:
+        required: true
+        type: str
+        description: The namespace of the C(Project) object in the upstream Rancher,
+           that this namespace should belong to.
+      name:
+        required: true
+        type: str
+        description: The name of the C(Project) object in the upstream Rancher,
+           that this namespace should belong to.
 
 version_added: 0.10.0
 '''

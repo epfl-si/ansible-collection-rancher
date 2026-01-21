@@ -8,6 +8,7 @@ class RancherNamespaceAction (ActionBase, RancherActionMixin):
         self._init_rancher(ansible_api=ansible_api)
         self.name = args["name"]
         self.is_system = args.get("system", False)
+        self.project = args.get("project")
 
         desired_state = args.get("state", "present")
         if desired_state == "present":
@@ -28,11 +29,17 @@ class RancherNamespaceAction (ActionBase, RancherActionMixin):
     def _do_create_or_update (self):
         definition = self._k8s_ns_definition
 
+        def annotate (key, val):
+            definition["metadata"].setdefault("annotations", {})[key] = val
+
         if self.is_system:
             # https://github.com/rancher/dashboard/commit/28b9165b3446a41a85f382df68953e209888573a
-            definition["metadata"]["annotations"] = {
-                "management.cattle.io/system-namespace": "true"
-            }
+            annotate("management.cattle.io/system-namespace", "true")
+
+        if self.project:
+            annotate("field.cattle.io/projectId", "%s:%s" %
+                     (self.project["namespace"],
+                      self.project["name"]))
 
         self.change("epfl_si.k8s.k8s",
                     dict(definition=definition))
