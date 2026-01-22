@@ -4,4 +4,4 @@ postgresql_major_version: 17
 
 metallb_chart_version: 0.14.5
 gitlab_runner_chart_version: 0.84.1
-gitlab_chart_version: 9.7.1
+gitlab_chart_version: 9.8.2
