@@ -2,7 +2,7 @@ collections:
   - name: community.general
   - name: kubernetes.core.k8s
   - name: epfl_si.k8s
-    version: ">=0.6.0"
+    version: ">=0.7.0"
   - name: epfl_si.rancher
     version: ">=0.8.0"
   - name: epfl_si.quay
