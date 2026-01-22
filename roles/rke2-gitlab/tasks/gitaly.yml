@@ -6,7 +6,10 @@
     - gitlab-vars.yml
     - ../../../vars/versions.yml
 
-- import_tasks: _gitlab-helm-repository.yml
+- name: "`gitlab` Helm repository"
+  epfl_si.k8s.helm_repository:
+    name: gitlab
+    repo_url: https://charts.gitlab.io
 
 # We have to create the PVC if we want statically allocated storage;
 # that much is documented in the box below

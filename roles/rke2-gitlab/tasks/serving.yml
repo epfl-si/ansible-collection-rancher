@@ -13,7 +13,10 @@
     name: gitlab_credentials
     file: gitlab-credentials.yml
 
-- import_tasks: _gitlab-helm-repository.yml
+- name: "`gitlab` Helm repository"
+  epfl_si.k8s.helm_repository:
+    name: gitlab
+    repo_url: https://charts.gitlab.io
 
 - name: "Secret/gitlab-epfl-provider (Entra)"
   register: _secret_entra_provider

@@ -62,16 +62,9 @@
           {% endfor %}
 
 - name: "`rancher` Helm repository"
-  kubernetes.core.helm_repository:
+  epfl_si.k8s.helm_repository:
     name: rancher
     repo_url: https://charts.rancher.io/
-  register: _rancher_helm_repository
-
-- when: _rancher_helm_repository is not changed
-  changed_when: false
-  name: "`helm repo update`"
-  shell:
-    cmd: helm repo update
 
 - name: "`Namespace/cattle-monitoring-system`"   # The chart won't let you choose another
   epfl_si.rancher.namespace:
