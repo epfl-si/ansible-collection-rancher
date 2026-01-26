@@ -65,6 +65,9 @@
           additionalArguments:
             # Make dashboard visible to people who port-forward 8080:
             - --api.insecure
+            # Transmit %2F's to GitLab API
+            # (https://aibix.io/gitlab/gitlab-18-x-hinter-traefik-warum-ploetzlich-http-400-bei-api-calls-auftreten/):
+            - --entrypoints.websecure.http.encodedCharacters.allowEncodedSlash
           ingressClass:
             # All `Ingress` objects (and `Ingress`-ish objects,
             # such as the `IngressRouteTCP` object for port 22, below)
