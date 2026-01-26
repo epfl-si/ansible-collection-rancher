@@ -257,8 +257,13 @@
       {% if (inventory_deployment_stage == "test") %}
           minReplicas: 1
           maxReplicas: 1
+      {% endif %}
 
         gitlab-shell:
+          resources:
+            limits:
+              memory: 4G
+      {% if (inventory_deployment_stage == "test") %}
           minReplicas: 1
           maxReplicas: 1
 
