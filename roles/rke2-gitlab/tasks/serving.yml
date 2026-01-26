@@ -311,6 +311,7 @@
     chart_ref: gitlab/gitlab
     chart_version: "{{ gitlab_chart_version }}"
     values: "{{ _gitlab_helm_values }}"
+    post_renderer: "{{ role_path }}/scripts/gitlab-post-renderer"
 
 - name: "Wait for {{ gitlab_hostname }} to come up"
   changed_when: false

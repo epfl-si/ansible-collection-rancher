@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+
+"""Set a channel timeout for GitLab's openssh server."""
+
+import re
+import sys
+import yaml
+
+def do_patch(obj):
+    if obj["kind"] != "ConfigMap":
+        return obj
+
+    if "sshd" not in obj["metadata"]["name"]:
+        return obj
+
+    if "sshd_config" not in obj["data"]:
+        return obj
+
+    obj["data"]["sshd_config"] = patch_one_line(
+        obj["data"]["sshd_config"],
+        "ChannelTimeout",
+        "ChannelTimeout session=5m")
+
+    return obj
+
+
+def patch_one_line (config_multiline, keyword, replacement):
+    """Replace any occurrence of `keyword` on a line with `replacement`.
+
+    This is idempotent and works regardless of whether `keyword` is
+    present, absent, or commented out.
+    """
+    if not config_multiline.endswith("\n"):
+        config_multiline = "%s\n" % config_multiline
+    keep_lines = [l for l in config_multiline.split("\n")
+                  if keyword not in l][:-1]
+    return "".join(
+        "%s\n" % l for l in keep_lines + [replacement])
+
+
+for obj in yaml.load_all(sys.stdin, yaml.SafeLoader):
+    if obj is None:
+        continue
+    obj = do_patch(obj)
+    sys.stdout.write("---\n" + yaml.dump(obj))
