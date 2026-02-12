@@ -113,6 +113,8 @@
           persistence:
             enabled: true
             storageClass: "-"   # Meaning, no auto-provisioning
+          extraEnv:
+            GITLAB_LOGGER_TRUNCATE_LOGS: "true"
 
         # Disable non gitaly-related services
         webservice:
