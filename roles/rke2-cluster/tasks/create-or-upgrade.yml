@@ -11,7 +11,10 @@
     file: ../../../tasks/_rancher_login.yml
 
 - tags: always
-  include_vars: ../../../vars/versions.yml
+  include_vars: "../../../vars/{{ item }}"
+  with_items:
+    - versions.yml
+    - ipam-vars.yml
 
 - when: >-
     "rke2.cluster.upgrade" not in ansible_run_tags
@@ -52,8 +55,8 @@
             snapshotScheduleCron: 0 */4 * * *
           machineGlobalConfig:
             cni: canal
-            cluster-cidr: 192.168.0.0/15,fc04::/60
-            service-cidr: 192.168.128.0/20,fc04:0000:0000:0010::/108
+            cluster-cidr: "{{ ipam_ipv4_pod_cidr     }},{{ ipam_ipv6_pod_cidr     }}"
+            service-cidr: "{{ ipam_ipv4_service_cidr }},{{ ipam_ipv6_service_cidr }}"
           chartValues:
             rke2-canal: {}
           upgradeStrategy:

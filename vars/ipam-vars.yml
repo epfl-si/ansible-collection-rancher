@@ -1,0 +1,5 @@
+ipam_ipv4_pod_cidr:     192.168.0.0/15
+ipam_ipv4_service_cidr: 192.168.128.0/20
+
+ipam_ipv6_pod_cidr:     fc04::/60
+ipam_ipv6_service_cidr: fc04:0000:0000:0010::/108
