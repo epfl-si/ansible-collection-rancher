@@ -28,7 +28,7 @@ ensure_suitcase () {
             SUITCASE_ANSIBLE_VERSION=10.3.0 \
             SUITCASE_WITH_EYAML=1 \
             SUITCASE_WITH_HELM=1 \
-            SUITCASE_PIP_EXTRA="kubernetes dnspython bcrypt<5 passlib cryptography" \
+            SUITCASE_PIP_EXTRA="kubernetes requests dnspython bcrypt<5 passlib cryptography" \
             SUITCASE_ANSIBLE_REQUIREMENTS=requirements.yml \
             bash -x
     fi
