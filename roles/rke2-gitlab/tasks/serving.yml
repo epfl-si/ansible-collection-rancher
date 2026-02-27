@@ -6,7 +6,7 @@
     - gitlab-vars.yml
     - openid-secrets.yml
     - ../../../vars/versions.yml
-    - ../../vars/ssh-secrets.yml
+    - ../../../vars/ssh-secrets.yml
 
 - tags: always
   include_vars:
