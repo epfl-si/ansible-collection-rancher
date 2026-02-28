@@ -1,5 +1,7 @@
 rke2_updates_channel: https://update.rke2.io/v1-release/channels/stable
 gitlab_runner_alpine_version: 3.18
+# We want to follow GitLab's own adoption agenda, not jump ahead of it; see
+#  https://gitlab.com/groups/gitlab-com/gl-infra/data-access/dbo/-/epics/52
 postgresql_major_version: 17
 
 metallb_chart_version: 0.15.3
