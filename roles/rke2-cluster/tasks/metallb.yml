@@ -20,6 +20,18 @@
       owned: true
       system: true
     version: "{{ metallb_chart_version }}"
+    values:
+      speaker:
+        nodeSelector:
+          node-role.kubernetes.io/control-plane: "true"
+        tolerations:
+          - operator: "Exists"  # i.e. it doesn't care about any taints
+
+      controller:
+        nodeSelector:
+          node-role.kubernetes.io/control-plane: "true"
+        tolerations:
+          - operator: "Exists"
 
 - name: "VIPs for MetalLB"
   epfl_si.k8s.k8s:

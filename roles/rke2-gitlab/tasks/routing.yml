@@ -78,6 +78,11 @@
             prometheus:
               serviceMonitor:
                 enabled: true
+          # Run on the control plane nodes
+          tolerations:
+          - operator: "Exists"   # i.e. it doesn't care about any taints
+          nodeSelector:
+            node-role.kubernetes.io/control-plane: "true"
 
 - name: "IngressRouteTCP/gitlab-ssh"
   epfl_si.k8s.k8s:
