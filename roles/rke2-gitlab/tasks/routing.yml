@@ -24,6 +24,7 @@
         selector:
           app.kubernetes.io/name: rke2-traefik
         type: LoadBalancer
+        externalTrafficPolicy: Local
         ipFamilies: ["{{ item.ipFamily }}"]
         loadBalancerIP: "{{ item.vip }}"
         ports:
