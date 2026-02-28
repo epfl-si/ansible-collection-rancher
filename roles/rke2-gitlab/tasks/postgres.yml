@@ -118,3 +118,49 @@
         target: prefer-standby
     _s3: >-
       {{ gitlab_credentials.s3_backups }}
+
+- tags: gitlab.postgres.loadtest
+  when: >-
+    inventory_deployment_stage == "test"
+  name: PostgreSQL load test
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: batch/v1
+      kind: Job
+      metadata:
+        name: pgbench
+        namespace: "{{ inventory_namespace }}"
+      spec:
+        template:
+          spec:
+            containers:
+            - name: pgbench
+              image: postgres:17
+              command: ["pgbench"]
+              args: >-
+                {{ _pgbench_credentials + _pgbench_loadtest_args }}
+              env: "{{ _env }}"
+            restartPolicy: Never
+            initContainers:
+            - name: pgbench-init
+              image: postgres:17
+              command: ["pgbench"]
+              args: >-
+                {{ _pgbench_credentials +
+                ["-i"] }}
+              env: "{{ _env }}"
+        backoffLimit: 0
+  vars:
+    _pgbench_credentials: ["-h", "gitlab-cloudpg-rw",
+                           "-U", "gitlab",
+                           "{{ pg_main_rails_database_name }}"]
+    _pgbench_loadtest_args: [
+         "-c", "1",    # Concurrency level. We don't want too heavy a load test
+         "-T", "86400" # All day (not every day)
+       ]
+    _env:
+    - name: PGPASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: gitlab-cloudpg-gitlab
+          key: password
