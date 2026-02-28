@@ -309,6 +309,8 @@
     name: gitlab
     namespace: "{{ inventory_namespace }}"
     chart_ref: gitlab/gitlab
+    force: >-
+      {{ helm_force is defined }}
     chart_version: "{{ gitlab_chart_version }}"
     values: "{{ _gitlab_helm_values }}"
     post_renderer: "{{ role_path }}/scripts/gitlab-post-renderer"

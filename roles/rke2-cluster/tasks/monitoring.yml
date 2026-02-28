@@ -76,6 +76,8 @@
     name: rancher-monitoring
     namespace: "cattle-monitoring-system"
     chart_ref: rancher/rancher-monitoring
+    force: >-
+      {{ helm_force is defined }}
     values:
       rke2Etcd:
         enabled: true

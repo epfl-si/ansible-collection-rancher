@@ -166,4 +166,6 @@
     namespace: "{{ inventory_namespace }}"
     chart_ref: gitlab/gitlab
     chart_version: "{{ gitlab_chart_version }}"
+    force: >-
+      {{ helm_force is defined }}
     values: "{{ _gitaly_helm_values }}"
