@@ -138,6 +138,7 @@
                   '''
 
 - name: Check build automation (manual task)
+  when: auto is not defined
   ansible.builtin.pause:
     prompt: |
       🛑 Please ensure that your RKE2 cluster's GitLab runner is now

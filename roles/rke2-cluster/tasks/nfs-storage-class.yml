@@ -36,6 +36,7 @@
 
 
 - name: IP-level access to NAS (manual tasks)
+  when: auto is not defined
   ansible.builtin.pause:
     prompt: |
 
