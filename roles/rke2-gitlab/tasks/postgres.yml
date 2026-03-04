@@ -119,6 +119,23 @@
     _s3: >-
       {{ gitlab_credentials.s3_backups }}
 
+- name: "`Pooler/gitlab-postgresql`"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: postgresql.cnpg.io/v1
+      kind: Pooler
+      metadata:
+        name: gitlab-postgresql
+        namespace: "{{ inventory_namespace }}"
+      spec:
+        cluster:
+          name: gitlab-cloudpg
+
+        instances: 3
+        type: rw
+        pgbouncer:
+          poolMode: session
+
 - tags: gitlab.postgres.loadtest
   when: >-
     inventory_deployment_stage == "test"
