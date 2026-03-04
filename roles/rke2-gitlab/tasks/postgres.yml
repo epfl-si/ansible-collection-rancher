@@ -132,6 +132,23 @@
         pgbouncer:
           poolMode: session
 
+- name: "`PodMonitor/gitlab-cloudpg`"
+  # Note: the label catches both PostgreSQL and PgBouncer
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: monitoring.coreos.com/v1
+      kind: PodMonitor
+      metadata:
+        name: gitlab-cloudpg
+        namespace: "{{ inventory_namespace }}"
+      spec:
+        selector:
+          matchLabels:
+            cnpg.io/cluster: gitlab-cloudpg
+        podMetricsEndpoints:
+        - port: metrics
+
+
 - tags: gitlab.postgres.loadtest
   when: >-
     inventory_deployment_stage == "test"
