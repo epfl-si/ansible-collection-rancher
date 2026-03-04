@@ -76,6 +76,9 @@
           size: 8Gi
         affinity:
           topologyKey: kubernetes.io/hostname
+        postgresql:
+          parameters:
+            max_connections: "200"
         bootstrap:
           initdb:
             import:
@@ -132,6 +135,7 @@
         pgbouncer:
           poolMode: session
           parameters:
+            default_pool_size: "50"
             max_client_conn: "1000"
 
 - name: "`PodMonitor/gitlab-cloudpg`"
