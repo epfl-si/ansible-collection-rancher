@@ -131,6 +131,8 @@
         type: rw
         pgbouncer:
           poolMode: session
+          parameters:
+            max_client_conn: "1000"
 
 - name: "`PodMonitor/gitlab-cloudpg`"
   # Note: the label catches both PostgreSQL and PgBouncer
