@@ -1,6 +1,6 @@
 pg_main_rails_database_name: gitlabhq_production
 
-pg_password_secret_key_ref:
+pg_restore_secret_key_ref:
   name: >-
     {{ "postgres-prod-passwords"
     if inventory_deployment_stage == "test"

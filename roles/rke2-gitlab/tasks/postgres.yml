@@ -96,8 +96,8 @@
             host: gitlab-postgresql.gitlab.svc.cluster.local.
             user: postgres
           password:
-            name: {{ pg_password_secret_key_ref.name }}
-            key:  {{ pg_password_secret_key_ref.key }}
+            name: {{ pg_restore_secret_key_ref.name }}
+            key:  {{ pg_restore_secret_key_ref.key }}
       {% endif %}
       env:
         - name: AWS_REQUEST_CHECKSUM_CALCULATION
