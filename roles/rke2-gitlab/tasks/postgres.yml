@@ -70,6 +70,7 @@
         name: gitlab-cloudpg
         namespace: "{{ inventory_namespace }}"
       spec:
+        imageName: ghcr.io/cloudnative-pg/postgresql:{{ postgresql_major_version }}-system-trixie
         instances: 2
         storage:
           size: 8Gi
