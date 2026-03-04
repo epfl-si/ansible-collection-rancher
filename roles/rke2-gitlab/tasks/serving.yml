@@ -13,6 +13,11 @@
     name: gitlab_credentials
     file: gitlab-credentials.yml
 
+- tags: always
+  include_vars:
+    name: postgres_secrets
+    file: postgres-secrets.yml
+
 - name: "`gitlab` Helm repository"
   epfl_si.k8s.helm_repository:
     name: gitlab
@@ -145,6 +150,25 @@
     _s3: "{{ gitlab_credentials.s3_storage }}"
     _keys: "{{ gitlab_credentials.eyaml_keys }}"
 
+- name: "Secret/gitlab-postgresql-password"
+  epfl_si.k8s.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: gitlab-postgresql-password
+        namespace: "{{ inventory_namespace }}"
+      type: Opaque
+      stringData:
+        username: >-
+          {{ _pg.username }}
+        password: >-
+          {{ _pg.password | eyaml(postgres_secrets.eyaml_keys) }}
+  vars:
+    _pg: >-
+      {{ postgres_secrets.postgres[inventory_deployment_stage] }}
+
 - tags: always
   set_fact:
     _gitlab_helm_values: >-
@@ -159,6 +183,14 @@
           class: traefik
           tls:
             secretName: gitlab-tls
+
+        psql:
+          # See ./postgresql.yml
+          host: gitlab-postgresql
+          password:
+            # See Secret/gitlab-postgresql-password, above
+            secret: gitlab-postgresql-password
+            key: password
 
         appConfig:
           # Documentation: https://docs.gitlab.com/integration/omniauth/#configure-common-settings
@@ -278,8 +310,7 @@
             enabled: true
 
       postgresql:
-        image:
-          tag: "{{ postgresql_major_version }}"
+        install: false
 
       # Do not create / manage an IngressClass
       nginx-ingress:
