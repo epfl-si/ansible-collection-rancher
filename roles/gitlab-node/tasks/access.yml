@@ -7,5 +7,6 @@
 
   with_items:
     - key: https://github.com/domq.keys
+    - key: https://github.com/ponsfrilus.keys
     - key: https://gitlab.com/avidalqim.keys
       state: absent
