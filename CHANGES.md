@@ -1,3 +1,9 @@
+# Version 0.10.0: feature release
+
+- `epfl_si.rancher.namespace` action plugin, which knows about Rancher specifics for
+  namespaces i.e. projects, and system namespaces
+- `epfl_si.rancher.rancher_cluster` lookup plugin
+
 # Version 0.9.1: bugfix release
 
 - `rancher_rke2_insecure` now defaults to `false`
