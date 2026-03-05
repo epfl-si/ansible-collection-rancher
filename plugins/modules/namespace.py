@@ -15,7 +15,8 @@ description:
   runs on the Ansible controller (*not* over any remote shell,
   regardless of `ansible_connection` etc. settings)
 
-- This action plugin creates or deletes namespaces, and manages its
+- >
+  This action plugin creates or deletes namespaces, and manages its
   Rancher-specific annotations and relationships, namely: whether the
   namespace appears as a B(system namespace) in the Rancher manager UI;
   and whether it is part of a B(project), which interacts with access
