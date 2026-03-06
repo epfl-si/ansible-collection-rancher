@@ -20,3 +20,21 @@
     marker: '# {mark} ANSIBLE MANAGED BLOCK - kubectl'
     block: |
       export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
+
+- when: rancher_rke2_has_etcd
+  name: install etcdctl
+  ansible.builtin.apt:
+    name: etcd-client
+
+- when: rancher_rke2_has_etcd
+  name: "{{ _env_script }}"
+  ansible.builtin.copy:
+    dest: "{{ _env_script }}"
+    content: |
+      export ETCDCTL_ENDPOINTS='https://127.0.0.1:2379'
+      export ETCDCTL_CACERT='/var/lib/rancher/rke2/server/tls/etcd/server-ca.crt'
+      export ETCDCTL_CERT='/var/lib/rancher/rke2/server/tls/etcd/server-client.crt'
+      export ETCDCTL_KEY='/var/lib/rancher/rke2/server/tls/etcd/server-client.key'
+      export ETCDCTL_API=3
+  vars:
+    _env_script: /etc/profile.d/rke2-etcdctl.sh
