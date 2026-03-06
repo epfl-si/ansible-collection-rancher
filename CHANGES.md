@@ -1,3 +1,7 @@
+# Version 0.11.0: feature release
+
+- The `rke2-node` role now installs and configures etcdctl on etcd nodes (as part of `-t rke2-node.interactive`)
+
 # Version 0.10.0: feature release
 
 - `epfl_si.rancher.namespace` action plugin, which knows about Rancher specifics for
