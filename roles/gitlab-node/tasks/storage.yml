@@ -49,6 +49,17 @@
   when: >-
     ("TYPE=" + node_storage_rancher_lv.fs) not in _blkid_output.stdout
 
+- name: "`/var/lib/rancher/kubelet`"
+  ansible.builtin.file:
+    state: directory
+    path: /var/lib/rancher/kubelet
+
+- name: "`/var/lib/kubelet` → `/var/lib/rancher/kubelet`"
+  ansible.builtin.file:
+    state: link
+    dest: /var/lib/kubelet
+    src: /var/lib/rancher/kubelet
+
 - name: "Put up {{ node_storage_rancher_lv_devname }} in fstab and mount it"
   ansible.posix.mount:
      state: mounted
