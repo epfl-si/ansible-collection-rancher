@@ -33,20 +33,20 @@
       spec:
         accessModes:
           - ReadWriteMany
-        volumeName: repo-data-epfl-public
+        volumeName: "{{ gitlab_public_repo_data_pv_name }}"
         resources:
           requests:
             storage: "{{ gitlab_repo_volume_size }}"
         storageClassName: ""    # Prevents OUT0011449 😜
 
-- name: "pv/repo-data-epfl-public"
+- name: "`PersistentVolume`s for repository data"
   epfl_si.k8s.k8s:
     state: present
     definition:
       apiVersion: v1
       kind: PersistentVolume
       metadata:
-        name: repo-data-epfl-public
+        name: "{{ gitlab_public_repo_data_pv_name }}"
         labels:
           gitaly-repo-data-owner: epfl
       spec:
@@ -59,10 +59,14 @@
         nfs:
           # As seen in https://portal-xaas-its.epfl.ch/automation/#/service/catalog/consume/deployment/15c5d030-fc77-449c-a33f-bf0a537d4d5e
           server: nas-app-ma-nfs1.epfl.ch
-          path: "/si_gitlab_app/repositories"
+          path: "/si_gitlab_app/repositories{{ _storage_suffix }}"
         claimRef:                     # Pre-binding to the specific PVC defined above
           namespace: "{{ inventory_namespace }}"
           name: repo-data-gitaly-epfl-public-gitaly-0
+  vars:
+    _storage_suffix: >-
+      {{ ""if inventory_deployment_stage == "prod"
+      else "_%s" % inventory_deployment_stage }}
 
 - tags: always
   set_fact:

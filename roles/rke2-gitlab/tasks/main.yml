@@ -70,8 +70,7 @@
 # `gitaly` comes after `serving`, because the Gitaly Helm chart
 # consumes objects (such as `Secret/gitlab-registry-notification`)
 # managed by the GitLab one:
-- when: inventory_deployment_stage == "prod"
-  include_tasks:
+- include_tasks:
     file: gitaly.yml
     apply:
       tags:

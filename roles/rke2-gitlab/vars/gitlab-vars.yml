@@ -57,3 +57,7 @@ gitlab_charts_common_values:
         enabled: false
       prometheus:
         install: false
+
+gitlab_public_repo_data_pv_name: >-
+  repo-data-epfl-public{{ "" if inventory_deployment_stage == "prod"
+  else "-%s" % inventory_deployment_stage }}
