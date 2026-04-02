@@ -2,7 +2,6 @@
 # {{ ansible_rancher_cluster_name }} point to, and store the
 # kubeconfig into {{ ansible_k8s_kubeconfig }}.
 
-
 - delegate_to: localhost
   changed_when: false
   name: Check existing Rancher credentials

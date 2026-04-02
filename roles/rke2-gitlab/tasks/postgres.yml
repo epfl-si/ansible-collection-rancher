@@ -129,7 +129,6 @@
       spec:
         cluster:
           name: gitlab-cloudpg
-
         instances: 3
         type: rw
         pgbouncer:
@@ -153,7 +152,6 @@
             cnpg.io/cluster: gitlab-cloudpg
         podMetricsEndpoints:
         - port: metrics
-
 
 - tags: gitlab.postgres.loadtest
   when: >-
