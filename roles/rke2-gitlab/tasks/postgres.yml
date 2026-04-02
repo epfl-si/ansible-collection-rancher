@@ -118,6 +118,21 @@
     _s3: >-
       {{ gitlab_credentials.s3_backups }}
 
+- name: "`ScheduledBackup/gitlab-cloudpg`"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: postgresql.cnpg.io/v1
+      kind: ScheduledBackup
+      metadata:
+        name: gitlab-cloudpg
+        namespace: "{{ inventory_namespace }}"
+      spec:
+        schedule: "00 05 0,6,12,18 * * *"
+        cluster:
+          name: gitlab-cloudpg
+        target: prefer-standby
+        backupOwnerReference: self
+
 - name: "`Pooler/gitlab-postgresql`"
   epfl_si.k8s.k8s:
     definition:
