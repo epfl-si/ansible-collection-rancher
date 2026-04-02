@@ -10,7 +10,7 @@
   delegate_to: localhost
   tags:
     - never
-    - gitlab.tls.csr
+    - tls.csr
   run_once: true
   community.crypto.openssl_csr:
     path: "{{ playbook_dir }}/gitlab.csr"
@@ -25,7 +25,8 @@
       - 'DNS:{{ h }}'
       {% endfor %}
 
-- tags: gitlab.tls.csr
+- tags: always
+  run_once: true
   when: (_csr | default({})) is changed
   ansible.builtin.pause:
     prompt: |
@@ -35,18 +36,17 @@
       Instructions for the EPFL CA are available at https://rauth.epfl.ch/
 
       Once you're done, please put the certificate into
-      {{ playbook_dir }}/roles/rke2-gitlab/vars/tls-credentials.yml
+      {{ playbook_dir }}/roles/tls-server-certs/vars/tls-credentials.yml
       and run `gitsible` again.
 
 - name: "TLS certificate"
-  with_items: "{{ tls_target_namespaces }}"
   epfl_si.k8s.k8s:
     definition:
       apiVersion: v1
       kind: Secret
       metadata:
         name: gitlab-tls
-        namespace: "{{ item }}"
+        namespace: "{{ inventory_namespace }}"
       stringData:
         tls.key: "{{ tls_private_key }}"
         tls.crt: |

@@ -1,10 +1,16 @@
 all:
   children:
-    gitlab_rke2_namespaces:
+    all_namespaces:
       children:
-        gitlab_rke2_prod_namespaces:
-          "hosts":  # Scarequotes intended — These are Kubernetes
-                    # namespaces, but Ansible doesn't know any better
-            gitlab:
-              inventory_namespace: gitlab
-              inventory_deployment_stage: prod
+        gitlab_rke2_namespaces:
+          children:
+            gitlab_rke2_prod_namespaces:
+              "hosts":  # Scarequotes intended — These are Kubernetes
+                        # namespaces, but Ansible doesn't know any better
+                gitlab:
+                  inventory_namespace: gitlab
+                  inventory_deployment_stage: prod
+        system_rke2_namespaces:
+          "hosts":
+            cattle-monitoring-system:
+              inventory_namespace: cattle-monitoring-system

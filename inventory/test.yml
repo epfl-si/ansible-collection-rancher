@@ -1,13 +1,15 @@
 all:
   children:
-    gitlab_rke2_namespaces:
+    all_namespaces:
       children:
-        gitlab_rke2_test_namespaces:
-          "hosts":  # Scarequotes intended — These are Kubernetes
-                    # namespaces, but Ansible doesn't know any better
-            gitlab-test:
-              inventory_namespace: gitlab-test
-              inventory_deployment_stage: test
+        gitlab_rke2_namespaces:
+          children:
+            gitlab_rke2_test_namespaces:
+              "hosts":  # Scarequotes intended — These are Kubernetes
+                        # namespaces, but Ansible doesn't know any better
+                gitlab-test:
+                  inventory_namespace: gitlab-test
+                  inventory_deployment_stage: test
       vars:
         # Vars common to all RKE2 namespaces (including the production ones):
         ansible_connection: local

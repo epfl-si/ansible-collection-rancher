@@ -1,0 +1,8 @@
+- include_tasks:
+    file: tls.yml
+    apply:
+      tags:
+        - tls
+  tags:
+    - tls
+    - tls.csr

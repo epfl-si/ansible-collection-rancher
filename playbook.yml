@@ -39,21 +39,23 @@
 - hosts: gitlab_rke2_clusters
   gather_facts: no
   roles:
-    - role: gitlab-tls
+    - role: rke2-cluster
+      vars:
+        rke2_cluster_expose_prometheus_as_hostname: "gitlab-prometheus.epfl.ch"
+  vars:
+    ansible_k8s_kubeconfig: "rke2-credentials-cache/{{ inventory_hostname }}.yml"
+
+- hosts:
+    - cattle-monitoring-system   # for gitlab-prometheus
+    - gitlab
+  roles:
+    - role: tls-server-secrets
       vars:
         tls_certify_hostnames:
         - gitlab.epfl.ch
         - gitlab-test.epfl.ch
         - gitlab-next.epfl.ch
         - gitlab-prometheus.epfl.ch
-        tls_target_namespaces:
-        - cattle-monitoring-system   # for gitlab-prometheus
-        - gitlab
-    - role: rke2-cluster
-      vars:
-        rke2_cluster_expose_prometheus_as_hostname: "gitlab-prometheus.epfl.ch"
-  vars:
-    ansible_k8s_kubeconfig: "rke2-credentials-cache/{{ inventory_hostname }}.yml"
 
 - hosts: gitlab_rke2_namespaces
   gather_facts: no
