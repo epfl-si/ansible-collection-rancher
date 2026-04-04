@@ -7,7 +7,10 @@ class RancherNamespaceAction (ActionBase, RancherActionMixin):
     def run (self, args, ansible_api):
         self._init_rancher(ansible_api=ansible_api)
         self.name = args["name"]
-        self.is_system = args.get("system", False)
+        self.is_system = (args.get("is_system", False)
+                          # Stay compatibile with earlier misfeature:
+                          or namespace.get("system", False))
+
         self.project = args.get("project")
 
         desired_state = args.get("state", "present")

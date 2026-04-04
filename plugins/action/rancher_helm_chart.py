@@ -42,8 +42,11 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
         desired_state = args.get("state", "present")
         if desired_state == "present":
             if namespace_is_owned:
-                self._ensure_namespace("present",
-                                       is_system=namespace.get("system", False))
+                self._ensure_namespace(
+                    "present",
+                    is_system=(namespace.get("is_system", False)
+                               # Stay compatibile with earlier misfeature:
+                               or namespace.get("system", False)))
             self._maybe_install_or_upgrade_helm_chart(
                 args.get("version"),
                 args.get("values", {}))
