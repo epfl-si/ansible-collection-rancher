@@ -27,7 +27,7 @@ class RancherNamespaceAction (ActionBase, RancherActionMixin):
             resource_name=self.name)) > 0
 
     def _do_create_or_update (self):
-        definition = self._k8s_ns_definition
+        definition = self._k8s_bare_definition
 
         def annotate (key, val):
             definition["metadata"].setdefault("annotations", {})[key] = val
@@ -48,10 +48,10 @@ class RancherNamespaceAction (ActionBase, RancherActionMixin):
     def _do_delete_namespace (self):
         self.change("epfl_si.k8s.k8s",
                     dict(state="absent",
-                         definition=self._k8s_ns_definition))
+                         definition=self._k8s_bare_definition))
 
     @property
-    def _k8s_ns_definition (self):
+    def _k8s_bare_definition (self):
         return {
             "apiVersion": "v1",
             "kind": "Namespace",
