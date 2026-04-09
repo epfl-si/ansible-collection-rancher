@@ -9,5 +9,5 @@
     - key: https://github.com/domq.keys
     - key: https://github.com/ponsfrilus.keys
     - key: https://github.com/laurent-indermuehle.keys
-    - key: https://gitlab.com/avidalqim.keys
-      state: absent
+    - key: https://github.com/dwesh163.keys
+    - key: https://github.com/xpl0z.keys
