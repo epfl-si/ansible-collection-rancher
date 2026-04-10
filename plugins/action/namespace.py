@@ -29,6 +29,16 @@ class RancherNamespaceAction (ActionBase, RancherActionMixin):
             kind='namespace',
             resource_name=self.name)) > 0
 
+    @property
+    def _kube_system_project_id (self):
+        kube_system_ns = self.ansible_api.jinja.lookup(
+            'epfl_si.k8s.k8s',
+            api_version='v1',
+            kind='namespace',
+            resource_name="kube-system")
+        return kube_system_ns["metadata"]["annotations"][
+            "field.cattle.io/projectId"]
+
     def _do_create_or_update (self):
         definition = self._k8s_bare_definition
 
@@ -38,6 +48,9 @@ class RancherNamespaceAction (ActionBase, RancherActionMixin):
         if self.is_system:
             # https://github.com/rancher/dashboard/commit/28b9165b3446a41a85f382df68953e209888573a
             annotate("management.cattle.io/system-namespace", "true")
+            if not self.project:
+                annotate("field.cattle.io/projectId",
+                         self._kube_system_project_id)
 
         if self.project:
             annotate("field.cattle.io/projectId", "%s:%s" %
