@@ -19,7 +19,6 @@
       name: "{{ rke2_metallb_namespace }}"
       owned: true
       system: true
-    version: "{{ metallb_chart_version }}"
     values:
       speaker:
         nodeSelector:

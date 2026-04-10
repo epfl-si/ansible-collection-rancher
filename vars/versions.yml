@@ -4,6 +4,4 @@ gitlab_runner_alpine_version: 3.18
 #  https://gitlab.com/groups/gitlab-com/gl-infra/data-access/dbo/-/epics/52
 postgresql_major_version: 17
 
-metallb_chart_version: 0.15.3
-gitlab_runner_chart_version: 0.85.0
 gitlab_chart_version: 9.10.3

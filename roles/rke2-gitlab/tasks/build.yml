@@ -84,7 +84,6 @@
     repository: gitlab
     chart: gitlab-runner
     namespace: "{{ gitlab_build_namespace }}"
-    version: "{{ gitlab_runner_chart_version }}"
     values:
       gitlabUrl: https://gitlab.com
       rbac:

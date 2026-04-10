@@ -26,7 +26,6 @@
       name: "{{ rke2_nfs_storage_namespace }}"
       owned: true
       system: true
-    version: 4.0.18
     values:
       nfs:
         server: "{{ storage_nfs_share.server }}"
