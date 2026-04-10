@@ -1,3 +1,8 @@
+# Version 0.11.1: bugfix release
+
+- `is_system: true` on namespaces, now works as the docs say it should
+- It also puts said namespaces in the “System” project (the same one as the one the `kube-system` namespace belongs to)
+
 # Version 0.11.0: feature release
 
 - The `rke2-node` role now installs and configures etcdctl on etcd nodes (as part of `-t rke2-node.interactive`)
