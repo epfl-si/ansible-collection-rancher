@@ -9,7 +9,7 @@ class RancherNamespaceAction (ActionBase, RancherActionMixin):
         self.name = args["name"]
         self.is_system = (args.get("is_system", False)
                           # Stay compatibile with earlier misfeature:
-                          or namespace.get("system", False))
+                          or args.get("system", False))
 
         self.project = args.get("project")
 
