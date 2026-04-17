@@ -1,3 +1,7 @@
+# Version 0.11.2: bugfix release
+
+- Same as version 0.11.1, except with more fixes
+
 # Version 0.11.1: bugfix release
 
 - `is_system: true` on namespaces, now works as the docs say it should
