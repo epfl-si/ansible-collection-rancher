@@ -1,0 +1,12 @@
+- name: "Longhorn Helm charts"
+  epfl_si.rancher.rancher_helm_chart:
+    repository: rancher-charts
+    chart: "{{ item.chart }}"
+    namespace:
+      name: "longhorn-system"   # Cannot be changed, as per
+                                # https://github.com/longhorn/longhorn/blob/master/chart/README.md
+      owned: true
+      system: true
+  with_items:
+    - chart: longhorn-crd
+    - chart: longhorn

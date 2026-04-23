@@ -43,6 +43,16 @@
     - rke2.storage.nfs
 
 - include_tasks:
+    file: longhorn.yml
+    apply:
+      tags:
+        - rke2
+        - rke2.longhorn
+  tags:
+    - rke2
+    - rke2.longhorn
+
+- include_tasks:
     file: cloud-native-postgres.yml
     apply:
       tags:
