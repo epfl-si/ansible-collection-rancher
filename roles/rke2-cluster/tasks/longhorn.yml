@@ -32,3 +32,32 @@
           # “replicas” on their “disks”, i.e. provide their disk space
           # to the cluster:
           createDefaultDiskLabeledNodes: true
+
+- name: "Wait for nodes to register in Longhorn"
+  retries: 5
+  delay: 10
+  epfl_si.k8s.k8s_info:
+    api_version: longhorn.io/v1beta2
+    kind: Node
+    namespace: longhorn-system
+  register: _longhorn_nodes
+  until: _longhorn_nodes.resources | length >= 5
+
+- when: inventory_longhorn_storage_node
+  with_inventory_hostnames: gitlab_rke2_vms
+  when: >-
+    hostvars[item].inventory_longhorn_storage_node is defined
+  name: "Turn on Longhorn storage on desired nodes"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: longhorn.io/v1beta2
+      kind: Node
+      metadata:
+        name: "{{ item }}"
+        namespace: longhorn-system
+      spec:
+        disks:
+          longhorn:
+            diskType: filesystem
+            path: /var/lib/longhorn
+            allowScheduling: true
