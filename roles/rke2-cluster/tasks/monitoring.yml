@@ -128,17 +128,17 @@
     post_renderer: "{{ role_path }}/scripts/rancher-monitoring-post-renderer"
 
   vars:
+    _hosts: [ "{{ rke2_cluster_expose_prometheus_as_hostname }}" ]
     _ingress_expose_prometheus:
       # Will be `is not defined` (in the Ansible sense) if any consumed vars is missing,
       # which is fine (see `ingress: >-` stanza, above).
       enabled: true
       ingressClassName: traefik
-      hosts: >-
-        {{ [rke2_cluster_expose_prometheus_as_hostname] }}
+      hosts: "{{ _hosts }}"
       annotations:
         # https://doc.traefik.io/traefik/v2.2/routing/providers/kubernetes-ingress/
         traefik.ingress.kubernetes.io/router.middlewares: >-
           cattle-monitoring-system-prometheus-basicauth@kubernetescrd
       tls:
         - secretName: gitlab-tls   # Courtesy ../../gitlab-tls/tasks/tls.yml
-          hosts: ["{{ rke2_cluster_expose_prometheus_as_hostname }}"]
+          hosts: "{{ _hosts }}"

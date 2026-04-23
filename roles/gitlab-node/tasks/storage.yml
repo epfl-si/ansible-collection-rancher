@@ -20,8 +20,9 @@
   register: _pvs_output
   changed_when: false
 
-- when: "node_storage_pvs[-1] not in _pvs_output.stdout"
-  name: "pvcreate {{ node_storage_pvs[-1] }}"
+- name: "pvcreate {{ node_storage_pvs[-1] }}"
+  when: >-
+    node_storage_pvs[-1] not in _pvs_output.stdout
   command: "pvcreate {{ node_storage_pvs[-1] }}"
 
 - name: "Configure {{ node_storage_vg }}"
