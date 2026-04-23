@@ -31,25 +31,6 @@
     vg: "{{ node_storage_vg }}"
     pvs: "{{ node_storage_pvs }}"
 
-- name: "{{ node_storage_rancher_lv_devname }}"
-  lvol:
-    state: present
-    vg: "{{ node_storage_vg }}"
-    lv: "{{ node_storage_rancher_lv.name }}"
-    size: "{{ node_storage_rancher_lv.size }}"
-
-- name: Check if the Rancher LV has a filesystem
-  shell: "blkid {{ node_storage_rancher_lv_devname }} || true"
-  register: _blkid_output
-  changed_when: false
-
-- name: "Format the Rancher LV with {{ node_storage_rancher_lv.fs }}"
-  filesystem:
-    fstype: "{{ node_storage_rancher_lv.fs }}"
-    dev: "{{ node_storage_rancher_lv_devname }}"
-  when: >-
-    ("TYPE=" + node_storage_rancher_lv.fs) not in _blkid_output.stdout
-
 - name: "`/var/lib/rancher/kubelet`"
   ansible.builtin.file:
     state: directory
@@ -61,9 +42,28 @@
     dest: /var/lib/kubelet
     src: /var/lib/rancher/kubelet
 
-- name: "Put up {{ node_storage_rancher_lv_devname }} in fstab and mount it"
-  ansible.posix.mount:
-     state: mounted
-     path: "{{ node_storage_rancher_lv.mountpoint }}"
-     src: "{{ node_storage_rancher_lv_devname }}"
-     fstype: "{{ node_storage_rancher_lv.fs }}"
+- name: "Logical Volumes (LVs)"
+  with_items: "{{ node_storage_lvs }}"
+  lvol:
+    state: present
+    vg: "{{ node_storage_vg }}"
+    lv: "{{ item.name }}"
+    size: "{{ item.size }}"
+
+- block:
+    - name: "Format the LVs"
+      with_items: "{{ node_storage_lvs }}"
+      filesystem:
+        fstype: "{{ item.fs }}"
+        dev: "{{ _devname }}"
+
+    - name: "Put up the LVs in fstab and mount them"
+      with_items: "{{ node_storage_lvs }}"
+      ansible.posix.mount:
+        state: mounted
+        path: "{{ item.mountpoint }}"
+        src: "{{ _devname }}"
+        fstype: "{{ item.fs }}"
+  vars:
+    _devname: >-
+      /dev/{{ node_storage_vg }}/{{ item.name }}

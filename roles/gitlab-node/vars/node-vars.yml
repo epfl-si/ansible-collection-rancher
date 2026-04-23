@@ -4,11 +4,8 @@ node_storage_pvs:
   - /dev/sdb1
 node_storage_vg: ubuntu-vg
 
-node_storage_rancher_lv:
-  fs: ext4
-  name: rancher
-  mountpoint: /var/lib/rancher
-  size: 50G
-
-node_storage_rancher_lv_devname: >-
-  /dev/{{ node_storage_vg }}/{{ node_storage_rancher_lv.name }}
+node_storage_lvs:
+  - name: rancher
+    fs: ext4
+    mountpoint: /var/lib/rancher
+    size: 50G
