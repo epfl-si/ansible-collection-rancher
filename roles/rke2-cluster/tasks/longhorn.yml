@@ -7,6 +7,28 @@
                                 # https://github.com/longhorn/longhorn/blob/master/chart/README.md
       owned: true
       system: true
+    values: >-
+      {{ item.get("values", {}) }}
   with_items:
     - chart: longhorn-crd
     - chart: longhorn
+      values:
+        longhornManager:
+          # We don't mind running Longhorn on the control
+          # plane nodes:
+          tolerations:
+            - key: node-role.kubernetes.io/control-plane
+              operator: Exists
+              effect: "NoSchedule"
+            - key: node-role.kubernetes.io/etcd
+              operator: Exists
+              effect: "NoExecute"
+        defaultSettings:
+          # Ditto:
+          taintToleration: >-
+            node-role.kubernetes.io/control-plane:NoSchedule;
+            node-role.kubernetes.io/etcd:NoExecute
+          # We want to explicitly declare which nodes can host
+          # “replicas” on their “disks”, i.e. provide their disk space
+          # to the cluster:
+          createDefaultDiskLabeledNodes: true
