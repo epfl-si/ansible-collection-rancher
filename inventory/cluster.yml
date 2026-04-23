@@ -18,8 +18,12 @@ all:
         gitlab_rke2_control_plane_nodes:
           hosts:
             itsgitlab0006:
+              inventory_disk_size: small
+              inventory_longhorn_storage_node: true
             itsgitlab0007:
+              inventory_longhorn_storage_node: true
             itsgitlab0008:
+              inventory_longhorn_storage_node: true
           vars:
             rancher_rke2_is_worker: false
             rancher_rke2_is_controlplane: true

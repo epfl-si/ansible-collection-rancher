@@ -9,3 +9,16 @@ node_storage_lvs:
     fs: ext4
     mountpoint: /var/lib/rancher
     size: 50G
+  - name: longhorn
+    fs: ext4
+    mountpoint: /var/lib/longhorn
+    condition:
+      value: >-
+        {{ inventory_longhorn_storage_node is defined }}
+      # Unused (besides as a poor man's docstring showing up in Ansible's output):
+      definition: >-
+        inventory_longhorn_storage_node
+    size: >-
+      {{ "10G" if
+      (inventory_disk_size | default("normal")) == "small"
+      else "20G" }}

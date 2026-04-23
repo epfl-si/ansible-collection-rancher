@@ -44,6 +44,7 @@
 
 - name: "Logical Volumes (LVs)"
   with_items: "{{ node_storage_lvs }}"
+  when: item.condition.value | default(True)
   lvol:
     state: present
     vg: "{{ node_storage_vg }}"
@@ -53,12 +54,14 @@
 - block:
     - name: "Format the LVs"
       with_items: "{{ node_storage_lvs }}"
+      when: item.condition.value | default(True)
       filesystem:
         fstype: "{{ item.fs }}"
         dev: "{{ _devname }}"
 
     - name: "Put up the LVs in fstab and mount them"
       with_items: "{{ node_storage_lvs }}"
+      when: item.condition.value | default(True)
       ansible.posix.mount:
         state: mounted
         path: "{{ item.mountpoint }}"
