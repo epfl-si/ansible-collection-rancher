@@ -11,7 +11,7 @@
       apiVersion: management.cattle.io/v3
       kind: Project
       metadata:
-        name: gitlab
+        name: p-gitlab
         namespace: "{{ _cluster_name }}"
       spec:
         clusterName: "{{ _cluster_name }}"
