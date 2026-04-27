@@ -107,3 +107,14 @@
     - gitlab.storage.debug
     - gitlab.postgres
     - gitlab.postgres.loadtest
+
+- when: inventory_deployment_stage == "prod"
+  include_tasks:
+    file: monitoring.yml
+    apply:
+      tags:
+      - gitlab
+      - gitlab.monitoring
+  tags:
+  - gitlab
+  - gitlab.monitoring
