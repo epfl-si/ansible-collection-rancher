@@ -13,6 +13,9 @@
     - chart: longhorn-crd
     - chart: longhorn
       values:
+        persistence:
+          # Longhorn is *not* the default class; nfs-client is.
+          defaultClass: false
         longhornManager:
           # We don't mind running Longhorn on the control
           # plane nodes:
