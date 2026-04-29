@@ -43,8 +43,7 @@
   register: _longhorn_nodes
   until: _longhorn_nodes.resources | length >= 5
 
-- when: inventory_longhorn_storage_node
-  with_inventory_hostnames: gitlab_rke2_vms
+- with_inventory_hostnames: gitlab_rke2_vms
   when: >-
     hostvars[item].inventory_longhorn_storage_node is defined
   name: "Turn on Longhorn storage on desired nodes"
