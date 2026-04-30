@@ -1,3 +1,14 @@
+- name: Requirements for RKE2
+  tags:
+    - rke2-node
+    - rke2-node.deps
+  include_tasks:
+    file: deps.yml
+    apply:
+      tags:
+        - rke2-node
+        - rke2-node.deps
+
 - name: Interactive use / comfort features
   tags:
     - rke2-node
