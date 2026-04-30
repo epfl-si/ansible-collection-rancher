@@ -1,8 +1,10 @@
 - tags: always
-  include_tasks: ../../../tasks/_rancher_login.yml
-  vars:
-    ansible_rancher_cluster_name: local
-    ansible_k8s_kubeconfig: "rke2-credentials-cache/local.yml"
+  include_role:
+    name: epfl_si.rancher.cached_login
+    apply:
+      vars:
+        ansible_rancher_cluster_name: local
+        ansible_k8s_kubeconfig: "rke2-credentials-cache/local.yml"
 
 - run_once: true
   name: "`Project/gitlab`"

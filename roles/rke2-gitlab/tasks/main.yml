@@ -1,8 +1,7 @@
 - tags: always
-  include_tasks:
-    file: ../../../tasks/_rancher_login.yml
+  include_role:
+    name: epfl_si.rancher.cached_login
     apply:
-      tags: always
       vars:
         ansible_rancher_url: https://rancher-fsd.epfl.ch
         ansible_rancher_credentials_dir: "rke2-credentials-cache"

@@ -7,8 +7,12 @@
 # This is unlike the role's `main.yml` flow, which runs *after* the
 # nodes are ready and inserted into the cluster.
 
-- include_tasks:
-    file: ../../../tasks/_rancher_login.yml
+- tags: always
+  include_role:
+    name: epfl_si.rancher.cached_login
+
+- tags: always
+  include_vars: rke2-vars.yml
 
 - tags: always
   include_vars: "../../../vars/{{ item }}"
@@ -16,24 +20,7 @@
     - versions.yml
     - ipam-vars.yml
 
-- when: >-
-    "rke2.cluster.upgrade" not in ansible_run_tags
-  changed_when: false
-  name: Does GitLab cluster already exist?
-  delegate_to: rancher
-  set_fact:
-    _gitlab_cluster_already_exists: >-
-      {{ lookup("epfl_si.k8s.k8s", kind="Cluster",
-         api_version="provisioning.cattle.io/v1",
-         namespace="fleet-default",
-         resource_name="gitlab") | length > 0 }}
-
-- when: >-
-    ( not (_gitlab_cluster_already_exists | default(False)) )
-    or
-    ( "rke2.cluster.upgrade" in ansible_run_tags )
-  name: GitLab cluster in Rancher
-  delegate_to: rancher
+- name: GitLab cluster in upstream Rancher
   epfl_si.k8s.k8s:
     definition:
       apiVersion: provisioning.cattle.io/v1
@@ -48,7 +35,7 @@
         kubernetesVersion: >-
           {{ rke2_version
           | default(rke2_updates_channel
-                       | get_rke2_current_version) }}
+                       | epfl_si.rancher.get_rke2_current_version) }}
         rkeConfig:
           etcd:
             snapshotRetention: 20
@@ -58,7 +45,9 @@
             cluster-cidr: "{{ ipam_ipv4_pod_cidr     }},{{ ipam_ipv6_pod_cidr     }}"
             service-cidr: "{{ ipam_ipv4_service_cidr }},{{ ipam_ipv6_service_cidr }}"
           chartValues:
-            rke2-canal: {}
+            rke2-canal:
+              flannel:
+                regexIface: "{{ rke2_main_interface_name_regex }}"
           upgradeStrategy:
             controlPlaneConcurrency: "1"
             workerConcurrency: "1"

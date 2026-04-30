@@ -1,8 +1,8 @@
 - tags: always
   include_vars: rke2-vars.yml
 
-- include_tasks:
-    file: ../../../tasks/_rancher_login.yml
+- include_role:
+    name: epfl_si.rancher.cached_login
     apply:
       tags:
       - rke2
