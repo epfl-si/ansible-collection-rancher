@@ -1,0 +1,35 @@
+# Log in to the Rancher cluster that {{ ansible_rancher_url }} and
+# {{ ansible_rancher_cluster_name }} point to, and store the
+# kubeconfig into {{ ansible_k8s_kubeconfig }}.
+
+- delegate_to: localhost
+  changed_when: false
+  name: Check existing Rancher credentials
+  register: _check_rancher_credentials
+  shell:
+    cmd: |
+      if KUBECONFIG="{{ ansible_k8s_kubeconfig }}" kubectl get pods; then
+        echo CREDENTIALS_ARE_STILL_VALID
+      fi
+
+- when: >-
+    ( "CREDENTIALS_ARE_STILL_VALID" not in _check_rancher_credentials.stdout )
+    and not ansible_check_mode
+  block:
+    - epfl_si.rancher.rancher_login:
+      register: _rancher_login
+
+    - name: "{{ _kubeconfig_dir }}"
+      delegate_to: localhost
+      run_once: true
+      file:
+        state: directory
+        path: "{{ _kubeconfig_dir }}"
+      vars:
+        _kubeconfig_dir: "{{ ansible_k8s_kubeconfig | dirname }}"
+
+    - name: "{{ ansible_k8s_kubeconfig }}"
+      delegate_to: localhost
+      copy:
+        dest: "{{ ansible_k8s_kubeconfig }}"
+        content: "{{ _rancher_login.kubeconfig }}"
