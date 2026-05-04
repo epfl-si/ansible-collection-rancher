@@ -1,3 +1,10 @@
+# Version 0.12.0: feature release
+
+- `epfl_si.rancher.cached_login` convenience role to manage (multiple) Rancher credentials
+- `epfl_si.rancher.get_rke2_current_version` lookup plugin
+- Ensure `curl` is installed
+- Unpin kernels (hopefully this buggy kernel business is behind us now)
+
 # Version 0.11.2: bugfix release
 
 - Same as version 0.11.1, except with more fixes
