@@ -31,17 +31,6 @@
     vg: "{{ node_storage_vg }}"
     pvs: "{{ node_storage_pvs }}"
 
-- name: "`/var/lib/rancher/kubelet`"
-  ansible.builtin.file:
-    state: directory
-    path: /var/lib/rancher/kubelet
-
-- name: "`/var/lib/kubelet` → `/var/lib/rancher/kubelet`"
-  ansible.builtin.file:
-    state: link
-    dest: /var/lib/kubelet
-    src: /var/lib/rancher/kubelet
-
 - name: "Logical Volumes (LVs)"
   with_items: "{{ node_storage_lvs }}"
   when: item.condition.value | default(True)
@@ -70,3 +59,14 @@
   vars:
     _devname: >-
       /dev/{{ node_storage_vg }}/{{ item.name }}
+
+- name: "`/var/lib/rancher/kubelet`"
+  ansible.builtin.file:
+    state: directory
+    path: /var/lib/rancher/kubelet
+
+- name: "`/var/lib/kubelet` → `/var/lib/rancher/kubelet`"
+  ansible.builtin.file:
+    state: link
+    dest: /var/lib/kubelet
+    src: /var/lib/rancher/kubelet
