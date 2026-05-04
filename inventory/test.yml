@@ -18,3 +18,4 @@ all:
         # use ssh; in which case we have
         ansible_ssh_user: root
         ansible_rancher_url: https://rancher-fsd.epfl.ch
+        ansible_k8s_kubeconfig: "rke2-credentials-cache/{{ inventory_hostname }}.yml"
