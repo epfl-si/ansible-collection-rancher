@@ -64,9 +64,6 @@ with `include_role` and `tasks_from` (… and a touch of `apply.vars`, owing to 
           tasks_from: upstream.yml
     apply:
       delegate_to: rancher-manager-vm.example.com
-      vars:
-        ansible_k8s_kubeconfig: >-
-          {{ hostvars[inventory_hostname].ansible_k8s_kubeconfig }}
 
 # ... then you can have a play that adds nodes to the cluster...
 
@@ -112,4 +109,9 @@ all:
         cluster/mycluster:
           ansible_k8s_kubeconfig: "rke2-credentials-cache/mycluster.yaml"
           ansible_rancher_cluster_name: my-cluster
+          # You don't want your regular tasks to try `ssh cluster/mycluster`...
+          ansible_connection: local
+          # ... but you still want this for the `epfl_si.rancher.rancher_login`
+          # task that runs in case of a cache miss:
+          ansible_ssh_user: root
 ```
