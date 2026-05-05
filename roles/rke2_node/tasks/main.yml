@@ -1,3 +1,14 @@
+- tags: always
+  when: >-
+    ('virtualization_type' not in ansible_facts)
+    or
+    ('distribution' not in ansible_facts)
+  name: "Gather select Ansible facts"
+  ansible.builtin.setup:
+    gather_subset:
+      - virtualization_type  # for ansible_facts['virtualization_type'] in bugware.yml
+      - distribution  # for ansible_facts['distribution'] in _remove_k8s_node.yml
+
 - name: Requirements for RKE2
   tags:
     - rke2-node
