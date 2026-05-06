@@ -16,10 +16,10 @@
     apply:
       tags:
         - rke2
-        - rke2.ingress
+        - rke2.metallb
   tags:
     - rke2
-    - rke2.ingress
+    - rke2.metallb
 
 - include_tasks:
     file: nfs-storage-class-uninstall.yml
