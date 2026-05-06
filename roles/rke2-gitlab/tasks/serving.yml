@@ -305,10 +305,11 @@
       {% endif %}
 
       redis:
-        ## Should a latency crisis like https://go.epfl.ch/INC0793540
-        ## reoccur, here is how to move storage to Longhorn:
-        # global:
-        #  storageClass: longhorn
+      {% if inventory_deployment_stage == "prod" %}
+      {# Temporary (INC0793540) #}
+        global:
+         storageClass: "longhorn"
+      {% endif %}
         metrics:
           podMonitor:
             enabled: true
