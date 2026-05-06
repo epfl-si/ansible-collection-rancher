@@ -1,3 +1,7 @@
+- tags: always
+  include_role:
+    name: epfl_si.rancher.cached_login
+
 - include_tasks:
     file: tls.yml
     apply:
