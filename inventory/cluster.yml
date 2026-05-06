@@ -43,6 +43,7 @@ all:
                 # from the local workstation (as opposed to ssh)
         rancher:   # Assumed to be up and running; only used in `delegate_to:` tasks
           ansible_rancher_cluster_name: local
+          ansible_k8s_kubeconfig: "rke2-credentials-cache/local.yaml"
 
       children:
         gitlab_rke2_clusters:
@@ -50,6 +51,7 @@ all:
             gitlab-rke2:
               inventory_deployment_stage: prod
               ansible_rancher_cluster_name: gitlab
+              inventory_upstream_rancher_cluster: rancher
               inventory_vips:
                 # This VIP was created (and assigned to a nearby VM)
                 # using the old-school “day-2” action on the VM. If
@@ -59,3 +61,4 @@ all:
                   ## Uncomment if necessary (e.g. in the middle of a DNS rollover):
                   #ipv4: 128.178.219.3
                   #ipv6: 2001:620:618:1da:7:80b2:db03:1
+              ansible_k8s_kubeconfig: "rke2-credentials-cache/{{ inventory_hostname }}.yaml"

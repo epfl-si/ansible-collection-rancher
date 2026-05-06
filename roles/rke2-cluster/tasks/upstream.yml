@@ -61,6 +61,8 @@
         localClusterAuthEndpoint:
           enabled: true
   vars:
+    ansible_k8s_kubeconfig: >-
+      {{ hostvars[ansible_host].ansible_k8s_kubeconfig }}
     _drain_options_as_the_gui_wants_them:
       gracePeriod: -1
       ignoreDaemonSets: true

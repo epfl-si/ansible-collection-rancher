@@ -2,9 +2,7 @@
   include_role:
     name: epfl_si.rancher.cached_login
     apply:
-      vars:
-        ansible_rancher_cluster_name: local
-        ansible_k8s_kubeconfig: "rke2-credentials-cache/local.yml"
+      delegate_to: "{{ inventory_upstream_rancher_cluster }}"
 
 - run_once: true
   name: "`Project/gitlab`"
@@ -20,7 +18,8 @@
         displayName: gitlab
   register: _project_in_rancher
   vars:
-    ansible_k8s_kubeconfig: "rke2-credentials-cache/local.yml"
+    ansible_k8s_kubeconfig: >-
+      {{ hostvars[inventory_upstream_rancher_cluster].ansible_k8s_kubeconfig }}
     _cluster_name: >-
       {{ lookup("epfl_si.rancher.rancher_cluster",
                 display_name="gitlab",

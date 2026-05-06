@@ -8,11 +8,9 @@
         apply:
           tags:
             - rke2.upstream
+          delegate_to: rancher
       tags:
         - rke2.upstream
-  vars:
-    ansible_rancher_cluster_name: local
-    ansible_k8s_kubeconfig: "rke2-credentials-cache/local.yml"
 
 - hosts: gitlab_rke2_vms
   gather_facts: yes   # epfl_si.rancher.rke2_node wants facts
@@ -30,8 +28,6 @@
     - role: rke2-cluster
       vars:
         rke2_cluster_expose_prometheus_as_hostname: "gitlab-prometheus.epfl.ch"
-  vars:
-    ansible_k8s_kubeconfig: "rke2-credentials-cache/{{ inventory_hostname }}.yml"
 
 - hosts:
     - cattle-monitoring-system   # for gitlab-prometheus
@@ -50,5 +46,3 @@
   gather_facts: no
   roles:
     - role: rke2-gitlab
-  vars:
-    ansible_k8s_kubeconfig: "rke2-credentials-cache/{{ inventory_hostname }}.yml"

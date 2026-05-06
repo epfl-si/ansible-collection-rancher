@@ -18,4 +18,9 @@ all:
         # use ssh; in which case we have
         ansible_ssh_user: root
         ansible_rancher_url: https://rancher-fsd.epfl.ch
-        ansible_k8s_kubeconfig: "rke2-credentials-cache/{{ inventory_hostname }}.yml"
+        inventory_owner_cluster: gitlab-rke2
+        # Share the following vars with the owner cluster:
+        ansible_k8s_kubeconfig: >-
+          {{ hostvars[inventory_owner_cluster].ansible_k8s_kubeconfig }}
+        inventory_upstream_rancher_cluster: >-
+          {{ hostvars[inventory_owner_cluster].inventory_upstream_rancher_cluster }}
