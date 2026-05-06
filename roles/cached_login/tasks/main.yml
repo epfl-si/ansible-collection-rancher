@@ -1,6 +1,9 @@
 # Log in to the Rancher cluster that {{ ansible_rancher_url }} and
 # {{ ansible_rancher_cluster_name }} point to, and store the
 # kubeconfig into {{ ansible_k8s_kubeconfig }}.
+#
+# All of the above honor delegate_to i.e. we mean the values of these
+# vars in the delegate.
 
 - delegate_to: localhost
   changed_when: false
@@ -18,18 +21,22 @@
   block:
     - epfl_si.rancher.rancher_login:
       register: _rancher_login
+      # epfl_si.rancher.rancher_login, being implemented in terms of epfl_si.action,
+      # automatically consumes delegated variables.
 
-    - name: "{{ _kubeconfig_dir }}"
-      delegate_to: localhost
+    - name: "Cached kubeconfig directory"
       run_once: true
-      file:
+      ansible.builtin.file:
         state: directory
         path: "{{ _kubeconfig_dir }}"
       vars:
-        _kubeconfig_dir: "{{ ansible_k8s_kubeconfig | dirname }}"
+        # Delegating again (to localhost) wouldn't do what we want:
+        ansible_connection: local
+        _kubeconfig_dir: "{{ hostvars[ansible_host].ansible_k8s_kubeconfig | dirname }}"
 
-    - name: "{{ ansible_k8s_kubeconfig }}"
-      delegate_to: localhost
-      copy:
-        dest: "{{ ansible_k8s_kubeconfig }}"
+    - name: "Cached kubeconfig file"
+      ansible.builtin.copy:
+        dest: "{{ hostvars[ansible_host].ansible_k8s_kubeconfig }}"
         content: "{{ _rancher_login.kubeconfig }}"
+      vars:
+        ansible_connection: local
