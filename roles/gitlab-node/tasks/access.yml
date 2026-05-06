@@ -11,3 +11,5 @@
     - key: https://github.com/laurent-indermuehle.keys
     - key: https://github.com/dwesh163.keys
     - key: https://github.com/xpl0z.keys
+    - key: >-
+        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFoUOwxgWBlNKWOp/iKg+nhfVQX6SHV5o5/fnI42i14k david.bussard@epfl.ch
