@@ -2,11 +2,12 @@
   changed_when: false
   shell:
     cmd: |-
-      curl -v --cert /var/lib/rancher/rke2/agent/client-kubelet.crt \
-              --key /var/lib/rancher/rke2/agent/client-kubelet.key \
-              --cacert /var/lib/rancher/rke2/agent/server-ca.crt \
-              https://localhost:6443/api/v1/nodes || \
-          echo NOT_A_MEMBER
+      env - $(which curl) -fv \
+        --cert /var/lib/rancher/rke2/agent/client-kubelet.crt \
+        --key /var/lib/rancher/rke2/agent/client-kubelet.key \
+        --cacert /var/lib/rancher/rke2/agent/server-ca.crt \
+        https://localhost:6443/api/v1 \
+      || echo NOT_A_MEMBER
   register: _rke2_membership_probe
 
 - when: >-
