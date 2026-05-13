@@ -305,11 +305,6 @@
       {% endif %}
 
       redis:
-      {% if inventory_deployment_stage == "prod" %}
-      {# Temporary (INC0793540) #}
-        global:
-         storageClass: "longhorn"
-      {% endif %}
         metrics:
           podMonitor:
             enabled: true
