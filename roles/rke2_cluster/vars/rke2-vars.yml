@@ -1,0 +1,14 @@
+rke2_nfs_storage_namespace: nfs-subdir-external-provisioner-system
+rke2_metallb_namespace: metallb-system
+
+rke2_any_worker_node_of_this_cluster: >-
+      {{ (
+          hostvars.values()
+          | selectattr("ansible_rancher_cluster_name", "defined")
+          | selectattr("ansible_rancher_cluster_name", "equalto", ansible_rancher_cluster_name)
+          | selectattr("rancher_rke2_is_worker", "defined")
+          | selectattr("rancher_rke2_is_worker")
+          | first
+      ).inventory_hostname }}
+
+rke2_cloud_native_postgres_namespace: cnpg-system

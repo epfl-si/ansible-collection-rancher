@@ -1,0 +1,22 @@
+# CloudNativePG for your RKE2 cluster
+- tags: always
+  include_vars: rke2-vars.yml
+
+- name: "`ClusterRepo/cnpg`"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: catalog.cattle.io/v1
+      kind: ClusterRepo
+      metadata:
+        name: cnpg
+      spec:
+        url: https://cloudnative-pg.github.io/charts
+
+- name: "CloudNativePG Helm chart"
+  epfl_si.rancher.rancher_helm_chart:
+    repository: cnpg
+    chart: cloudnative-pg
+    namespace:
+      name: "{{ rke2_cloud_native_postgres_namespace }}"
+      owned: true
+      system: true

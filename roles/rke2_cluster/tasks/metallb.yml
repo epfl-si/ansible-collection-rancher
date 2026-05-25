@@ -1,0 +1,43 @@
+- tags: always
+  include_vars: rke2-vars.yml
+
+- name: "`ClusterRepo/metallb`"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: catalog.cattle.io/v1
+      kind: ClusterRepo
+      metadata:
+        name: metallb
+      spec:
+        url: https://metallb.github.io/metallb
+
+- name: "`metallb/metallb` Helm chart"
+  epfl_si.rancher.rancher_helm_chart:
+    repository: metallb
+    chart: metallb
+    namespace:
+      name: "{{ rke2_metallb_namespace }}"
+      owned: true
+      system: true
+    values:
+      speaker:
+        nodeSelector:
+          node-role.kubernetes.io/control-plane: "true"
+        tolerations:
+          - operator: "Exists"  # i.e. it doesn't care about any taints
+
+      controller:
+        nodeSelector:
+          node-role.kubernetes.io/control-plane: "true"
+        tolerations:
+          - operator: "Exists"
+
+- name: "L2 advertisement"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: metallb.io/v1beta1
+      kind: L2Advertisement
+      metadata:
+        name: l2
+        namespace: "{{ rke2_metallb_namespace }}"
+      # No `spec`, means that it advertises everything.

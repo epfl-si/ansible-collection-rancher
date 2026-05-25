@@ -1,0 +1,32 @@
+# General-purpose (cross-namespace) cookie-cutter NFS directories for
+# your storage
+#
+# *not* for hosting things you don't want deleted ever, like
+# the big chest o' GitLab repositories! Putting *that* in
+# the nfs-client StorageClass caused OUT0011449!!
+
+- tags: always
+  include_vars: rke2-vars.yml
+
+- name: "`ClusterRepo/nfs-subdir-external-provisioner`"
+  epfl_si.k8s.k8s:
+    definition:
+      apiVersion: catalog.cattle.io/v1
+      kind: ClusterRepo
+      metadata:
+        name: nfs-subdir-external-provisioner
+      spec:
+        url: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
+
+- name: "nfs-subdir-external-provisioner Helm chart"
+  epfl_si.rancher.rancher_helm_chart:
+    repository: nfs-subdir-external-provisioner
+    chart: nfs-subdir-external-provisioner
+    namespace:
+      name: "{{ rke2_nfs_storage_namespace }}"
+      owned: true
+      system: true
+    values:
+      nfs: "{{ rancher_rke2_cluster_nfs_subdir }}"
+      storageClass:
+        defaultClass: true

@@ -1,0 +1,79 @@
+- include_role:
+    name: epfl_si.rancher.cached_login
+    apply:
+      tags:
+      - rke2
+      - rke2.login
+  tags:
+  - rke2
+  - rke2.login
+
+- when: rancher_rke2_cluster_metallb is defined
+  include_tasks:
+    file: metallb.yml
+    apply:
+      tags:
+        - rke2
+        - rke2.metallb
+  tags:
+    - rke2
+    - rke2.metallb
+
+- when:
+    - rancher_rke2_cluster_nfs_subdir is defined
+    - >-
+      "rke2.storage.uninstall" in ansible_run_tags
+  include_tasks:
+    file: nfs-storage-class-uninstall.yml
+    apply:
+      tags:
+        - rke2.storage.uninstall
+  tags: rke2.storage.uninstall
+
+- when: rancher_rke2_cluster_nfs_subdir is defined
+  include_tasks:
+    file: nfs-storage-class.yml
+    apply:
+      tags:
+        - rke2
+        - rke2.storage
+        - rke2.storage.nfs
+  tags:
+    - rke2
+    - rke2.storage
+    - rke2.storage.nfs
+
+- when: rancher_rke2_cluster_longhorn is defined
+  include_tasks:
+    file: longhorn.yml
+    apply:
+      tags:
+        - rke2
+        - rke2.longhorn
+  tags:
+    - rke2
+    - rke2.longhorn
+
+- when: rancher_rke2_cluster_cnpg is defined
+  include_tasks:
+    file: cloud-native-postgres.yml
+    apply:
+      tags:
+        - rke2
+        - rke2.storage
+        - rke2.storage.postgres
+  tags:
+    - rke2
+    - rke2.storage
+    - rke2.storage.postgres
+
+- when: rancher_rke2_cluster_prometheus is defined
+  include_tasks:
+    file: monitoring.yml
+    apply:
+      tags:
+        - rke2
+        - rke2.monitoring
+  tags:
+    - rke2
+    - rke2.monitoring
