@@ -1,3 +1,9 @@
+# Version 0.12.1: bugfix release
+
+- `epfl_si.rancher.cached_login` is now `delegate_to:`-compliant, for real
+- `epfl_si.rancher.rke2_node` role: gather the required facts if the play didn't already do so
+- `-t rke2-node.register`: fix check for whether the node is already registered
+
 # Version 0.12.0: feature release
 
 - `epfl_si.rancher.cached_login` convenience role to manage (multiple) Rancher credentials
