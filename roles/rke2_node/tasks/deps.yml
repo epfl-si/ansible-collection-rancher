@@ -1,3 +1,9 @@
 - name: "curl"
   ansible.builtin.package:
     name: curl
+
+- name: "Longhorn dependencies"
+  ansible.builtin.package:
+    name:
+      - open-iscsi
+      - cryptsetup
