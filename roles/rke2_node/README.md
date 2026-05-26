@@ -11,8 +11,6 @@ The following snippet in your playbook will insert all nodes into an existing Ra
 - hosts: all_nodes
   gather_facts: yes   # epfl_si.rancher.rke2_node wants facts
   roles:
-    - role: gitlab-node
-    - role: xaas-ipv6
     - role: epfl_si.rancher.rke2_node
       vars:
         rancher_rke2_insecure: false
