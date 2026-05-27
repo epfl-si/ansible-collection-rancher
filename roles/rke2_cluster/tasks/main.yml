@@ -49,10 +49,12 @@
     apply:
       tags:
         - rke2
-        - rke2.longhorn
+        - rke2.storage
+        - rke2.storage.longhorn
   tags:
     - rke2
-    - rke2.longhorn
+    - rke2.storage
+    - rke2.storage.longhorn
 
 - when: rancher_rke2_cluster_cnpg is defined
   include_tasks:
