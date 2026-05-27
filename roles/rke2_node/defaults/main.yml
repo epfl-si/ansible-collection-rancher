@@ -20,3 +20,6 @@ rancher_rke2_insecure: false
 
 # These defaults are used in the `epfl_si.rancher.rke2_node` role's `uninstall.yml` entry point only.
 rancher_rke2_node_name: "{{ inventory_hostname }}"
+
+# These defaults are used in the `epfl_si.rancher.rke2_node` role's `in-cluster.yml` entry point only.
+rancher_rke2_longhorn_node_name: "{{ inventory_hostname_short }}"

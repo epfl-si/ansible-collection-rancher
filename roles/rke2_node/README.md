@@ -34,3 +34,26 @@ The following task will remove nodes if you specify so explicitly (e.g. with `an
       tags:
         - rke2-node.uninstall
 ```
+
+The following runs customization tasks that should take place after
+the cluster has been formed (for instance, with the
+`epfl_si.rancher.rke2_cluster` role):
+
+```yaml
+- name: Rancher in-cluster node customization
+  tags:
+    - rke2-node
+    - rke2-node.in-cluster
+  include_role:
+    name: epfl_si.rancher.rke2_node
+    tasks_from: in-cluster
+    apply:
+      tags:
+        - rke2-node
+        - rke2-node.in-cluster
+      delegate_to: mycluster
+  vars:
+    rancher_rke2_longhorn_storage_path: >-
+      {{ "/var/lib/longhorn" if "diskful_nodes" in group_names
+      else None }}
+```

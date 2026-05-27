@@ -45,21 +45,3 @@
     namespace: longhorn-system
   register: _longhorn_nodes
   until: _longhorn_nodes.resources | length >= 1
-
-- with_inventory_hostnames: all
-  when: >-
-    hostvars[item].inventory_longhorn_storage_node is defined
-  name: "Turn on Longhorn storage on desired nodes"
-  epfl_si.k8s.k8s:
-    definition:
-      apiVersion: longhorn.io/v1beta2
-      kind: Node
-      metadata:
-        name: "{{ item }}"
-        namespace: longhorn-system
-      spec:
-        disks:
-          longhorn:
-            diskType: filesystem
-            path: "{{ rke2_cluster_longhorn.storage_directory }}"
-            allowScheduling: true
