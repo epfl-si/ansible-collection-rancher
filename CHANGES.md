@@ -1,3 +1,7 @@
+# Version 0.13.1: bugfix release
+
+- Fix Longhorn adoption tasks (unfinished in 0.13.0)
+
 # Version 0.13.0: feature release
 
 - Introduce `epfl_si.rancher.rke2_cluster` role
