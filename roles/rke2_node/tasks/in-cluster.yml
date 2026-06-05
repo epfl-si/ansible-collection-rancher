@@ -1,23 +1,30 @@
 - when:
     - rancher_rke2_longhorn_storage_path is defined
     - rancher_rke2_longhorn_storage_path is string
-    - query("epfl_si.k8s.k8s",
-            api_version="longhorn.io/v1beta2",
-            kind="Node",
-            namespace="longhorn-system",
-            resource_name=rancher_rke2_longhorn_node_name) | length > 0
+  block:
+    - name: "Wait for `Deployment/cert-manager-webhook` to be ready"
+      retries: 20
+      delay: 30
+      epfl_si.k8s.k8s_info:
+        api_version: longhorn.io/v1beta2
+        kind: Node
+        name: rancher_rke2_longhorn_node_name
+        namespace: "longhorn-system"
+      register: _rancher_in_cluster_longhorn_node
+      until:
+        - _rancher_in_cluster_longhorn_node | length > 0
 
-  name: "Turn on Longhorn storage on desired nodes"
-  epfl_si.k8s.k8s:
-    definition:
-      apiVersion: longhorn.io/v1beta2
-      kind: Node
-      metadata:
-        name: "{{ rancher_rke2_longhorn_node_name }}"
-        namespace: longhorn-system
-      spec:
-        disks:
-          longhorn:
-            diskType: filesystem
-            path: "{{ rancher_rke2_longhorn_storage_path }}"
-            allowScheduling: true
+    - name: "Turn on Longhorn storage on desired nodes"
+      epfl_si.k8s.k8s:
+        definition:
+          apiVersion: longhorn.io/v1beta2
+          kind: Node
+          metadata:
+            name: "{{ rancher_rke2_longhorn_node_name }}"
+            namespace: longhorn-system
+          spec:
+            disks:
+              longhorn:
+                diskType: filesystem
+                path: "{{ rancher_rke2_longhorn_storage_path }}"
+                allowScheduling: true
