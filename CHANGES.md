@@ -1,3 +1,8 @@
+# Version 0.13.0: feature release
+
+- Introduce `epfl_si.rancher.rke2_cluster` role
+- Longhorn support
+
 # Version 0.12.1: bugfix release
 
 - `epfl_si.rancher.cached_login` is now `delegate_to:`-compliant, for real
