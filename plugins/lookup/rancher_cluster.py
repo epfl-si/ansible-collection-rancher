@@ -40,6 +40,7 @@ class LookupModule (RancherLookupBase):
     def run (self, terms, variables=None, display_name=None, **kwargs):
         self._init_rancher(variables, kwargs)
 
-        [result] = [c for c in self._all_clusters
+        results = [c for c in self._all_clusters
                     if c["metadata"].get("annotations").get("provisioning.cattle.io/management-cluster-display-name") == display_name]
-        return [result]
+        assert len(results) == 1
+        return results
