@@ -8,6 +8,7 @@
     gather_subset:
       - virtualization_type  # for ansible_facts['virtualization_type'] in bugware.yml
       - distribution  # for ansible_facts['distribution'] in _remove_k8s_node.yml
+      - network       # for the default value of rancher_rke2_main_network_interface
 
 - name: Requirements for RKE2
   tags:

@@ -1,6 +1,10 @@
 # The name of the main interface, to disable UDP checksums on. (See
 # ../tasks/no-hardware-udp-checksum.yml)
-rancher_rke2_main_network_interface: ens192
+rancher_rke2_main_network_interface: >-
+  {{ (ansible_facts | dict2items
+  | selectattr('value.ipv4', 'defined')
+  | selectattr('value.module', 'defined')
+  | first).key }}
 
 # The RKE2 roles. You will probably want to set these separately for
 # each node (either explicitly as inventory vars, or using a Jinja
