@@ -62,8 +62,8 @@ with `include_role` and `tasks_from` (… and a touch of `apply.vars`, owing to 
       - include_role:
           name: downstreamcluster
           tasks_from: upstream.yml
-    apply:
-      delegate_to: rancher-manager-vm.example.com
+          apply:
+            delegate_to: rancher-manager-vm.example.com
 
 # ... then you can have a play that adds nodes to the cluster...
 
