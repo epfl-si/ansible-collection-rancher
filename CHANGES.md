@@ -1,3 +1,8 @@
+# Version 0.14.0: feature release
+
+- Support for `rancher_rke2_cluster_prometheus.external_labels`
+- `-t rke2-node.bugware`: don't hard-code name of network interface
+
 # Version 0.13.1: bugfix release
 
 - Fix Longhorn adoption tasks (unfinished in 0.13.0)
