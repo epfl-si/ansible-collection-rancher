@@ -53,7 +53,7 @@
                 resources:
                   requests:
                     storage: 50Gi   # Required, even though Kubernetes doesn't actually allocate anything
-          # Connect to the team's external NOC.
+          # Connect to an out-of-cluster alertmanager.
           # https://github.com/rancher/charts/blob/main/charts/rancher-monitoring/values.yaml#L2361
           additionalAlertManagerConfigsSecret: >-
             {{ rancher_rke2_cluster_prometheus.additional_alertmanager_configs_secret
