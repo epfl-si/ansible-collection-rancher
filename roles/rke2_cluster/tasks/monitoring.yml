@@ -58,6 +58,9 @@
           additionalAlertManagerConfigsSecret: >-
             {{ rancher_rke2_cluster_prometheus.additional_alertmanager_configs_secret
             | default(None) }}
+          externalLabels: >-
+            {{ rancher_rke2_cluster_prometheus.external_labels
+            | default(None) }}
         ingress: >-
           {{ _ingress_expose_prometheus
           | default({ "enabled": False }) }}

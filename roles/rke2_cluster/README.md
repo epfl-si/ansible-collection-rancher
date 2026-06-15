@@ -26,6 +26,8 @@ The following play will install all the bells and whistles in your cluster:
                                     # `tls.crt`
             basic_auth: |
               test:$2y$10$Yq4KJO2JP.MdIhu76TFcAuYCD/TNXtein50dIhrjMjV2Wu8.vuIR2
+          external_labels:
+            cluster: my-cluster-name
           additional_alertmanager_configs_secret:
             name: external-alertmanager-configs
 ```
