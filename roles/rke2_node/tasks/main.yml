@@ -44,11 +44,13 @@
         - rke2-node
         - rke2-node.bugware
 
-- name: Support for NFS volumes
-  ansible.builtin.apt:
+- tags:
+    - rke2-node
+    - rke2-node.nfs
+  name: Support for NFS volumes
+  ansible.builtin.package:
     name: nfs-common
-    state:
-      present
+    state: present
 
 - name: RKE2 pre-configuration
   tags:

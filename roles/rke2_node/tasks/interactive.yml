@@ -23,7 +23,7 @@
 
 - when: rancher_rke2_has_etcd
   name: install etcdctl
-  ansible.builtin.apt:
+  ansible.builtin.package:
     name: etcd-client
 
 - when: rancher_rke2_has_etcd
