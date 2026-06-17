@@ -1,3 +1,9 @@
+# Version 0.14.1: bugfix release
+
+- Fix: “Support for NFS volumes” task was being overlooked under `-t rke2-node`
+- New tag `-t rke2.monitoring.auth` in `epfl_si.rke2_cluster` role
+- Rename `basic_auth` field to `basic_auth_htpasswd`
+
 # Version 0.14.0: feature release
 
 - Support for `rancher_rke2_cluster_prometheus.external_labels`
