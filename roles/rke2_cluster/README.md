@@ -24,7 +24,7 @@ The following play will install all the bells and whistles in your cluster:
             tls_secret: my-secret   # Must be in "cattle-monitoring-system"
                                     # namespace, with keys `tls.key` and
                                     # `tls.crt`
-            basic_auth: |
+            basic_auth_htpasswd: |
               test:$2y$10$Yq4KJO2JP.MdIhu76TFcAuYCD/TNXtein50dIhrjMjV2Wu8.vuIR2
           external_labels:
             cluster: my-cluster-name
