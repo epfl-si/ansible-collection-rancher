@@ -79,3 +79,4 @@
   tags:
     - rke2
     - rke2.monitoring
+    - rke2.monitoring.auth
