@@ -88,7 +88,7 @@ class RancherAPI:
 
 
 class RancherManagedCluster:
-    """Model for one of the clusters that Rancher manages (including itself)."""
+    """Model for one of the clusters that Rancher manages (including its own)."""
 
     @classmethod
     def by_name (cls, manager, cluster_name):
