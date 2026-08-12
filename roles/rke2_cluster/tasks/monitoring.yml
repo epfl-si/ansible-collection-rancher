@@ -5,7 +5,7 @@
     name: rancher
     repo_url: https://charts.rancher.io/
 
-- name: "`Namespace/cattle-monitoring-system`"   # The chart won't let you choose another
+- name: "`Namespace/cattle-monitoring-system`" # The chart won't let you choose another
   epfl_si.rancher.namespace:
     name: cattle-monitoring-system
     is_system: true
@@ -26,59 +26,9 @@
         enabled: true
       rke2Proxy:
         enabled: true
-      grafana:
-        assertNoLeakedSecrets: false
-        enabled: >-
-          {{ rancher_rke2_cluster_grafana.enabled | default(False) }}
-        grafana.ini:
-          server:
-            root_url: "https://{{ rancher_rke2_cluster_grafana.expose.hostname }}" 
-            serve_from_sub_path: '{{ rancher_rke2_cluster_grafana.expose.serve_from_subpath }}'
-          users:
-            auto_assign_org_role: "{{ rancher_rke2_cluster_grafana.default_role | default(Viewer) }}"
-          auth:
-            disable_login_form: "{{ rancher_rke2_cluster_grafana.auth.disable_login_form }}"
-          auth.anonymous:
-            enabled: "{{ rancher_rke2_cluster_grafana.auth.anonymous }}" 
-          auth.basic:
-            enabled: "{{ rancher_rke2_cluster_grafana.auth.anonymous }}"  
-          dashboards:
-            # Modify this value to change the default dashboard shown on the main Grafana page
-            default_home_dashboard_path: '{{ rancher_rke2_cluster_grafana.default_dashboard_path }}' 
-          auth.generic_oauth:
-            enabled: true
-            name: Entra ID
-            client_id: "{{ rancher_rke2_cluster_grafana.auth.generic.client_id }}"
-            client_secret: "{{ rancher_rke2_cluster_grafana.auth.generic.client_secret }}"
-            scopes: "openid email profile"
-            auth_url: >-
-              "https://login.microsoftonline.com/{{ rancher_rke2_cluster_grafana.auth.generic.tenant_id }}/oauth2/v2.0/authorize"
-            token_url: >- 
-              "https://login.microsoftonline.com/{{ rancher_rke2_cluster_grafana.auth.generic.tenant_id }}/oauth2/v2.0/token"
-            role_attribute_path: "contains(groups, 'GitLab-admins_AppGrpU') && 'Admin' || 'Viewer'"
-            use_pkce: '{{ rancher_rke2_cluster_grafana.auth.generic.use_pkce }}'
-            login_attribute_path: '{{ rancher_rke2_cluster_grafana.auth.generic.login_attribute_path }}'
-            allow_sign_up: '{{ rancher_rke2_cluster_grafana.auth.generic.allow_sign_up }}'
-            auto_login: '{{ rancher_rke2_cluster_grafana.auth.generic.auto_login }}'
-            skip_org_role_sync: '{{ rancher_rke2_cluster_grafana.auth.generic.skip_org_role_sync }}'
-            name_attribute_path: '{{ rancher_rke2_cluster_grafana.auth.generic.name_attribute_path }}'
-        deploymentStrategy:
-          type: Recreate
-        adminPassword: "{{ rancher_rke2_cluster_grafana.auth.admin_password }}"
-        ingress:
-          enabled: "{{ rancher_rke2_cluster_grafana.expose.ingress.enabled }}"
-          ingressClassName: "{{ rancher_rke2_cluster_grafana.expose.ingress.className }}"
-          hosts:
-            - "{{ rancher_rke2_cluster_grafana.expose.hostname }}"
-          tls:
-            - hosts:
-                - "{{ rancher_rke2_cluster_grafana.expose.hostname }}"
-              secretName: "{{ rancher_rke2_cluster_grafana.expose.tls_secret }}"
-        sidecar:
-          dashboards:
-            enabled: "{{ rancher_rke2_cluster_grafana.sidecar.enabled }}"           
-            searchNamespace: "{{ rancher_rke2_cluster_grafana.sidecar.searchNamespace }}" 
-            label: "{{ rancher_rke2_cluster_grafana.sidecar.label }}" 
+      grafana: >-
+        {{ { 'deploymentStrategy': { 'type': 'Recreate' }, 'grafana.ini': { 'users': {'auto_assign_org_role': 'Viewer' } } } 
+          | combine(rancher_rke2_cluster_grafana) }}
 
       alertmanager:
         enabled: false
@@ -104,7 +54,7 @@
                 accessModes: ["ReadWriteMany"]
                 resources:
                   requests:
-                    storage: 50Gi   # Required, even though Kubernetes doesn't actually allocate anything
+                    storage: 50Gi # Required, even though Kubernetes doesn't actually allocate anything
           # Connect to an out-of-cluster alertmanager.
           # https://github.com/rancher/charts/blob/main/charts/rancher-monitoring/values.yaml#L2361
           additionalAlertManagerConfigsSecret: >-
@@ -119,7 +69,7 @@
     post_renderer: "{{ role_path }}/scripts/rancher-monitoring-post-renderer"
 
   vars:
-    _hosts: [ "{{ rancher_rke2_cluster_prometheus.expose.hostname }}" ]
+    _hosts: ["{{ rancher_rke2_cluster_prometheus.expose.hostname }}"]
     _ingress_expose_prometheus:
       # Will be `is not defined` (in the Ansible sense) if any consumed vars is missing,
       # which is fine (see `ingress: >-` stanza, above).
