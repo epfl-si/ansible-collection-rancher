@@ -48,7 +48,7 @@ class RancherActionMixin(ABC):
         if default is not _not_set and var_name not in jinja.vars:
             return default
         else:
-            return jinja.expand('{{ %s }}' % var_name)
+            return jinja.resolve_variable(var_name)
 
     _obtain_token_action_name = 'epfl_si.rancher._rancher_obtain_token'
 

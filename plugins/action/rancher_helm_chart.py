@@ -171,7 +171,7 @@ class RancherHelmChartAction (ActionBase, RancherActionMixin):
 
     @property
     def kubeconfig (self):
-        with open(self.ansible_api.jinja.expand("{{ ansible_k8s_kubeconfig }}")) as f:
+        with open(self.ansible_api.jinja.resolve_variable("ansible_k8s_kubeconfig")) as f:
             return yaml.safe_load(f)
 
     def _make_k8s_ns_definition (self, namespace_name):
