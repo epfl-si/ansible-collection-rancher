@@ -1,3 +1,7 @@
+# Version 0.15.0: compatibility release
+
+- Support latest Ansible versions (through latest version of `epfl_si.actions`)
+
 # Version 0.14.1: bugfix release
 
 - Fix: “Support for NFS volumes” task was being overlooked under `-t rke2-node`
