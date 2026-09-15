@@ -15,6 +15,9 @@ The following play will install all the bells and whistles in your cluster:
           enabled: true
         rancher_rke2_cluster_longhorn:
           enabled: true
+          values:
+            defaultSettings:
+              defaultDataPath: /var/lib/longhorn
         rancher_rke2_cluster_nfs_subdir:
           server: mynas.example.com
           path: /export/formycluster
