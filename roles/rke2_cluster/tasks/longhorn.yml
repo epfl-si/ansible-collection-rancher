@@ -8,7 +8,10 @@
       owned: true
       system: true
     values: >-
-      {{ item.get("values", {}) }}
+      {{ item.get("values", {})
+         | combine(rancher_rke2_cluster_longhorn.get("values", {})
+                   if item.chart == "longhorn" else {},
+                   recursive=True) }}
   with_items:
     - chart: longhorn-crd
     - chart: longhorn
