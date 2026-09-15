@@ -14,7 +14,7 @@
     - chart: longhorn-crd
     - chart: longhorn
       user_values: >-
-        {{ rancher_rke2_cluster_longhorn.values }}
+        {{ rancher_rke2_cluster_longhorn.get("values", {}) }}
       default_values:
         persistence:
           # Longhorn is *not* the default class; nfs-client is.
