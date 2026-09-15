@@ -1,3 +1,8 @@
+# Version 0.16.0: feature release
+
+- Support for `rancher_rke2_cluster_longhorn.values`, recursively merged
+  into the `longhorn` Helm chart's default values
+
 # Version 0.15.0: compatibility release
 
 - Support latest Ansible versions (through latest version of `epfl_si.actions`)
