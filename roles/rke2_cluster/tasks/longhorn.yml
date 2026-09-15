@@ -8,14 +8,14 @@
       owned: true
       system: true
     values: >-
-      {{ item.get("values", {})
+      {{ item.get("default_values", {})
          | combine(rancher_rke2_cluster_longhorn.get("values", {})
                    if item.chart == "longhorn" else {},
                    recursive=True) }}
   with_items:
     - chart: longhorn-crd
     - chart: longhorn
-      values:
+      default_values:
         persistence:
           # Longhorn is *not* the default class; nfs-client is.
           defaultClass: false
