@@ -2,10 +2,6 @@
 # implementation is in ../action/namespace.py as an action plugin
 # (i.e. it runs on the Ansible controller.)
 
-# This file is here for ansible-doc purposes **only**. The actual
-# implementation is in ../action/rancher_helm_chart.py as an action plugin
-# (i.e. it runs on the Ansible controller.)
-
 DOCUMENTATION = r'''
 ---
 module: namespace

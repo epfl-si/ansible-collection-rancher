@@ -1,5 +1,5 @@
 # This file is here for ansible-doc purposes **only**. The actual
-# implementation is in ../action/rancher_helm_chart.py as an action plugin
+# implementation is in ../action/rke2_registration.py as an action plugin
 # (i.e. it runs on the Ansible controller.)
 
 DOCUMENTATION = r'''
