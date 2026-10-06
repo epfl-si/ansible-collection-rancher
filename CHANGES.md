@@ -1,4 +1,8 @@
-# Version 0.17.0: nfeature release
+# Version 0.17.1: bugfix release
+
+- Need `daemon_reload: true` on `ansible.builtin.systemd_service` task introduced in previous version
+
+# Version 0.17.0: feature release
 
 - Drop support for nginx ingress controller, per [upstream decisions](https://docs.rke2.io/reference/ingress_migration)
 - The `rancher_system_agent_debug` var turns debugging in `rancher-system-agent.service` on and off
