@@ -38,12 +38,6 @@ argument_specs:
         default: same as C(rancher_rke2_is_controlplane)
         description: Controls the C(--etcd) installer command-line flag
 
-      rancher_rke2_ingress_controller:
-        type: str
-        required: false
-        default: nginx
-        description: Set this to `traefik` to use Træfik, rather than nginx as the cluster's ingress controller.
-
       ansible_rancher_url:
         type: str
         required: true
