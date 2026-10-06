@@ -38,6 +38,12 @@ argument_specs:
         default: same as C(rancher_rke2_is_controlplane)
         description: Controls the C(--etcd) installer command-line flag
 
+      rancher_system_agent_debug:
+        type: bool
+        required: false
+        description: If true, `rancher_system_agent.service` runs with
+                     `CATTLE_AGENT_LOGLEVEL=debug`
+
       ansible_rancher_url:
         type: str
         required: true

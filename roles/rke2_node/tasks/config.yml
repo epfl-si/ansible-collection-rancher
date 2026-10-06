@@ -1,2 +1,33 @@
-# This space intentionally left blank
-[]
+# https://support.scc.suse.com/s/kb/How-to-enable-debug-logging-for-the-rancher-system-agent
+- when: rancher_system_agent_debug is defined
+  block:
+    - when: not _want
+      name: "Delete {{ _path }}"
+      ansible.builtin.file:
+        path: "{{ _path }}"
+        state: absent
+      register: _rancher_system_agent_service_definition
+    - when: _want
+      name: "{{ _path | dirname }}"
+      ansible.builtin.file:
+        path: "{{ _path | dirname }}"
+        state: directory
+        recurse: true
+    - when: _want
+      name: "{{ _path }}"
+      ansible.builtin.copy:
+        dest: "{{ _path }}"
+        content: |
+          [Service]
+          Environment=CATTLE_LOGLEVEL=debug
+      register: _rancher_system_agent_service_definition
+
+    - when: _rancher_system_agent_service_definition is changed
+      name: "Restart {{ _service }}"
+      ansible.builtin.systemd_service:
+        name: "{{ _service }}"
+        state: restarted
+  vars:
+    _path: /etc/systemd/system/rancher-system-agent.service.d/cattle-loglevel.conf
+    _want: "{{ rancher_system_agent_debug | bool }}"
+    _service: rancher-system-agent.service
