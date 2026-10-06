@@ -1,3 +1,8 @@
+# Version 0.17.0: nfeature release
+
+- Drop support for nginx ingress controller, per [upstream decisions](https://docs.rke2.io/reference/ingress_migration)
+- The `rancher_system_agent_debug` var turns debugging in `rancher-system-agent.service` on and off
+
 # Version 0.16.0: feature release
 
 - Support for `rancher_rke2_cluster_longhorn.values`, recursively merged
