@@ -40,10 +40,13 @@
           podMonitorSelector: {}
           ruleSelectorNilUsesHelmValues: false
           ruleSelector: {}
-          # Optional: pick up alerts from other namespaces too
+          # Pick up all `PrometheusRule`s, `PodMonitor`s etc. everywhere,
+          # regardless of their namespace and labels:
           ruleNamespaceSelector: {}
-          serviceMonitorNamespaceSelector: {}
           podMonitorNamespaceSelector: {}
+          serviceMonitorNamespaceSelector: {}
+          scrapeConfigSelectorNilUsesHelmValues: false
+          scrapeConfigSelector: {}
           # We want storage with that:
           storageSpec:
             volumeClaimTemplate:
