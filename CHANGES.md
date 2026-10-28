@@ -1,3 +1,7 @@
+# Version 0.18.0: feature release
+
+- `-t rke2.monitoring`: pick up all `ScrapeConfig` objects (regardless of labels), like we do for other kinds of objects
+
 # Version 0.17.1: bugfix release
 
 - Need `daemon_reload: true` on `ansible.builtin.systemd_service` task introduced in previous version
